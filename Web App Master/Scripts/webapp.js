@@ -2,6 +2,7 @@
 document.currentAsset = "0000";
 document.currentBarcodeSequence = "";
 document.lastKeypress = new Date();
+var _TotalNotices = 0;
 var _checkin_idx = 0;
 var _checkout_idx = 0;
 var _notice_idx = 0;var _transaction_idx = 0;
@@ -101,7 +102,8 @@ var Monitor = function (e) {
         //hideMetroCharm('#assetview-charm');
         //hideMetroCharm('#AlertCharm');
         $('#ErrorBox').removeClass('open-error');
-        $('#asset-modal').hide();
+        $('#asset-modal-new').hide();
+        HideDiv('asset-modal-new');
         window.sessionStorage.setItem("IsAvUp", "false");
         document.IsAvUp = false;
         HideLoader();
@@ -195,15 +197,16 @@ $(document).ready(function () {
             jQuery(".main-content, .sidebar-one").height(fullHeightMinusHeader);
             // set height of sidebar scroll content
             //jQuery(".settings-scroll").height(fullHeightMinusHeader - 53);
-            sideScrollHeight = (fullHeightMinusHeader / 2) - 6;
+            //sideScrollHeight = (fullHeightMinusHeader / 2) - 6;
             //jQuery(".side-scroll").height(sideScrollHeight);
         } catch (err) { }
-        try { SetAssetViewHeight(); } catch (er) { }
+        //try { SetAssetViewHeight(); } catch (er) { }
         try { ResizeAssetReport(); } catch (er) { }
     } // end calcHeights function
 
     // run on page load    
     calcHeights();
+
     PollNotices(RunNoticeTimer, 5000);
 
     // run on window resize event
@@ -212,18 +215,18 @@ $(document).ready(function () {
     });
     HideLoader();
 
-    var isAvUp = window.sessionStorage.getItem("IsAvUp");
-    if (isAvUp == "true")
-    {
-       var temp = window.sessionStorage.getItem('Asset');
-       var asset = $.parseJSON(temp);
+    //var isAvUp = window.sessionStorage.getItem("IsAvUp");
+    //if (isAvUp == "true")
+    //{
+    //   var temp = window.sessionStorage.getItem('Asset');
+    //   var asset = $.parseJSON(temp);
        
-        LoadAsset(asset);
-    } else
-    {
+    //    LoadAsset(asset);
+    //} else
+    //{
      
-        HideAssetModal();
-    }
+    //    HideAssetModal();
+    //}
 
 });
 function openPage(pageName, elmnt, color) {
@@ -247,12 +250,12 @@ function HideAssetModal() {
     window.sessionStorage.setItem("IsAvUp", "false");
     document.IsAvUp = false;
     //$('#asset-modal').removeClass('open-asset');
-    $('#asset-modal').hide();
+    $('#asset-modal-new').hide();
 }
 function ShowAssetModal() {   
     window.sessionStorage.setItem("IsAvUp", "true");
-    $('#asset-modal').show();
-    //$('#asset-modal').addClass('open-asset');
+    $('#asset-modal-new').show();
+    //$('#asset-modal-new').addClass('open-asset');
     var currentTab = window.sessionStorage.getItem("currrentTab");
     if (currentTab !== null)
     {
@@ -452,11 +455,12 @@ function LoadAsset(asset) {
     try {
         
         try {
-            BindAssetHistory();
-            BindAssetCalibration();
-            HideAllFrames();
+            BindAssetHistory();         
           
-        } catch (erx1) { }
+        } catch (erx1)
+        {
+            var exxx = erx1;
+        }
         var a = $("#av_imgidx").val("0");
         var a2 = $("#av_imgs").val(asset.Images);
         var a3 = csvToArray(asset.Images);
@@ -465,7 +469,13 @@ function LoadAsset(asset) {
         document.AssetImageList = a;
         document.CurrentAssetImageIdx = 0;
         var imglink = "/Account/Images/" + a3[0][0];
-         $("#avSlideShow").attr("src", imglink);
+
+
+        //var imgsrcctrl = $("#AssetImageHolder");
+        //$("#AssetImageHolder").attr("src", imglink);
+        
+
+
         $("#av_AssetName").val(asset.AssetName);
        $("#AssetViewHeaderLabel").html(asset.AssetName);
         $("#AssetViewWindowLabel").html(asset.AssetNumber);
@@ -480,14 +490,14 @@ function LoadAsset(asset) {
          $("#av_Description").val(asset.Description);
          $("#CalCompany").val(asset.CalibrationCompany);
          $("#CalPeriod").val(asset.CalibrationPeriod);
-        try {
-           $("#AssetReceivingReportFrame").attr("src", asset.ReturnReport);
-           $("#AssetShippingReportFrame").attr("src", asset.UpsLabel);
-           $("#AssetPackingReportFrame").attr("src", asset.PackingSlip);
-            //$("#AssetReceivingReportFrame").attr("src", "/Account/Receiving/d4eb709d-beec-40f1-9634-07180121f2c8.pdf");
-           // $("#AssetShippingReportFrame").attr("src", "/Account/Receiving/d4eb709d-beec-40f1-9634-07180121f2c8.pdf");
-            //$("#AssetPackingReportFrame").attr("src", "/Account/Receiving/d4eb709d-beec-40f1-9634-07180121f2c8.pdf");
-        } catch (erx) { }
+        //try {
+        //   $("#AssetReceivingReportFrame").attr("src", asset.ReturnReport);
+        //   $("#AssetShippingReportFrame").attr("src", asset.UpsLabel);
+        //   $("#AssetPackingReportFrame").attr("src", asset.PackingSlip);
+        //    //$("#AssetReceivingReportFrame").attr("src", "/Account/Receiving/d4eb709d-beec-40f1-9634-07180121f2c8.pdf");
+        //   // $("#AssetShippingReportFrame").attr("src", "/Account/Receiving/d4eb709d-beec-40f1-9634-07180121f2c8.pdf");
+        //    //$("#AssetPackingReportFrame").attr("src", "/Account/Receiving/d4eb709d-beec-40f1-9634-07180121f2c8.pdf");
+        //} catch (erx) { }
 
 
         if (asset.IsOut) {
@@ -542,7 +552,7 @@ function LoadAsset(asset) {
         }
         if (asset.IsDamaged)
         {            
-            $("#av-Damaged").prop('checked', true); 
+            $("#av_Damaged").prop('checked', true); 
 
             header.removeClass("bg-sg-title");
             header.removeClass("bg-red");
@@ -550,12 +560,12 @@ function LoadAsset(asset) {
             header.addClass("bg-amber");
 
         } else {
-            $("#av-Damaged").prop('checked', false);
+            $("#av_Damaged").prop('checked', false);
         }
-        $("#av-Damaged").attr("onclick", "AssetIsDamaged('" + asset.AssetNumber + "')");
+        $("#av_Damaged").attr("onclick", "AssetIsDamaged('" + asset.AssetNumber + "')");
 
         if (asset.OnHold) {
-            $("#av-OnHold").prop('checked', true);
+            $("#av_OnHold").prop('checked', true);
 
             header.removeClass("bg-sg-title");
             header.removeClass("bg-red");
@@ -563,21 +573,23 @@ function LoadAsset(asset) {
             header.removeClass("bg-amber");
             header.addClass("bg-violet");
         } else {
-            $("#av-OnHold").prop('checked', false);
+            $("#av_OnHold").prop('checked', false);
         }
-        $("#av-OnHold").attr("onclick", "AssetOnHold('" + asset.AssetNumber + "')");
+        $("#av_OnHold").attr("onclick", "AssetOnHold('" + asset.AssetNumber + "')");
 
         if (asset.IsCalibrated) {
-            $("#av-CalibratedTool").prop('checked', true);
+            $("#av_CalibratedTool").prop('checked', true);
         } else {
-            $("#av-CalibratedTool").prop('checked', false);
+            $("#av_CalibratedTool").prop('checked', false);
         }
-        $("#av-CalibratedTool").attr("onclick", "AssetIsCalibrated('" + asset.AssetNumber + "')");
+        $("#av_CalibratedTool").attr("onclick", "AssetIsCalibrated('" + asset.AssetNumber + "')");
         window.sessionStorage.setItem("IsAvUp", "true");
         window.sessionStorage.setItem("AssetNumber", asset.AssetNumber);
         document.IsAvUp = true;
         ShowAssetModal();
-      
+        $("#CurrentAssetNumber").val(asset.AssetNumber);
+        var aaaa = $("#CurrentAssetNumber").val();
+        HideLoader(); 
         
     } catch (err) { }
 }
@@ -592,42 +604,42 @@ function LoadAssetView(asset)
     }
 }
 function ResizeAssetReport() {
-    try {
+    //try {
 
         //ShowDiv('AssetPackingReportDiv');
     //ShowDiv('AssetShippingReportDiv');
    // ShowDiv('AssetReceivingReportDiv');
-    $("#AssetPackingReportFrame").height($("#AssetPackingReportDiv").height());
-    $("#AssetPackingReportFrame").width($("#AssetPackingReportDiv").width());
-    $("#AssetShippingReportFrame").height($("#AssetShippingReportDiv").height());
-    $("#AssetShippingReportFrame").width($("#AssetShippingReportDiv").width());
-    $("#AssetReceivingReportFrame").height($("#AssetReceivingReportDiv").height());
-    $("#AssetReceivingReportFrame").width($("#AssetReceivingReportDiv").width()); } catch (er) { }
+    //$("#AssetPackingReportFrame").height($("#AssetPackingReportDiv").height());
+    //$("#AssetPackingReportFrame").width($("#AssetPackingReportDiv").width());
+    //$("#AssetShippingReportFrame").height("300px");
+    //$("#AssetShippingReportFrame").width($("#AssetShippingReportDiv").width());
+   // $("#AssetReceivingReportFrame").height("100px");
+    //$("#AssetReceivingReportFrame").width($("#AssetReceivingReportDiv").width()); } catch (er) { }
     
 
-    return false;
+    //return false;
 }
 function SetAssetViewHeight() {
-    try { var newHeight = 0;
-    var myViewHeight = jQuery(".main-content").height();
-    newHeight = myViewHeight - 180;
-    //var a = $("#AssetImageDiv").height();
-    //$("#AssetImageDiv").height(newHeight);
-    $("#AssetCalibrationDiv").height(newHeight-50);
-    $("#AssetPackingReportDiv").height(newHeight-50);
-    $("#AssetShippingReportDiv").height(newHeight-50);
-    $("#AssetReceivingReportDiv").height(newHeight-50);
-    $("#AssetHistoryDiv").height(newHeight); } catch (er) { }
+    //try { var newHeight = 0;
+    //var myViewHeight = jQuery(".main-content").height();
+    //newHeight = myViewHeight - 180;
+    ////var a = $("#AssetImageDiv").height();
+    ////$("#AssetImageDiv").height(newHeight);
+    //$("#AssetCalibrationDiv").height(newHeight-50);
+    //$("#AssetPackingReportDiv").height(newHeight-50);
+    //$("#AssetShippingReportDiv").height(newHeight-50);
+    //$("#AssetReceivingReportDiv").height(newHeight-50);
+    //$("#AssetHistoryDiv").height(newHeight); } catch (er) { }
    
-    return false;
+    //return false;
 }
 function HideAllFrames()
 {
-    try {
-        HideDiv('AssetPackingReportDiv');
-        HideDiv('AssetShippingReportDiv');
-        HideDiv('AssetReceivingReportDiv');
-    } catch (er) { }
+    //try {
+    //    HideDiv('AssetPackingReportDiv');
+    //    HideDiv('AssetShippingReportDiv');
+    //    HideDiv('AssetReceivingReportDiv');
+    //} catch (er) { }
 }
 function ShowAssetFrames() {
     try {
@@ -637,8 +649,7 @@ function ShowAssetFrames() {
     } catch (er) { }
 }
 function BindAssetHistory() {
-    var btn = document.getElementById("HistoryBinderBtn");
-    btn.click();
+    $("#HistoryBinderBtn").click();   
 }
 function BindAssetCalibration() {
     var btn = document.getElementById("CalibrationBinderBtn");
@@ -714,6 +725,37 @@ function AddCheckOutItem(msg) {
              CheckOutPanelUpdate();
     } catch (err) { }
     return false;
+}
+function ClearCheckOut() {
+    $.ajax({
+        type: 'POST',
+        url: '/Account/AssetController.aspx/ClearCheckOut',
+        data: "{'num':'0000'}",
+        contentType: 'application/json; charset=utf-8',
+        dataType: 'json',
+        success: UpdateMenuCounts,
+        error: AssetFailure
+
+    });
+    event.stopPropagation();
+    
+}function ClearCheckIn() {
+    $.ajax({
+        type: 'POST',
+        url: '/Account/AssetController.aspx/ClearCheckIn',
+        data: "{'num':'0000'}",
+        contentType: 'application/json; charset=utf-8',
+        dataType: 'json',
+        success: UpdateMenuCounts,
+        error: AssetFailure
+
+    });
+    event.stopPropagation();
+    
+}
+function UpdateMenuCounts() {
+    UpdateAllPanels();
+    UpdateMenuItems();
 }
 function Blink(target, interval, count)
 {
@@ -880,6 +922,7 @@ function ShowDiv(divname) {
 function HideDiv(divname) {
     try {
         $('#' + divname).hide();
+        event.stopPropagation();
     } catch (err) { }
 }
 function ToggleDiv(divname) {
@@ -936,7 +979,7 @@ function AssetIsCalibrated(num) {
 function OnHoldResponse(msg)
 {
     try {
-        var tmp = $("#av-OnHold").prop('checked');
+        var tmp = $("#av_OnHold").prop('checked');
         msg.d.OnHold = $.parseJSON(tmp);
         $.ajax({
             type: 'POST',
@@ -957,7 +1000,7 @@ function OnHoldResponse(msg)
 }
 function IsDamagedResponse(msg) {
     try {
-        var tmp =$("#av-OnHold").prop('checked');
+        var tmp =$("#av_OnHold").prop('checked');
         msg.d.IsDamaged = $.parseJSON(tmp); 
         $.ajax({
             type: 'POST',
@@ -977,7 +1020,7 @@ function IsDamagedResponse(msg) {
 }
 function IsCalibratedResponse(msg) {
     try {
-        var tmp =$("#av-CalibratedTool").prop('checked');
+        var tmp =$("#av_CalibratedTool").prop('checked');
         msg.d.IsCalibrated = $.parseJSON(tmp); 
         $.ajax({
             type: 'POST',
@@ -1077,7 +1120,7 @@ function UpdateMenuItems()
    
 }
 
-var PollInterval = 3000;
+var PollInterval = 500;
 var RunNoticeTimer = true;
 var RunTransactionTimer = true;
 //POLLING
@@ -1154,6 +1197,7 @@ function GetNoticeItemsSuccess(msg) {
 }
 function GetNoticeItemsPollSuccess(msg) {
     var data = msg.d;
+    
     _notice_idx = 0;
     var area = $("#notice_items");
 
@@ -1168,6 +1212,10 @@ function GetNoticeItemsPollSuccess(msg) {
         badge.text(count);
     });
     var a = PollInterval
+    if (_TotalNotices != _notice_idx && _notice_idx!=0) {
+        Blink("notice_badge", 250, 5);        
+    }
+    _TotalNotices = _notice_idx;
     setTimeout(PollNotices, PollInterval);
 }
 
@@ -1326,3 +1374,18 @@ function CustomCheckoutAddressChecked()
         custom.hide();
     }
 }
+
+function ToggleDropDown(input)
+{
+    event.stopPropagation();
+    var aa = $("#"+input);
+    aa.dropdown('toggle');
+}
+
+function doSomething(arg) {
+        $("#ASuperBtnArg").val(arg);
+    var a = $("#ASuperBtn");
+    $("#ASuperBtn").click();
+}
+  
+

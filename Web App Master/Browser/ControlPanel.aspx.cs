@@ -44,10 +44,11 @@ namespace Web_App_Master.Browser
             }
             AppFooterUpdatePanel.Update();
             AppLeftPanelUpdatePanel.Update();
-            AppRightPanelUpdatePanel.Update();
+            //
             AppToolbarUpdatePanel.Update();
             AssetsUpdatePanel.Update();
             CustomerUpdatePanel.Update();
+            CertificateUpdatePanel.Update();
             IndividualTransactionUpdatePanel.Update();
             NotificationsViewUpdatePanel.Update();
             PersonnelFieldUpdatePanel.Update();
@@ -57,7 +58,8 @@ namespace Web_App_Master.Browser
             RolesUpdatePanel.Update();
             SettingsViewUpdatePanel.Update();
             TransactionListUpdatePanel.Update();
-            UserUpdatePanel.Update();            
+            UserUpdatePanel.Update();
+            AppRightPanelUpdatePanel.Update();          
         }
         public string TID { get; set; }
         public string OrderNumber { get; set; }
@@ -94,7 +96,7 @@ namespace Web_App_Master.Browser
 
             DirTree.SelectedNodeChanged += DirTree_SelectedNodeChanged;
             //dynamically add postpacks
-
+            ScriptManager.GetCurrent(Page).RegisterAsyncPostBackControl(SuperButton);
             ScriptManager.GetCurrent(Page).RegisterAsyncPostBackControl(DirTree);
             ScriptManager.GetCurrent(Page).RegisterAsyncPostBackControl(COPOkBtn);
             ScriptManager.GetCurrent(Page).RegisterAsyncPostBackControl(ControlPanelSaveBtn);
@@ -131,7 +133,9 @@ namespace Web_App_Master.Browser
                     case "assets":
                         LoadAssetView(null);
                         break;
-                   
+                   case "certificates":
+                        LoadCertificateView(null);
+                        break;
                 }
             }
             else
@@ -226,6 +230,9 @@ namespace Web_App_Master.Browser
                         case "AssetsNode":
                             LoadAssetView(null);
                             break;
+                        case "CertificatesNode":
+                            LoadCertificateView(null);
+                            break;
                         default:
                             break;
                     }
@@ -233,7 +240,10 @@ namespace Web_App_Master.Browser
                 case "GeneralSettings":
                     LoadSettingsView(value);
                     break;
-               
+                case "CertificatesNode":
+                    LoadCertificateView(null);
+                    break;
+
                 case "CustomerNode":
                     LoadCustomersView(value);
                     break;
@@ -270,7 +280,7 @@ namespace Web_App_Master.Browser
             Session["cv"] = "settings";
             SettingsMultiview.ActiveViewIndex = 2;
             AppRightPanelMultiView.SetActiveView(SettingsView);
-            AppRightPanelUpdatePanel.Update();
+            //AppRightPanelUpdatePanel.Update();
         }
 
         private void LoadUserSettingsView()
@@ -279,7 +289,7 @@ namespace Web_App_Master.Browser
             BindUsersAndRoles();
             SettingsMultiview.ActiveViewIndex = 1;
             AppRightPanelMultiView.SetActiveView(SettingsView);
-            AppRightPanelUpdatePanel.Update();
+            //AppRightPanelUpdatePanel.Update();
         }
 
         private void LoadFieldPersonnelView()
@@ -366,6 +376,14 @@ namespace Web_App_Master.Browser
             AppRightPanelUpdatePanel.Update();
         }
 
+        private void LoadCertificateView(string input)
+        {
+            Session["cv"] = "certificates";
+            BindCertificates(Pull.Certificates().Calibrations);
+            AppRightPanelMultiView.SetActiveView(CertificateView);
+            AppRightPanelUpdatePanel.Update();
+        }
+
         private void LoadAssetView(string input)
         {
             Session["cv"] = "assets";
@@ -406,6 +424,9 @@ namespace Web_App_Master.Browser
 
             TreeNode AssetsNode = new TreeNode("Assets");
             AssetsNode.Value = "AssetsNode";
+
+            TreeNode CertificateNode = new TreeNode("Certificates");
+            CertificateNode.Value = "CertificatesNode";
 
             DirTree.ShowLines = true;
             //Settings
@@ -504,6 +525,21 @@ namespace Web_App_Master.Browser
                 });
             }
             catch { throw; }
+            //Certificates
+            try
+            {
+                var db = Pull.Certificates();
+                var ds = db.Calibrations;
+                ds.ForEach((t) => {
+                    TreeNode node = new TreeNode();
+                    node.Text = t.FileName;
+                    node.ToolTip = t.AssetNumber;
+                    node.Value = t.FileName;
+                    CertificateNode.ChildNodes.Add(node);
+
+                });
+            }
+            catch { throw; }
 
             rootnode.ChildNodes.Add(SettingsNode);
             rootnode.ChildNodes.Add(TransactionNode);
@@ -511,6 +547,7 @@ namespace Web_App_Master.Browser
             rootnode.ChildNodes.Add(PersonnelNode);
             rootnode.ChildNodes.Add(NoticesNode);
             rootnode.ChildNodes.Add(AssetsNode);
+            rootnode.ChildNodes.Add(CertificateNode);
 
 
             this.DirTree.Nodes.Add(rootnode);
@@ -526,9 +563,89 @@ namespace Web_App_Master.Browser
             ScriptManager.RegisterStartupScript(this, this.GetType(), "ToggleListScript", script, true);
         }
 
+        public void BindCertificates(List<CalibrationData> list = null)
+        {
+            CertificateRepeater.DataSource = list;
+            CertificateRepeater.DataBind();
+            CertificateUpdatePanel.Update();
+            AppRightPanelUpdatePanel.Update();
+        }
+
+        //SUPER BUTTON
         protected void SuperButton_Click(object sender, EventArgs e)
         {
+            var sc = SuperButtonCommand.Text;
+            var sa = SuperButtonArg.Text;
+            if (sc.Contains("asset"))
+            {
+                if (sc.Contains("delete"))
+                {
 
+                }
+            }
+            if (sc.Contains("notice"))
+            {                
+                if (sc.Contains("delete"))
+                {
+                    try {
+                        Global.NoticeSystem.Notices = new NoticeBindinglist( (Application["NotificationList"] as List<Notification.NotificationSystem.Notice>));
+                        var item = (from n in Global.NoticeSystem.Notices  where n.Guid == sa select n).FirstOrDefault();
+                        if (item == null)
+                            return;
+                        Global.NoticeSystem.Notices.Remove(item);
+                        Push.NotificationSystem();
+                        BindNotifications(Global.NoticeSystem.Notices.ToList());
+                        NotificationsViewUpdatePanel.Update();
+                        AppRightPanelUpdatePanel.Update();
+                        UpdateAllUpdatePanels();
+                    } catch
+                    { }
+                }
+            }
+            if (sc.Contains("customer"))
+            {
+                if (sc.Contains("delete"))
+                {
+                    try
+                    {
+                        string[] split = sa.Split(new string[] { "-dd-" }, StringSplitOptions.None);
+                        Global.Library.Settings.Customers = Application["CustomerList"] as List<Customer>;
+                        var item = (from n in Global.Library.Settings.Customers where split[0].Contains(n.CompanyName) && split[1].Contains(n.Postal) select n).FirstOrDefault();
+                        if (item == null)
+                            return;
+                        Global.Library.Settings.Customers.Remove(item);
+                        Push.LibrarySettings();
+                        BindCustomers(Global.Library.Settings.Customers);
+                        CustomerUpdatePanel.Update();
+                        AppRightPanelUpdatePanel.Update();
+                        // UpdateAllUpdatePanels();
+                    }
+                    catch
+                    { }
+                }
+            }
+            if (sc.Contains("op"))
+            {
+                if (sc.Contains("delete"))
+                {
+
+                }
+            }
+            if (sc.Contains("fp"))
+            {
+                if (sc.Contains("delete"))
+                {
+
+                }
+            }
+            if (sc.Contains("transaction"))
+            {
+                if (sc.Contains("delete"))
+                {
+
+                }
+            }
+            //UpdateAllUpdatePanels();
         }
 
 
@@ -540,6 +657,7 @@ namespace Web_App_Master.Browser
         #region Customer Functions
         public void BindCustomers(List<Helpers.Customer> customers)
         {
+            Application["CustomerList"] = customers;
             CustomersRepeater.DataSource = customers.OrderBy((w) => w.CompanyName);
             CustomersRepeater.DataBind();
             CustomerUpdatePanel.Update();
@@ -620,6 +738,7 @@ namespace Web_App_Master.Browser
         #region Notification Functions
         public void BindNotifications(List<Notification.NotificationSystem.Notice> notices)
         {
+            Application["NotificationList"] = notices;
             NotificationsRepeater.DataSource = notices;
             NotificationsRepeater.DataBind();
             NotificationsViewUpdatePanel.Update();
@@ -1574,6 +1693,16 @@ namespace Web_App_Master.Browser
 
         }
 
+        protected void CFPOkBtn_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        protected void CCOkBtn_Click(object sender, EventArgs e)
+        {
+
+        }
+
         protected void ExportXmlBtn_Click(object sender, EventArgs e)
         {
             string xml = "";
@@ -1598,6 +1727,113 @@ namespace Web_App_Master.Browser
             catch {
                 //this.Page.SiteMaster().ShowError("Error Exporting Library Xml");
             }
+
+        }
+
+        protected void CSEOkBtn_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        protected void CreateAssetModalOkBtn_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        protected void UploadImageBtn_Click(object sender, EventArgs e)
+        {
+
+        }
+
+
+        private void BuildCertsFromDirectory(string dir = "/Account/Certificates/")
+        {
+            List<CalibrationData> certs = new List<CalibrationData>();
+            var collection = Directory.GetFiles(Server.MapPath(dir));
+            foreach (var item in collection)
+            {
+                try
+                {
+                    CalibrationData cd = new CalibrationData();
+                    cd.FilePath = "/Account/Certificates/" + Path.GetFileName(item);
+                    cd.CalibrationCompany = Path.GetFileName(item);
+                    cd.Description = Path.GetFileName(item);
+                    cd.ImagesPath = "/Account/Certificates/";
+                    cd.SchedulePeriod = "6";
+                    Global.Library.Certificates.Calibrations.Add(cd);
+                }
+                catch
+                { }
+            }
+            Push.Certificates();
+
+            LoadCertificateView(null);
+        }
+        protected void CCertOkBtn_Click(object sender, EventArgs e)
+        {
+        
+
+        }
+
+        protected void SortAssetImages_Click(object sender, EventArgs e)
+        {
+            foreach (var asset in Pull.Assets())
+            {
+                var images = asset.Images.Split(new string[] { "," }, StringSplitOptions.RemoveEmptyEntries);
+                if (!Directory.Exists(Server.MapPath("/Account/Images/"+asset.AssetNumber)))
+                {
+                    Directory.CreateDirectory(Server.MapPath("/Account/Images/" + asset.AssetNumber));
+                   
+                }
+                try
+                {
+                    foreach (var img in images)
+                    {
+                        if (!File.Exists(Server.MapPath(("/Account/Images/" + asset.AssetNumber + "/" + Path.GetFileName(img)))))
+                        {
+                            if (File.Exists(Server.MapPath("/Account/Images/" + Path.GetFileName(img) )))
+                                File.Copy(Server.MapPath("/Account/Images/" + Path.GetFileName(img) ), Server.MapPath(("/Account/Images/" + asset.AssetNumber + "/" + Path.GetFileName(img))));
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    UpdateStatus("Error Sorting Images: "+ex.Message);
+                    return;
+                }
+                UpdateStatus("Success Sorting Images: ");
+            }
+
+        }
+        protected void UpdateStatus(string status)
+        {
+            FooterStatusLabel.Text = status;
+            AppFooterUpdatePanel.Update();
+        }
+        protected void CreateDirectoriesBtn_Click(object sender, EventArgs e)
+        {
+            if (!Directory.Exists(Server.MapPath("/Account/Admin")))
+            {
+                Directory.CreateDirectory(Server.MapPath("/Account/Admin"));
+            }
+            if (!Directory.Exists(Server.MapPath("/Account/Avery")))
+            {
+                Directory.CreateDirectory(Server.MapPath("/Account/Avery"));
+            }
+            var list = Global.Library.Settings.Customers;
+            foreach (var cust in list )
+            {
+                if (cust.CompanyName.ToUpper().Contains("ANDRE"))
+                {
+
+                }
+                cust.CompanyName = cust.CompanyName.Replace("'", "").Replace("\"", "").Replace("<", "").Replace(">", "").Replace("&amp;", "").Replace("(", "").Replace(")", "").Replace("&#39;", "");
+
+            }
+            Push.LibrarySettings();
+
+            
+           
 
         }
     }

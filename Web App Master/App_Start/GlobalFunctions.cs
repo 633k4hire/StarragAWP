@@ -256,10 +256,42 @@ namespace Web_App_Master
                 return false;
             }
         }
+        public static bool Certificates(string app_name = "AWP_Certificate_System")
+        {
+            try
+            {
+                SettingsDBData db = new SettingsDBData();
+                db.Appname = app_name;
+                db.XmlData = Global.Library.Certificates.SerializeToXmlString(Global.Library.Certificates);
+                return AssetController.PushSetting(db);
+            }
+            catch
+            {
+                //Global.NoticeSystem.Notices = new Notification.NotificationSystem.NoticeBindinglist();
+                return false;
+            }
+
+        }
+
 
     }
     public class Pull
     {
+        public static CalibrationLibrary Certificates(string  app_name = "AWP_Certificate_System")
+        {
+            try
+            {
+                var db = AssetController.GetSetting(app_name);
+                if (db==null)
+                {
+                    Global.Library.Certificates = new CalibrationLibrary();
+                    Push.Certificates();
+                }
+                Global.Library.Certificates = new CalibrationLibrary().DeserializeFromXmlString<CalibrationLibrary>(db.XmlData);
+                return Global.Library.Certificates;
+            }
+            catch { Global.Library.Certificates = new CalibrationLibrary(); return null; }
+        }
         public static Asset Asset(string num)
         {
             try

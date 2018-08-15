@@ -524,12 +524,13 @@ namespace Web_App_Master.Account
                 default:
                     AssetViewRepeater.HeaderTemplate = null;
                     AssetViewRepeater.FooterTemplate = null;
-                    AssetViewRepeater.ItemTemplate = Page.LoadTemplate("/Account/Templates/icon_view.ascx");
+                    AssetViewRepeater.ItemTemplate = Page.LoadTemplate("/Account/Templates/DefaultView.ascx");
                     AssetViewRepeater.DataSource = datasource;
                     AssetViewRepeater.DataBind();
                     Session["CurrentAvView"] = avSelectedView.Text;
                     break;
             }
+            CheckoutUpdatePanel.Update();
         }
         protected void ChangeView_Click(object sender, EventArgs e)
         {

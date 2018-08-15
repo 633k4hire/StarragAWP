@@ -10,7 +10,7 @@
 namespace Web_App_Master.Account.Templates {
     
     
-    public partial class DefaultView {
+    public partial class icon_view {
         
         /// <summary>
         /// InOutIndicator control.

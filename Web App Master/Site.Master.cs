@@ -34,10 +34,10 @@ namespace Web_App_Master
 
         public void ShowError(string message,string title="")
         {
+            ErrorBox.Visible = true;
             ErrorLabel.Text = title;
             ErrorMessage.Text = message;
-            var script = @"$(document).ready(function (){ HideLoader();ToggleError();});";
-            ScriptManager.RegisterStartupScript(this, this.GetType(), "testScript", script, true);
+            
         }
         public void AddMenuNotice(MenuAlert notice)
         {
@@ -50,14 +50,14 @@ namespace Web_App_Master
         {
             try
             {
-                BindHistory();
+                BindAssetToAssetView();
                 AssetHistoryUpdatePanel.Update();
             }
             catch { }
             try
             {
-                BindCalibration();
-                CalibrationUpdatePanel.Update();
+                //BindCalibration();
+                //CalibrationUpdatePanel.Update();
             }
             catch { }
             try
@@ -89,14 +89,7 @@ namespace Web_App_Master
 
         private void BindCalibration()
         {
-            try
-            {
-                var asset = Session["CurrentAsset"] as Asset;
-
-                CalibrationRepeater.DataSource = asset.CalibrationHistory.Calibrations;
-                CalibrationRepeater.DataBind();
-            }
-            catch { }
+         
         }
 
         public List<Asset> LocalAssets { get; set; }
@@ -233,6 +226,7 @@ namespace Web_App_Master
         }
         protected void Page_Load(object sender, EventArgs e)
         {
+            
             if (Context.IsAdmin())
             {
                 try
@@ -250,12 +244,29 @@ namespace Web_App_Master
             }
             if (!IsPostBack)
             {
-                AssetHistoryRepeater.DataSource = binddummy();
-                AssetHistoryRepeater.DataBind();
+                ScriptManager.GetCurrent(Page).RegisterAsyncPostBackControl(ASuperBtn);
+                try
+                {
+                    var ctrl = RoleLoginViewer.FindControl("ViewChangerBtn");
+                    ScriptManager.GetCurrent(Page).RegisterAsyncPostBackControl(ctrl);
+                    
+                }
+                catch
+                { }
+               
                 BindMenuItems();
                 
             }
             this.PreRender += SiteMaster_PreRender;
+            if (Page.User.Identity.IsAuthenticated)
+            {
+                //var ctrl = AssetViewLoggedInUserView.FindControl("av_IsDamaged");
+                //ScriptManager.GetCurrent(Page).RegisterAsyncPostBackControl(ctrl);
+                //var ctrl2 = AssetViewLoggedInUserView.FindControl("av_OnHold");
+                //ScriptManager.GetCurrent(Page).RegisterAsyncPostBackControl(ctrl2);
+                //var ctrl3 = AssetViewLoggedInUserView.FindControl("av_CalibratedTool");
+                //ScriptManager.GetCurrent(Page).RegisterAsyncPostBackControl(ctrl3);
+            }
             AssetHistoryRepeater.HeaderTemplate = Page.LoadTemplate("/Account/Templates/av_history_header_template.ascx");
             AssetHistoryRepeater.ItemTemplate = Page.LoadTemplate("/Account/Templates/av_history_template.ascx");
             AssetHistoryRepeater.FooterTemplate = Page.LoadTemplate("/Account/Templates/av_history_footer_template.ascx");
@@ -328,35 +339,49 @@ namespace Web_App_Master
 
         protected void AssetSaveBtn_Click(object sender, EventArgs e)
         {
+
             var asset = Session["CurrentAsset"] as Asset;
-            //HOLY SHIT YOU NEED TO CHECK INPUT!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-            if (av_AssetNumber.Value.Length<=Global.Library.Settings.AssetNumberLength)
-                if ((from a in AssetController.GetAllAssets() where a.AssetNumber == av_AssetNumber.Value select a).ToList().Count == 0)
-                { //Unique Number
-                    asset.AssetNumber=av_AssetNumber.Value;
-                }
-            asset.AssetName=av_AssetName.Value;
-
-            DateTime tmp;
-            var result = DateTime.TryParse(av_DateRecieved.Value, out tmp);
-            if (result)
-                asset.DateRecieved = tmp;
-            result = DateTime.TryParse(av_DateShipped.Value, out tmp);
-            if (result)
-                asset.DateShipped = tmp;
-
-            asset.Description = av_Description.Value;
-            asset.OrderNumber = av_ServiceOrder.Value;
-            asset.ServiceEngineer = av_ServiceEngineer.Value;
-            asset.ShipTo = av_ShipTo.Value;
-            asset.PersonShipping = av_PersonShipping.Value;
             try
             {
-                asset.weight = Convert.ToDecimal( av_Weight.Value);
-            }
-            catch { }
+                //HOLY SHIT YOU NEED TO CHECK INPUT!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                if (av_AssetNumber.Value.Length <= Global.Library.Settings.AssetNumberLength)
+                    if ((from a in AssetController.GetAllAssets() where a.AssetNumber == av_AssetNumber.Value select a).ToList().Count == 0)
+                    { //Unique Number
+                        asset.AssetNumber = av_AssetNumber.Value;
+                    }
+                asset.AssetName = av_AssetName.Value;              
 
+                DateTime tmp;
+
+                var result = DateTime.TryParse(((System.Web.UI.HtmlControls.HtmlInputText)AssetViewLoggedInUserView.FindControl("av_DateRecieved")).Value, out tmp);
+                if (result)
+                    asset.DateRecieved = tmp;
+                result = DateTime.TryParse(((System.Web.UI.HtmlControls.HtmlInputText)AssetViewLoggedInUserView.FindControl("av_DateShipped")).Value, out tmp);
+                if (result)
+                    asset.DateShipped = tmp;
+
+                asset.Description = av_Description.Value;
+                asset.OrderNumber = ((System.Web.UI.HtmlControls.HtmlInputText)AssetViewLoggedInUserView.FindControl("av_ServiceOrder")).Value;
+                asset.ServiceEngineer = ((System.Web.UI.HtmlControls.HtmlInputText)AssetViewLoggedInUserView.FindControl("av_ServiceEngineer")).Value;
+                asset.ShipTo = ((System.Web.UI.HtmlControls.HtmlInputText)AssetViewLoggedInUserView.FindControl("av_ShipTo")).Value;
+                asset.PersonShipping = ((System.Web.UI.HtmlControls.HtmlInputText)AssetViewLoggedInUserView.FindControl("av_PersonShipping")).Value;
+                try
+                {
+                    asset.weight = Convert.ToDecimal(((System.Web.UI.HtmlControls.HtmlInputText)AssetViewLoggedInUserView.FindControl("av_Weight")).Value);
+                }
+                catch { }
+                asset.IsDamaged=((System.Web.UI.WebControls.CheckBox)AssetViewLoggedInUserView.FindControl("av_IsDamaged")).Checked;
+                asset.OnHold=((System.Web.UI.WebControls.CheckBox)AssetViewLoggedInUserView.FindControl("av_OnHold")).Checked ;
+                asset.IsCalibrated=((System.Web.UI.WebControls.CheckBox)AssetViewLoggedInUserView.FindControl("av_CalibratedTool")).Checked ;
+            }
+            catch
+            { }
             AssetController.UpdateAsset(asset);
+            AssetViewHeaderLabel.InnerHtml += " - Modified";
+            BindAssetToAssetView();
+            Push.Alert("Asset Saved");
+           
+
         }
 
         protected void UploadAssetImg_Click(object sender, EventArgs e)
@@ -385,21 +410,113 @@ namespace Web_App_Master
 
         protected void HistoryBinderBtn_Click(object sender, EventArgs e)
         {
-            BindHistory();
+            BindAssetToAssetView();
         }
-        public void BindHistory()
+        public void UpdateAllAssetView(Asset asset)
+        {
+            try
+            {
+                AssetHistoryRepeater.DataSource = asset.History.History;
+                AssetHistoryRepeater.DataBind();
+                AssetHistoryUpdatePanel.Update();
+                AssetModalUpdatePanel.Update();
+            }
+            catch { }
+        }
+        public void BindAssetToAssetView()
         {
             
             var asset = Session["CurrentAsset"] as Asset;
+            AssetImageHolder.ImageUrl = asset.FirstImage;
+            AssetImageCountLiteral.Text = "1/" +((asset.Images.Split(new string[] { "," }, StringSplitOptions.RemoveEmptyEntries)).Length.ToString());
+            AssetImageUpdatePanel.Update();
             if (asset == null) { binddummy(); return; }
             if (asset.History.History.Count==0){ binddummy(); return; }
             try
             {
                 AssetHistoryRepeater.DataSource = asset.History.History;
                 AssetHistoryRepeater.DataBind();
-                AssetHistoryUpdatePanel.Update();
+                AssetHistoryUpdatePanel.Update();               
             }
             catch { }
+            try
+            {
+               
+                CalibrationRepeater.DataSource = asset.CalibrationHistory.Calibrations;
+                CalibrationRepeater.DataBind();
+                CalibrationUpdatePanel.Update();
+            }
+            catch { }
+            try
+            {
+                AssetDocumentTree.Nodes.Clear();
+                TreeNode rootnode = new TreeNode("Documents");
+                TreeNode packnode = new TreeNode("Packing Slips");
+                TreeNode Labelnode = new TreeNode("Shipping Labels");
+                TreeNode ReceivingNode = new TreeNode("Receiving Slips");
+                TreeNode CertificateNode = new TreeNode("Certificates");
+
+                foreach (var doc in asset.Documents)
+                {
+                    TreeNode n1 = new TreeNode(Path.GetFileName(doc));
+                    n1.NavigateUrl = "javascript:doSomething('" + doc + "');";
+                    if (doc.Contains("CheckOutPdf"))
+                    {
+                        packnode.ChildNodes.Add(n1);
+                    }
+                    if (doc.Contains("Labels"))
+                    {
+                        Labelnode.ChildNodes.Add(n1);
+                    }
+                    if (doc.Contains("Certificates"))
+                    {
+                        CertificateNode.ChildNodes.Add(n1);
+                    }
+                    if (doc.Contains("Receiving"))
+                    {
+                        ReceivingNode.ChildNodes.Add(n1);
+                    }
+                    if (doc.Contains("PackingLists"))
+                    {
+                        packnode.ChildNodes.Add(n1);
+                    }
+                }
+
+                rootnode.ChildNodes.Add(packnode);
+                rootnode.ChildNodes.Add(Labelnode);
+                rootnode.ChildNodes.Add(ReceivingNode);
+                rootnode.ChildNodes.Add(CertificateNode);
+                AssetDocumentTree.Nodes.Add(rootnode);
+                AssetDocumentTreeUpdatePanel.Update();
+                AssetDocumentsViewer.Update();
+                AssetModalUpdatePanel.Update();
+
+
+                //AssetReceivingReportFrame.Src = asset.ReturnReport;
+                //AssetShippingReportFrame.Src = asset.UpsLabel;
+                //AssetPackingReportFrame.Src = asset.PackingSlip;
+            }
+            catch { }
+            try
+            {
+                av_AssetName.Value = asset.AssetName;
+                av_AssetNumber.Value = asset.AssetNumber;
+                av_Description.Value = asset.Description;
+                ((System.Web.UI.WebControls.CheckBox)AssetViewLoggedInUserView.FindControl("av_IsDamaged")).Checked = asset.IsDamaged;
+                ((System.Web.UI.WebControls.CheckBox)AssetViewLoggedInUserView.FindControl("av_OnHold")).Checked = asset.OnHold;
+                ((System.Web.UI.WebControls.CheckBox)AssetViewLoggedInUserView.FindControl("av_CalibratedTool")).Checked = asset.IsCalibrated;
+                ((System.Web.UI.HtmlControls.HtmlInputText)AssetViewLoggedInUserView.FindControl("av_DateRecieved")).Value = asset.DateRecievedString;
+                ((System.Web.UI.HtmlControls.HtmlInputText)AssetViewLoggedInUserView.FindControl("av_DateShipped")).Value = asset.DateShippedString;
+                ((System.Web.UI.HtmlControls.HtmlInputText)AssetViewLoggedInUserView.FindControl("av_ServiceOrder")).Value = asset.OrderNumber;
+                ((System.Web.UI.HtmlControls.HtmlInputText)AssetViewLoggedInUserView.FindControl("av_ServiceEngineer")).Value = asset.ServiceEngineer;
+                ((System.Web.UI.HtmlControls.HtmlInputText)AssetViewLoggedInUserView.FindControl("av_ShipTo")).Value = asset.ShipTo;
+                ((System.Web.UI.HtmlControls.HtmlInputText)AssetViewLoggedInUserView.FindControl("av_PersonShipping")).Value = asset.PersonShipping;
+                ((System.Web.UI.HtmlControls.HtmlInputText)AssetViewLoggedInUserView.FindControl("av_Weight")).Value = asset.weight.ToString();
+                
+
+            }
+            catch { }
+            AssetModalUpdatePanel.Update();
         }
 
         protected void clearCheckIn_Click(object sender, EventArgs e)
@@ -414,67 +531,8 @@ namespace Web_App_Master
 
         protected void UploadAssetCertificateBtn_Click(object sender, EventArgs e)
         {
-            if (CalPeriod.Value == "" || CalCompany.Value == "")
-            {
-                ShowError("Please fill in Company and Period data...");
-            }
-
-            var asset = Session["Asset"] as Asset;
-            var ext = Path.GetExtension(CertUpload.FileName);
-            if (ext == "")
-                ext = ".pdf";
-            var file = System.Guid.NewGuid().ToString();
-            var dest = Server.MapPath("/Account/Certs/"+ asset.AssetNumber+file+ext);
-            using (FileStream fs = new FileStream(dest, FileMode.Create))
-            {
-                CertUpload.FileContent.CopyTo(fs);
-            }
             
-            try
-            {
-                CalibrationData cd = new CalibrationData();
-                cd.AssetNumber = asset.AssetNumber;
-                cd.CalibrationCompany= CalCompany.Value.Sanitize();
-                try {
-                   cd.SchedulePeriod=  CalPeriod.Value;
-                } catch { }
-                cd.ImagePath = "/Account/Certs/" + asset.AssetNumber + file + ext;
-               
-                asset.CalibrationHistory.Calibrations.Add(cd);                
-                Push.Asset(asset);
-
-                //ADD NOTIFICATION
-                try
-                {
-                    EmailNotice notice = new EmailNotice();
-
-                    notice.Scheduled = DateTime.Now.AddDays(30);
-                    notice.NoticeType = NoticeType.Calibration;
-                    notice.NoticeAction = Global.CalibrationAction;                   
-                    notice.NoticeControlNumber = asset.AssetNumber;                   
-                    notice.Body = Global.Library.Settings.CalibrationMessage;
-                    var statics = (from d in Global.Library.Settings.StaticEmails select d).ToList();
-                    EmailAddress person = new EmailAddress();
-                    if (statics.Count!=0)
-                    {
-                        person = statics.FirstOrDefault();
-                    }
-                    notice.Emails.AddRange(statics);
-                    notice.EmailAddress = person;
-                    notice.Scheduled = DateTime.Now.AddMonths(Convert.ToInt32(CalPeriod.Value)).AddDays(-14);
-                    Global.NoticeSystem.Add(notice);
-                    Push.NotificationSystem();
-                }
-                catch { }
-
-                //register startup script to hide cal uploader
-                BindCalibration();
-                Page.ClientScript.RegisterStartupScript(this.GetType(), "CallMyFunction", "HideCalUploader()", true);
-            }
-            catch
-            {
-
-            }
+           
         }
 
         protected void SaveCalOptionsBtn_Click(object sender, EventArgs e)
@@ -543,8 +601,176 @@ namespace Web_App_Master
 
         protected void ViewChangeBtn_Click(object sender, EventArgs e)
         {
-            var ca = CurrentAssetNumber.Text;
+            var assets = Pull.Assets();
+            foreach (var asset in assets)
+            {
+                try
+                {
+                    var basepath = ("/Account/Images/");
+
+                    Directory.CreateDirectory(Server.MapPath(basepath + asset.AssetNumber));
+                    foreach (var item in asset.Images.Split(','))
+                    {
+                        
+                        File.Copy(Server.MapPath(basepath + Path.GetFileName( item)), Server.MapPath(basepath + asset.AssetNumber + "/" + Path.GetFileName( item)));
+                    }
+                }
+                catch { }
+            }
+        }
+        //public int CurrentView { get { return MainContentMultiView.ActiveViewIndex; } }
+
+        protected void AssetTabBtn_Click(object sender, EventArgs e)
+        {
+            AssetModalTabsMultiView.SetActiveView(AssetTabView);
+            BindAssetToAssetView();
+        }
+
+        protected void ReportTabBtn_Click(object sender, EventArgs e)
+        {
+            AssetModalTabsMultiView.SetActiveView(ReportTabView);
           
+            BindAssetToAssetView();
+
+        }
+
+        protected void CalibrationTabBtn_Click(object sender, EventArgs e)
+        {
+            AssetModalTabsMultiView.SetActiveView(CalibrationTabView);
+            BindAssetToAssetView();
+        }
+
+        protected void HistoryTabBtn_Click(object sender, EventArgs e)
+        {
+            AssetModalTabsMultiView.SetActiveView(HistoryTabView);
+            BindAssetToAssetView();
+        }
+
+        protected void AssetImagePrevBtn_Click(object sender, EventArgs e)
+        {
+            var asset = (from a in Global.Library.Assets where a.AssetNumber == CurrentAssetNumber.Text select a).First();
+            var path = "/Account/Images/" + asset.AssetNumber + "/";
+            var imglist = asset.Images.Split(new string[] { "," }, StringSplitOptions.RemoveEmptyEntries);
+            int idx = 0;
+            foreach (var img in imglist)
+            {
+                if (Path.GetFileName(AssetImageHolder.ImageUrl).Contains(Path.GetFileName(img)))
+                {
+                    break;
+                }
+                idx++;
+            }
+            AssetImageCountLiteral.Text = (idx+1).ToString() + "/" + imglist.Length.ToString();
+            if (AssetImageHolder.ImageUrl == "")
+            {
+                AssetImageHolder.ImageUrl = path + Path.GetFileName(imglist[0]);
+                return;
+            }
+            if (idx == -1)
+            {
+                AssetImageHolder.ImageUrl = path + Path.GetFileName(imglist[0]);
+
+            }
+            else
+            {
+                if (idx > imglist.Length)
+                {
+                    AssetImageHolder.ImageUrl = path + Path.GetFileName(imglist[0]);
+                }
+                else
+                {
+
+                    if (idx == imglist.Length)
+                    {
+                        AssetImageHolder.ImageUrl = path + Path.GetFileName(imglist[idx]);
+
+                    }
+                    else
+                    {
+                        if (idx - 1 <0)
+                        { return; }
+                        AssetImageHolder.ImageUrl = path + Path.GetFileName(imglist[idx - 1]);
+                        AssetImageCountLiteral.Text = (idx).ToString() + "/" + imglist.Length.ToString();
+                    }
+                }
+            }
+            AssetImageUpdatePanel.Update();
+        }
+
+        protected void AssetImageNextBtn_Click(object sender, EventArgs e)
+        {
+
+            var asset = (from a in Global.Library.Assets where a.AssetNumber == CurrentAssetNumber.Text select a).First();
+            var path = "/Account/Images/" + asset.AssetNumber+"/";
+           var imglist = asset.Images.Split(new string[] {","}, StringSplitOptions.RemoveEmptyEntries);
+            int idx = 0;
+            foreach (var img in imglist)
+            {
+                if (Path.GetFileName(AssetImageHolder.ImageUrl).Contains(Path.GetFileName(img)))
+                {
+                    break;
+                }
+                idx++;
+            }
+            AssetImageCountLiteral.Text = (idx + 1).ToString() + "/" + imglist.Length.ToString();
+            if (AssetImageHolder.ImageUrl=="")
+            {
+                AssetImageHolder.ImageUrl = path + Path.GetFileName( imglist[0]);
+                return;
+            }
+            if (idx == -1)
+            {
+                AssetImageHolder.ImageUrl = path + Path.GetFileName(imglist[0]);
+
+            }
+            else
+            {
+                if (idx > imglist.Length)
+                {
+                    AssetImageHolder.ImageUrl = path + Path.GetFileName(imglist[0]);
+                }
+                else
+                {
+
+                    if (idx == imglist.Length)
+                    {
+                        AssetImageHolder.ImageUrl = path + Path.GetFileName(imglist[idx]);
+
+                    }
+                    else
+                    {
+                        if (idx +1 > imglist.Length-1)
+                        { return; }
+                        AssetImageHolder.ImageUrl = path + Path.GetFileName(imglist[idx + 1]);
+                        AssetImageCountLiteral.Text = (idx + 2).ToString() + "/" + imglist.Length.ToString();
+                    }
+                }
+            }
+            AssetImageUpdatePanel.Update();
+        }
+
+        protected void av_CalibratedTool_CheckedChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        protected void av_OnHold_CheckedChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        protected void av_IsDamaged_CheckedChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        protected void ASuperBtn_Click(object sender, EventArgs e)
+        {
+            var arg = ASuperBtnArg.Text;
+            CurrentAssetDocumentSrc.Src = arg;
+            AssetCurrentDocumentLabel.Text = arg;
+            AssetDocumentIframeUpdatePanel.Update();
+            AssetDocumentsViewer.Update();
         }
     }
     public class UpdateRequestEvent : EventArgs

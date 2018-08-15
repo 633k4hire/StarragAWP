@@ -1,31 +1,45 @@
 ﻿<%@ Page Title="Check Out" Language="C#" MasterPageFile="~/Site.Master" Async="true" AutoEventWireup="true" CodeBehind="Checkout.aspx.cs" Inherits="Web_App_Master.Account.Checkout1" %>
 <asp:Content ID="CheckOutContent" ContentPlaceHolderID="MainContent" runat="server">
 
-     <nav class="navbar navbar-inverse bg-grayDark" style="margin-top:0px !important; height:auto; width:100%; left:0px!important; border-radius:0px!important; position:fixed !important; z-index:25000;">
-        <ul class="nav navbar-nav starrag-menu">
-            <li class="fg-white"><h2>Checkout</h2> </li>
-             <li>
-                <asp:LinkButton ID ="ShippingViewBtn" OnClick="ShippingViewBtn_Click" ToolTip="Shipping Options" ClientIDMode="Static" runat="server"><span id="ShipLink" runat="server" class=" glyphicon glyphicon-cloud-download md-glyph"></span></asp:LinkButton>
-            </li>           
-            <li>
-                <asp:LinkButton ID ="PackingSlipViewBtn" OnClick="PackingSlipViewBtn_Click" ToolTip="Report" ClientIDMode="Static" runat="server"><span id="ReportLink" runat="server" class=" glyphicon glyphicon-file md-glyph"></span></asp:LinkButton>
-            </li>    
-        </ul>
-        <ul class="nav navbar-nav navbar-right starrag-menu">
-            <asp:PlaceHolder ID="FinalizeHolder" runat="server" Visible="true">
-                <li>
-                   <a href="#" onclick="ShowDiv('FinalizeConfirmDialog')">
-                   <span class="shadow-metro-black"><i title="Finalize"  style="font-size:1em;" class="glyphicon glyphicon-floppy-disk av-hand-cursor shadow-metro-black"></i><strong>&nbsp&nbsp Finalize</strong></span></a>
-                </li>   
-            </asp:PlaceHolder>
-            <asp:PlaceHolder ID="LeavePlaceHolder" runat="server" Visible="false">
-                <li>
-                   <a href="/Default">
-                   <span class="shadow-metro-black"><i title="Leave"  style="font-size:1em;" class="mif-cross av-hand-cursor shadow-metro-black"></i><strong>&nbsp&nbsp Leave</strong></span></a>
-                </li>   
-            </asp:PlaceHolder>
-        </ul>           
-    </nav>
+              <nav class="navbar navbar-inverse bg-grayDark shadow-bottom" style="margin-top:0px !important;  width:100%; left:0px!important; height:auto; z-index:25000; border-radius:0px !important; position:fixed;">
+                  <div class="container-fluid">
+                    <div class="navbar-header">
+                      <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#CheckoutMenu" style="float:left !important">
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>                        
+                      </button>      
+                    </div>
+                    <div id="CheckoutMenu" class="collapse navbar-collapse" >
+                        <ul class="nav navbar-nav starrag-menu fg-white">
+                            <li class="fg-white"><h2>Checkout</h2> </li>
+                            <li>
+                                <asp:LinkButton ID ="ShippingViewBtn" OnClick="ShippingViewBtn_Click" ToolTip="Shipping Options" ClientIDMode="Static" runat="server"><span id="ShipLink" runat="server" class=" glyphicon glyphicon-cloud-download md-glyph"></span></asp:LinkButton>
+                            </li>           
+                            <li>
+                                <asp:LinkButton ID ="PackingSlipViewBtn" OnClick="PackingSlipViewBtn_Click" ToolTip="Report" ClientIDMode="Static" runat="server"><span id="ReportLink" runat="server" class=" glyphicon glyphicon-file md-glyph"></span></asp:LinkButton>
+                            </li>    
+                        </ul>
+                        <ul class="nav navbar-nav starrag-menu navbar-right" style="padding-right:18px;">
+                            <asp:PlaceHolder ID="FinalizeHolder" runat="server" Visible="true">
+                                <li>
+                                   <asp:LinkButton CssClass="control-button" ID="FinalizeNoModalBtn" runat="server" OnClientClick="ShowLoader()" OnClick="FinalizeBtn_Click" >
+                                   <span class="shadow-metro-black"><i title="Finalize"  style="font-size:1em;" class="glyphicon glyphicon-floppy-disk av-hand-cursor shadow-metro-black"></i><strong>&nbsp&nbsp Finalize</strong></span></asp:LinkButton>
+                                </li>   
+                            </asp:PlaceHolder>
+                            <asp:PlaceHolder ID="LeavePlaceHolder" runat="server" Visible="false">
+                                <li>
+                                   <a href="/Account/AssetView">
+                                   <span class="shadow-metro-black"><i title="Leave"  style="font-size:1em;" class="mif-cross av-hand-cursor shadow-metro-black"></i><strong>&nbsp&nbsp Leave</strong></span></a>
+                                </li>   
+                            </asp:PlaceHolder>
+                        </ul>
+                    </div>
+                  </div>
+                </nav>
+
+
+
 
 
     <div style="padding-top:60px;"></div>
@@ -47,7 +61,10 @@
     <asp:MultiView ID="CheckoutView" ActiveViewIndex="0" runat="server">
         <asp:View ID="ShippingView" ClientIDMode="Static" runat="server">
             <div id ="ShipmentInformationGroup" class="row">
-                     <div class="col-md-3">
+
+                 <asp:UpdatePanel ID ="AddressUpdatePanel" UpdateMode="Conditional" ChildrenAsTriggers="true" runat="server">
+                     <ContentTemplate>
+                          <div class="col-md-3">
 
                          <div class="awp_box rounded bg-sg-title shadow">           
                             <div class="awp_box_title bg-sg-title">
@@ -73,6 +90,9 @@
                             <div class="awp_box_title bg-sg-title">
                                <span class="fg-white shadow-metro-black bold"><span class="mif-my-location mif-2x"></span>Destination</span></div>
                             <div class="awp_box_content bg-sg-box">   
+                                    <asp:DropDownList  AutoPostBack="true" OnTextChanged="checkout_ShipTo_TextChanged" Width="100%" ClientIDMode="Static" ID='checkout_ShipTo' AppendDataBoundItems="true" runat="server"  CssClass="form-control">
+                                        <asp:ListItem Text="--Select One--" Value="" /> 
+                                    </asp:DropDownList>
                                     <input runat="server" id="ToCompany" type="text" class="form-control" placeholder="CompanyName">
                                     <input runat="server" id="ToAddr" type="text" class="form-control" placeholder="Address">
                                     <input runat="server" id="ToAddr2" type="text" class="form-control" placeholder="Address Line #2">
@@ -87,25 +107,38 @@
                             </div>
                         </div>
                      </div>
+                     </ContentTemplate>
+                    <Triggers>
+                        <asp:AsyncPostBackTrigger ControlID="checkout_ShipTo" EventName="TextChanged" />
+                    </Triggers>
+                </asp:UpdatePanel>
+                    
+
+                    
+
+
+
                      <div class="col-md-3">
                            
                          <div class="awp_box rounded bg-sg-title shadow">           
                             <div class="awp_box_title bg-sg-title">
                                <span class="fg-white shadow-metro-black bold"><span class="mif-widgets mif-2x"></span>Shipping Options</span></div>
-                            <div class="awp_box_content bg-sg-box" style="padding-left:0px !important; padding-right:0px !important">   
-                                <div style="padding-left:3px !important; padding-right:3px!important;">
-                                <asp:DropDownList OnSelectedIndexChanged="ShippingMethodDropDownList_SelectedIndexChanged" AutoPostBack="true" Width="100%" ClientIDMode="Static" ID='ShippingMethodDropDownList' AppendDataBoundItems="true" runat="server" CssClass="input-control text">
-                                        <asp:ListItem Text="No Label" Value="00-NoLabel" /> 
-                                        <asp:ListItem Text="01-Next Day" Value="01-NextDayAir" /> 
-                                        <asp:ListItem Text="02-2nd Day" Value="02-2ndDayAir" /> 
-                                        <asp:ListItem Text="03-Ground" Value="03-Ground" /> 
-                                        <asp:ListItem Text="12-3 Day Select" Value="12-3DaySelect" /> 
-                                        <asp:ListItem Text="13-Next Day Air Saver" Value="13-NextDayAirSaver" /> 
-                                        <asp:ListItem Text="14-Next Day Air Saver Early" Value="14-NextDayAirEarly" /> 
-                                        <asp:ListItem Text="59-2nd Day Early AM" Value="59-2ndDayAirA.M." /> 
-                                        <asp:ListItem Text="65-UPS Saver" Value="65-UPSSaver" /> 
-                                </asp:DropDownList>
-                                </div>
+                            <div class="awp_box_content bg-sg-box" style="padding-left:0px !important; padding-right:0px !important; text-align:left !important">  
+                               
+                                    <div class="col-md-12" style="padding-left:0px; padding-top:15px; text-align:left!important">
+                                        <asp:DropDownList OnSelectedIndexChanged="ShippingMethodDropDownList_SelectedIndexChanged" ForeColor="Black" AutoPostBack="true" ClientIDMode="Static" ID='ShippingMethodDropDownList' AppendDataBoundItems="true" runat="server" CssClass="input-control text">
+                                                <asp:ListItem Text="No Label" Value="00-NoLabel" /> 
+                                                <asp:ListItem Text="01-Next Day" Value="01-NextDayAir" /> 
+                                                <asp:ListItem Text="02-2nd Day" Value="02-2ndDayAir" /> 
+                                                <asp:ListItem Text="03-Ground" Value="03-Ground" /> 
+                                                <asp:ListItem Text="12-3 Day Select" Value="12-3DaySelect" /> 
+                                                <asp:ListItem Text="13-Next Day Air Saver" Value="13-NextDayAirSaver" /> 
+                                                <asp:ListItem Text="14-Next Day Air Saver Early" Value="14-NextDayAirEarly" /> 
+                                                <asp:ListItem Text="59-2nd Day Early AM" Value="59-2ndDayAirA.M." /> 
+                                                <asp:ListItem Text="65-UPS Saver" Value="65-UPSSaver" /> 
+                                        </asp:DropDownList>
+                                    </div>
+                              
                                 <div class="row">
                                   <div class="col-md-12" style="padding-left:3px !important; padding-right:3px!important;"> 
                                     <span class="awp-save-btn fg-white shadow">
@@ -208,7 +241,7 @@
                     <div class="awp_box_content bg-sg-box">
                          <div id="SPD" style="text-align:center;">  
                              <div id="PackingSlipHidden" style="display:none"><asp:Literal ID="PackingSlipLink" runat="server"></asp:Literal> </div>
-                                 <iframe style="height:80%; position:relative; z-index:-1;" id="PF" runat="server" src="#"  ></iframe>
+                                 <iframe style="height:80%; position:relative; z-index:2000;" id="PF" runat="server" src="/Account/Pdfs/blank.pdf"  ></iframe>
                              </div>
                          </div>
                     </div>

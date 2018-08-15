@@ -58,22 +58,121 @@ namespace Web_App_Master {
         protected global::System.Web.UI.WebControls.ContentPlaceHolder MainContent;
         
         /// <summary>
-        /// clearCheckIn control.
+        /// AssetViewHeaderLabel control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.LinkButton clearCheckIn;
+        protected global::System.Web.UI.HtmlControls.HtmlGenericControl AssetViewHeaderLabel;
         
         /// <summary>
-        /// clearCheckout control.
+        /// AssetTabBtn control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.LinkButton clearCheckout;
+        protected global::System.Web.UI.WebControls.LinkButton AssetTabBtn;
+        
+        /// <summary>
+        /// ReportTabBtn control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.LinkButton ReportTabBtn;
+        
+        /// <summary>
+        /// HistoryTabBtn control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.LinkButton HistoryTabBtn;
+        
+        /// <summary>
+        /// AssetModalUpdatePanel control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.UpdatePanel AssetModalUpdatePanel;
+        
+        /// <summary>
+        /// AssetModalTabsMultiView control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.MultiView AssetModalTabsMultiView;
+        
+        /// <summary>
+        /// AssetTabView control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.View AssetTabView;
+        
+        /// <summary>
+        /// AssetImageUpdatePanel control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.UpdatePanel AssetImageUpdatePanel;
+        
+        /// <summary>
+        /// AssetImageCountLiteral control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Literal AssetImageCountLiteral;
+        
+        /// <summary>
+        /// AssetImageHolder control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Image AssetImageHolder;
+        
+        /// <summary>
+        /// AssetImagePrevBtn control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.LinkButton AssetImagePrevBtn;
+        
+        /// <summary>
+        /// AssetImageNextBtn control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.LinkButton AssetImageNextBtn;
+        
+        /// <summary>
+        /// AssetImageDotsLiteral control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Literal AssetImageDotsLiteral;
         
         /// <summary>
         /// HiddenAssetLabel control.
@@ -112,67 +211,13 @@ namespace Web_App_Master {
         protected global::System.Web.UI.HtmlControls.HtmlInputText av_AssetNumber;
         
         /// <summary>
-        /// av_ShipTo control.
+        /// AssetViewLoggedInUserView control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.HtmlControls.HtmlInputText av_ShipTo;
-        
-        /// <summary>
-        /// av_ServiceOrder control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.HtmlControls.HtmlInputText av_ServiceOrder;
-        
-        /// <summary>
-        /// av_DateShipped control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.HtmlControls.HtmlInputText av_DateShipped;
-        
-        /// <summary>
-        /// av_ServiceEngineer control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.HtmlControls.HtmlInputText av_ServiceEngineer;
-        
-        /// <summary>
-        /// av_PersonShipping control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.HtmlControls.HtmlInputText av_PersonShipping;
-        
-        /// <summary>
-        /// av_DateRecieved control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.HtmlControls.HtmlInputText av_DateRecieved;
-        
-        /// <summary>
-        /// av_Weight control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.HtmlControls.HtmlInputText av_Weight;
+        protected global::System.Web.UI.WebControls.LoginView AssetViewLoggedInUserView;
         
         /// <summary>
         /// av_Description control.
@@ -184,58 +229,103 @@ namespace Web_App_Master {
         protected global::System.Web.UI.HtmlControls.HtmlTextArea av_Description;
         
         /// <summary>
-        /// AssetPackingReportHiddenLink control.
+        /// ReportTabView control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.Literal AssetPackingReportHiddenLink;
+        protected global::System.Web.UI.WebControls.View ReportTabView;
         
         /// <summary>
-        /// AssetPackingReportFrame control.
+        /// AssetDocumentsViewer control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.HtmlControls.HtmlIframe AssetPackingReportFrame;
+        protected global::System.Web.UI.UpdatePanel AssetDocumentsViewer;
         
         /// <summary>
-        /// AssetShippingReportLink control.
+        /// AssetDocumentTreeUpdatePanel control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.Literal AssetShippingReportLink;
+        protected global::System.Web.UI.UpdatePanel AssetDocumentTreeUpdatePanel;
         
         /// <summary>
-        /// AssetShippingReportFrame control.
+        /// AssetDocumentTree control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.HtmlControls.HtmlIframe AssetShippingReportFrame;
+        protected global::System.Web.UI.WebControls.TreeView AssetDocumentTree;
         
         /// <summary>
-        /// AssetReceivingReportLink control.
+        /// AssetDocumentIframeUpdatePanel control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.Literal AssetReceivingReportLink;
+        protected global::System.Web.UI.UpdatePanel AssetDocumentIframeUpdatePanel;
         
         /// <summary>
-        /// AssetReceivingReportFrame control.
+        /// AssetCurrentDocumentLabel control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.HtmlControls.HtmlIframe AssetReceivingReportFrame;
+        protected global::System.Web.UI.WebControls.Label AssetCurrentDocumentLabel;
+        
+        /// <summary>
+        /// CurrentAssetDocumentHidden control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Literal CurrentAssetDocumentHidden;
+        
+        /// <summary>
+        /// CurrentAssetDocumentSrc control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.HtmlControls.HtmlIframe CurrentAssetDocumentSrc;
+        
+        /// <summary>
+        /// ASuperBtnArg control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.TextBox ASuperBtnArg;
+        
+        /// <summary>
+        /// ASuperBtn control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Button ASuperBtn;
+        
+        /// <summary>
+        /// CalibrationTabView control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.View CalibrationTabView;
         
         /// <summary>
         /// CalibrationUpdatePanel control.
@@ -256,6 +346,15 @@ namespace Web_App_Master {
         protected global::System.Web.UI.WebControls.Repeater CalibrationRepeater;
         
         /// <summary>
+        /// HistoryTabView control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.View HistoryTabView;
+        
+        /// <summary>
         /// AssetHistoryUpdatePanel control.
         /// </summary>
         /// <remarks>
@@ -272,6 +371,15 @@ namespace Web_App_Master {
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::System.Web.UI.WebControls.Repeater AssetHistoryRepeater;
+        
+        /// <summary>
+        /// ErrorBox control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.HtmlControls.HtmlGenericControl ErrorBox;
         
         /// <summary>
         /// ErrorLabel control.

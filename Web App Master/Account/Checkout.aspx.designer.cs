@@ -58,6 +58,15 @@ namespace Web_App_Master.Account {
         protected global::System.Web.UI.WebControls.PlaceHolder FinalizeHolder;
         
         /// <summary>
+        /// FinalizeNoModalBtn control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.LinkButton FinalizeNoModalBtn;
+        
+        /// <summary>
         /// LeavePlaceHolder control.
         /// </summary>
         /// <remarks>
@@ -101,6 +110,15 @@ namespace Web_App_Master.Account {
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::System.Web.UI.WebControls.View ShippingView;
+        
+        /// <summary>
+        /// AddressUpdatePanel control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.UpdatePanel AddressUpdatePanel;
         
         /// <summary>
         /// SprCompany control.
@@ -191,6 +209,15 @@ namespace Web_App_Master.Account {
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::System.Web.UI.HtmlControls.HtmlInputText SprPhone;
+        
+        /// <summary>
+        /// checkout_ShipTo control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.DropDownList checkout_ShipTo;
         
         /// <summary>
         /// ToCompany control.

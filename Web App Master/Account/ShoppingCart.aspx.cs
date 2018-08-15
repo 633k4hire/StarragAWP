@@ -157,6 +157,11 @@ namespace Web_App_Master.Account
             transaction.Comment = checkout_OrderNumber.Value;
             if (transaction.Email.Email=="")
             {
+                if (AnonUserInput.Text=="")
+                {
+                    ShowError("Please enter a Valid email address");
+                    return;
+                }
                 if (!EmailHelper.IsValid(AnonUserInput.Text))
                 {
                     ShowError("Please enter a Valid email address");
@@ -171,6 +176,12 @@ namespace Web_App_Master.Account
             if (cb_CustomAddress.Checked)
             {
                 transaction.Customer = GetCustomAddress();
+               
+                if (transaction.Customer==null)
+                {
+                    ShowError("No customer selected.");
+                    return;
+                }
             }
             else
             {
@@ -179,7 +190,12 @@ namespace Web_App_Master.Account
                     ShowError("No customer selected.");
                     return;
                 }
-                transaction.Customer = (from a in Global.Library.Settings.Customers where checkout_ShipTo.SelectedValue == a.CompanyName select a).ToList().FirstOrDefault();
+                transaction.Customer = (from a in Global.Library.Settings.Customers where checkout_ShipTo.Text.Contains(a.CompanyName) && checkout_ShipTo.Text.Contains(a.Address) select a).ToList().FirstOrDefault();
+                if (transaction.Customer==null)
+                {
+                    ShowError("No customer");
+                    return;
+                }
             }
             Session["CheckOut"] = new List<Asset>();
             Session["PendingTransaction"] = transaction;

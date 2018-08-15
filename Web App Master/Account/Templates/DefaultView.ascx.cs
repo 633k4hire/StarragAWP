@@ -22,14 +22,14 @@ namespace Web_App_Master.Account.Templates
             {
                 string str = "AjaxAddCheckin('";
                 str = str + num;
-                str = str + "')";
+                str = str + "');ToggleDropDown('CheckinDropDown');";
                 return str;
             }
             else
             {
                 string str = "AjaxAddCheckout('";
                 str = str + num;
-                str = str + "')";
+                str = str + "');ToggleDropDown('CheckoutDropDown');";
                 return str;
             }
         }

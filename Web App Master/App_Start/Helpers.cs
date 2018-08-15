@@ -303,7 +303,6 @@ namespace Helpers
             m_SchedulePeriod = "12";
             CalibrationCompany ="";
             m_IsCalibrated = true;
-            ImagePath = "";
                  History = new List<string>();
             ScheduledCalibrationDate = LastCalibration.AddMonths(Convert.ToInt32(m_SchedulePeriod));
         }
@@ -385,10 +384,36 @@ namespace Helpers
             set { m_days = value; }
         }
         [XmlElement("ImagePath")]
-        public string ImagePath { get; set; }
+        public string ImagesPath { get; set; }
+
         [XmlElement("History")]
         public List<string> History { get; set; }
-
+        public string FirstImage { get
+            {
+                try
+                {
+                    var files = Directory.GetFiles(HttpContext.Current.Server.MapPath(ImagesPath));
+                    return files[0];
+                }
+                catch { return "/images/transparent.png"; }
+            } }
+        [XmlElement]
+        public string Description = "";
+        [XmlElement]
+        public string FilePath = "";
+        public string FileName
+        {
+            get
+            {
+                try
+                {
+                    return Path.GetFileName(FilePath);
+                }
+                catch (Exception)
+                {
+                    return "";
+                }
+            } }
     }
 
     [Serializable]//xml
@@ -811,6 +836,7 @@ namespace Helpers
             AssetName = PackingSlip =UpsLabel = ReturnReport  = ShipTo = ServiceEngineer= PersonShipping=  Barcode = Description= BarcodeImage= CalibrationCompany= CalibrationPeriod=   "";
             IsOut = IsDamaged = OnHold = false;
             CalibrationHistory = new CalibrationLibrary();
+            Documents = new List<string>();
             return this;
         }
         [XmlElement]
@@ -821,7 +847,7 @@ namespace Helpers
                     return "/Images/transparent.png";
                 }
                 var img = Images.Split(',')[0].Replace(",,,", "<@#$>").Replace(",", "").Replace("<@#$>", ",").Replace("Images", "").Replace("\\", "");
-                img = "/Account/Images/" + img;
+                img = "/Account/Images/"+AssetNumber+"/" + img;
                 return img;
             }
         }
@@ -900,7 +926,8 @@ namespace Helpers
                 return "bg-sg-blue";
             }
         }
-
+        [XmlElement]
+        public List<string> Documents { get; set; }
 
     }
 
@@ -946,6 +973,8 @@ namespace Helpers
         {
             return this.MemberwiseClone();
         }
+        [XmlElement]
+        public CalibrationLibrary Certificates = new CalibrationLibrary();
     }
     [Serializable]    
     public class EmailNotice :  Notification.NotificationSystem.Notice

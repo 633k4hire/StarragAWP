@@ -92,6 +92,7 @@ namespace Web_App_Master.Account
 
         }
 
+
         [WebMethod]
         public static bool AssetOnHold(string num, string b)
         {
@@ -436,6 +437,18 @@ namespace Web_App_Master.Account
             return asset;
         }
         [WebMethod]
+        public static bool ClearCheckOut(string num)
+        {            
+            HttpContext.Current.Session["CheckOut"] =new List<Asset>();
+            return true;
+        }
+        [WebMethod]
+        public static bool ClearCheckIn(string num)
+        {
+            HttpContext.Current.Session["CheckIn"] = new List<Asset>();
+            return true;
+        }
+        [WebMethod]
         public static bool RemoveCheckoutItem(string num)
         {
             //MAYBE USE COOKIES HERE instead of session data
@@ -702,15 +715,7 @@ namespace Web_App_Master.Account
         {
             //check internet for online offlne access
 
-            var connected = Extensions.CheckForInternetConnection();
-            if (!connected)
-            {
-
-                //load local
-                var file =HttpContext.Current.Server.MapPath("/Account/library.xml");
-                Extensions.ImportXmlLibraryFile(file);
-                return Global.Library.Assets;
-            }
+           
             SQL_Request req = new SQL_Request().OpenConnection();
 
             //request all assets
@@ -1269,6 +1274,43 @@ namespace Web_App_Master.Account
                 return GetCustomerAddresses(num);
             }
             
+        }
+
+        [WebMethod]
+        public static Customer GetCustomer(string customer)
+        {
+            try
+            {
+                var split = customer.Split(new string[] { "-dd-" }, StringSplitOptions.RemoveEmptyEntries);
+                return (from c in Global.Library.Settings.Customers where c.CompanyName.Contains(split[0]) && c.Postal.Contains(split[1]) select c).First();
+            }catch { return null; }
+        }
+
+        [WebMethod]
+        public static EmailAddress GetStatic(string email)
+        {
+            try
+            {
+                return (from c in Global.Library.Settings.StaticEmails where c.Email.Contains(email) select c).First();
+            }catch { return null; }
+        }
+        [WebMethod]
+        public static EmailAddress GetOP(string email)
+        {
+            try
+            {
+                return (from c in Global.Library.Settings.ShippingPersons where c.Email.Contains(email) select c).First();
+            }
+            catch { return null; }
+        }
+        [WebMethod]
+        public static EmailAddress GetFP(string email)
+        {
+            try
+            {
+                return (from c in Global.Library.Settings.ServiceEngineers where c.Email.Contains(email) select c).First();
+            }
+            catch { return null; }
         }
 
         //TRANSACTIONS

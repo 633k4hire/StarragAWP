@@ -116,10 +116,10 @@
                     <div class="awp_box_title bg-sg-title">
                        <span class="fg-white shadow-metro-black">Receiving Report:</span>
                     </div>
-                    <div class="awp_box_content bg-sg-box">
+                    <div class="awp_box_content bg-sg-box" style="text-align:left!important;">
                          <div id="ReceivingHidden" style="display:none"><asp:Literal ID="ReceivingLink" runat="server"></asp:Literal> </div>
-                        <div id="IframeDiv" style="min-height:100px;height:300px;">
-                         <iframe frameborder="0" style="position:absolute; min-height:100px;" id="ReportFrame" runat="server" src="#" ></iframe>
+                        <div id="IframeDiv" style="min-height:100px;height:300px; text-align: left!important">
+                         <iframe frameborder="0" style="position:absolute; min-height:100px;" id="ReportFrame" runat="server" src="/Account/Templates/blank.pdf" ></iframe>
                          </div>
                     </div>
                 </div>

@@ -51,7 +51,10 @@
     </div>
     <div id="AVmenu" class="collapse navbar-collapse" >
       <ul class="nav navbar-nav starrag-menu">
-          <li class="dropdown">
+            <li>
+            <asp:LinkButton runat="server" OnClientClick="ShowLoader()" ID="RefreshBtn" OnClick="RefreshBtn_Click" ><span class="mif-loop2"></span> </asp:LinkButton>
+        </li>
+    <%--      <li class="dropdown">
             <a class="dropdown-toggle" data-toggle="dropdown" href="#">View
             <span class="caret"></span></a>
             <ul class="dropdown-menu starrag-menu">
@@ -61,12 +64,12 @@
                 <li><a href="#" onclick="ChangeAssetViewListType('list-type-listing'); ">Listing</a></li>
                 <li><a href="#" onclick="ChangeAssetView('smtile'); ">List Tile</a></li>
                 <li><a href="#" onclick="ChangeAssetView('mdtile'); ">Medium Tile</a></li>
-<%--                <li><a href="#" onclick="ChangeAssetView('lgtile'); ">large Tile</a></li>--%>
+                <li><a href="#" onclick="ChangeAssetView('lgtile'); ">large Tile</a></li>
             </ul>
-          </li>
-          <li style="margin-top:10px;">
-               <div class="  text" data-role="input" style="width:250px !important; vertical-align:middle!important">
-                   <asp:TextBox ID="avSearchString" runat="server" ClientIDMode="Static" CssClass="form-control"></asp:TextBox>
+          </li>--%>
+          <li style="margin-top:10px; width:250px; height:34px">
+               <div class="  text" data-role="input" style="width:250px !important; height:34px; vertical-align:middle!important">
+                   <asp:TextBox ID="avSearchString" style="width:220px !important; height:34px;" runat="server" ClientIDMode="Static" CssClass="form-control"></asp:TextBox>
                </div>
           </li>
           <li>             
@@ -92,9 +95,7 @@
                 <li><asp:LinkButton ID ="FilterCalibrated" ClientIDMode="Static" runat="server"  OnClick="FilterCalibrated_Click">Calibrated Only</asp:LinkButton> </li>
             </ul>
           </li>
-           <li>
-            <asp:LinkButton runat="server" OnClientClick="ShowLoader()" ID="RefreshBtn" OnClick="RefreshBtn_Click" ><span class="mif-loop2"></span> </asp:LinkButton>
-        </li>
+         
       </ul>   
        <asp:LoginView ID="createLoginView" runat="server" >
 			<RoleGroups>

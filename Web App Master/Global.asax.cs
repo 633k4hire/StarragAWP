@@ -106,11 +106,10 @@ namespace Web_App_Master
                 }
             }
             catch { }
-            if (Global.Library.Settings.TESTMODE)
-            {
+           
                 NoticeSystem.Interval = 60000;
                 NoticeSystem.OnTimerTick += NoticeSystem_OnTimerTick;
-            }
+            
             
             NoticeSystem.OnNoticeAdded += NoticeSystem_OnNoticeAdded;
             NoticeSystem.OnNoticeChanged += NoticeSystem_OnNoticeChanged;

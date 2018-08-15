@@ -41,7 +41,7 @@
     <DebugType>pdbonly</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>bin\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
@@ -272,6 +272,7 @@
     <Content Include="Account\Images\004800.JPG" />
     <Content Include="Account\Images\004900.JPG" />
     <Content Include="Account\Images\004a00.JPG" />
+    <Content Include="Account\Images\004A11.jpg" />
     <Content Include="Account\Images\005000.JPG" />
     <Content Include="Account\Images\005100.JPG" />
     <Content Include="Account\Images\005200.JPG" />
@@ -343,7 +344,10 @@
     <Content Include="Account\Images\010088.JPG" />
     <Content Include="Account\Images\010100.jpg" />
     <Content Include="Account\Images\010111.jpg" />
+    <Content Include="Account\Images\010121.JPG" />
     <Content Include="Account\Images\010122.jpg" />
+    <Content Include="Account\Images\010132.JPG" />
+    <Content Include="Account\Images\010143.JPG" />
     <Content Include="Account\Images\010200.jpg" />
     <Content Include="Account\Images\010211.jpg" />
     <Content Include="Account\Images\010222.jpg" />
@@ -379,8 +383,37 @@
     <Content Include="Account\Images\010910.JPG" />
     <Content Include="Account\Images\011000.JPG" />
     <Content Include="Account\Images\011011.JPG" />
+    <Content Include="Account\Images\011110.jpg" />
+    <Content Include="Account\Images\011132.JPG" />
+    <Content Include="Account\Images\011143.JPG" />
+    <Content Include="Account\Images\011200.JPEG" />
+    <Content Include="Account\Images\011211.JPEG" />
+    <Content Include="Account\Images\011300.JPEG" />
+    <Content Include="Account\Images\011311.JPEG" />
+    <Content Include="Account\Images\011400.jpg" />
+    <Content Include="Account\Images\011411.jpg" />
+    <Content Include="Account\Images\011500.jpg" />
+    <Content Include="Account\Images\011511.jpg" />
+    <Content Include="Account\Images\011600.jpg" />
+    <Content Include="Account\Images\011611.jpg" />
+    <Content Include="Account\Images\011711.JPG" />
+    <Content Include="Account\Images\011730.JPG" />
+    <Content Include="Account\Images\011733.JPG" />
+    <Content Include="Account\Images\011744.JPG" />
+    <Content Include="Account\Images\011752.JPG" />
+    <Content Include="Account\Images\011774.JPG" />
     <Content Include="Account\Images\013A00.JPG" />
     <Content Include="Account\Images\027a00.JPG" />
+    <Content Include="Account\Images\096500.jpg" />
+    <Content Include="Account\Images\096511.jpg" />
+    <Content Include="Account\Images\096700.JPEG" />
+    <Content Include="Account\Images\096711.JPEG" />
+    <Content Include="Account\Images\096722.JPEG" />
+    <Content Include="Account\Images\096733.JPEG" />
+    <Content Include="Account\Images\096800.JPEG" />
+    <Content Include="Account\Images\096811.JPEG" />
+    <Content Include="Account\Images\096822.JPEG" />
+    <Content Include="Account\Images\096833.JPEG" />
     <Content Include="Account\Images\096900.JPG" />
     <Content Include="Account\Images\096911.JPG" />
     <Content Include="Account\Images\097000.jpg" />
@@ -405,7 +438,12 @@
     <Content Include="Account\Images\098143.JPG" />
     <Content Include="Account\Images\098200.JPG" />
     <Content Include="Account\Images\098300.JPG" />
+    <Content Include="Account\Images\098400.JPEG" />
     <Content Include="Account\Images\098400.JPG" />
+    <Content Include="Account\Images\098411.JPEG" />
+    <Content Include="Account\Images\098422.JPEG" />
+    <Content Include="Account\Images\098433.JPEG" />
+    <Content Include="Account\Images\098444.JPEG" />
     <Content Include="Account\Images\098500.JPG" />
     <Content Include="Account\Images\098600.JPG" />
     <Content Include="Account\Images\098611.JPG" />
@@ -463,8 +501,6 @@
     <Content Include="Account\Images\10788.JPG" />
     <Content Include="Account\Images\10799.JPG" />
     <Content Include="Account\Images\2220.JPG" />
-    <Content Include="Account\Images\27634b64-c053-4b23-b028-ead6e8cb53b0.png" />
-    <Content Include="Account\Images\2fc3e4b9-9300-48de-8924-0dcb16561bcd.png" />
     <Content Include="Account\Images\6550.JPG" />
     <Content Include="Account\OutCart.aspx" />
     <Content Include="Account\Confirm.aspx" />
@@ -877,6 +913,7 @@
     <Content Include="Account\Templates\av_header_template.ascx" />
     <Content Include="Account\Templates\emptytemplate.ascx" />
     <Content Include="Account\Templates\DefaultView.ascx" />
+    <Content Include="Account\Test.aspx" />
     <Content Include="Account\Transactions.aspx" />
     <Content Include="Account\TwoFactorAuthenticationSignIn.aspx" />
     <Content Include="Account\UserCheckout.aspx" />
@@ -942,6 +979,7 @@
     <Content Include="Content\fontawesome.min.css" />
     <Content Include="Content\jquery-ui.css" />
     <Content Include="Content\jquery.contextMenu.css" />
+    <Content Include="DocumentViewer.ascx" />
     <Content Include="Images\0101.png" />
     <Content Include="Contact.aspx" />
     <Content Include="Content\bootstrap.css" />
@@ -982,6 +1020,7 @@
     <Content Include="Images\folder-videos.png" />
     <Content Include="Images\hard-drive.png" />
     <Content Include="Images\header.jpg" />
+    <Content Include="Images\loading.gif" />
     <Content Include="Images\starrag-25.png" />
     <Content Include="Images\starrag-40.png" />
     <Content Include="Images\starrag-slim.png" />
@@ -993,6 +1032,7 @@
     <Content Include="Images\wn8.png" />
     <Content Include="items.aspx" />
     <Content Include="Map.aspx" />
+    <Content Include="Pages\Customers.aspx" />
     <Content Include="Scripts\browsermain.js" />
     <Content Include="Scripts\FileBrowserContextMenuActions.js" />
     <Content Include="Scripts\jquery-1.11.0.min.js" />
@@ -1013,6 +1053,67 @@
     <Content Include="fonts\metro.eot" />
     <Content Include="Sync.aspx" />
     <Content Include="WebUserControl1.ascx" />
+    <Content Include="Account\Certificates\1250x60x190 mm granite lineal - Planolith - 2013.pdf" />
+    <Content Include="Account\Certificates\24x24x4 granite - precision granite - 2017.pdf" />
+    <Content Include="Account\Certificates\EcoSpeed Granite 500x500x500 mm - Johann Fischer - 2018.pdf" />
+    <Content Include="Account\Certificates\gauge block opus - 10mm - opus 2001.pdf" />
+    <Content Include="Account\Certificates\gauge block weber square - st104-a - a a jansson .pdf" />
+    <Content Include="Account\Certificates\gauge block weber square - st105 - a a jansson - 2010.pdf" />
+    <Content Include="Account\Certificates\gauge block weber square - st114 - a a jansson - 2010.pdf" />
+    <Content Include="Account\Certificates\gauge block weber square -st104-b - a a jansson .pdf" />
+    <Content Include="Account\Certificates\general dynamics - sip 50mm plug gauge - 41319 - helios - 2005.pdf" />
+    <Content Include="Account\Certificates\general dynamics - sip 50mm plug gauge - 42559 - helios - 2005.pdf" />
+    <Content Include="Account\Certificates\granite lineal 1000x56x160 mm - planolith - 2007.pdf" />
+    <Content Include="Account\Certificates\granite lineal 500x45x90 mm - asset 0086 - 1240024 - 37184 - johann fischer - 2012.pdf" />
+    <Content Include="Account\Certificates\laser renishaw - ml80 laser - g24578 - ec10 - 52k040 - g27072 - g26032 - g25998 - g26014 - 2014.pdf" />
+    <Content Include="Account\Certificates\laser renishaw - qc20-w ball bar calibrator - g27433 - 2017.pdf" />
+    <Content Include="Account\Certificates\laser renishaw - qc20-w ballbar - 16p493 - 2017.pdf" />
+    <Content Include="Account\Certificates\laser renishaw - rx10 rotary indexer - 7n2260 - 2015.pdf" />
+    <Content Include="Account\Certificates\laser renishaw - xc air temerature sensor - 8p7718 - 2016.pdf" />
+    <Content Include="Account\Certificates\laser renishaw - xc air temperature sensor - 22q101 - 2017.pdf" />
+    <Content Include="Account\Certificates\laser renishaw - xc air temperature sensor - 8w9154 - 2018.pdf" />
+    <Content Include="Account\Certificates\laser renishaw - xc material temerature sensor - 18y189 - 2017.pdf" />
+    <Content Include="Account\Certificates\laser renishaw - xc meterial temperature sensor - 8x0319- 2018.pdf" />
+    <Content Include="Account\Certificates\laser renishaw - xc meterial temperature sensor - 92e595 - 2018.pdf" />
+    <Content Include="Account\Certificates\laser renishaw - xc-80 compensator - 8u7476 - 2017.pdf" />
+    <Content Include="Account\Certificates\laser renishaw - xc-80 compensator - 8y8103 - 2018.pdf" />
+    <Content Include="Account\Certificates\laser renishaw - xl-80 - 10t181 - renishaw - 2018.pdf" />
+    <Content Include="Account\Certificates\laser renishaw - xl-80 laser - 10t025 - 2017.pdf" />
+    <Content Include="Account\Certificates\laser renishaw - xr20-w rotary calibrator - 0944e5 - 2014.pdf" />
+    <Content Include="Account\Certificates\laser renishaw - xr20-w rotary calibrator - 143r69 - 2014.pdf" />
+    <Content Include="Account\Certificates\niveltronic level g1542 - A A jansson - 2017 - 10-31-2018.pdf" />
+    <Content Include="Account\Certificates\niveltronic level h1522 - A A jansson - 2017 - 10-31-2018.pdf" />
+    <Content Include="Account\Certificates\niveltronic level h1526 - A A jansson - 2017 - 10-31-2018.pdf" />
+    <Content Include="Account\Certificates\niveltronic level h1542 - A A jansson - 2017 - 10-31-2018.pdf" />
+    <Content Include="Account\Certificates\pull force check OTT - asset 0037 - power check ii - 536105 - 2012.pdf" />
+    <Content Include="Account\Certificates\ring gauge 40 mm - 41354 helios - 2005.pdf" />
+    <Content Include="Account\Certificates\ring gauge 40 mm - 42919 - metas - 2002.pdf" />
+    <Content Include="Account\Certificates\ring gauge 40 mm - 42921 - metas - 2002.pdf" />
+    <Content Include="Account\Certificates\ring gauge 40 mm - 43064 - metas - 2002.pdf" />
+    <Content Include="Account\Certificates\ring gauge 40 mm - 43065 - metas - 2002.pdf" />
+    <Content Include="Account\Certificates\ring gauge 40 mm sip - 16500 - mess-technik blatter ag - 2001.pdf" />
+    <Content Include="Account\Certificates\ring gauge 40 mm sip - 42898 - swiss federal office of metrology - 2002.pdf" />
+    <Content Include="Account\Certificates\ring gauge 40 mm sip - 42923 - metas - 2002.pdf" />
+    <Content Include="Account\Certificates\ring gauge 40 mm sip - 43067 - metas - 2002.pdf" />
+    <Content Include="Account\Certificates\ring gauge 50 mm - 42445 - sip 50mm plug gauge - 42207 - helios - 2005.pdf" />
+    <Content Include="Account\Certificates\ring guage 12 mm  - cary 1015 - metas - 2001.pdf" />
+    <Content Include="Account\Certificates\ring guage 12 mm  - cary 1023 - metas - 2003.pdf" />
+    <Content Include="Account\Certificates\ring guage 12 mm -helios - 2005.pdf" />
+    <Content Include="Account\Certificates\sip 50mm plug gauge - 43013 - helios - 2005.pdf" />
+    <Content Include="Account\Certificates\sip 50mm plug gauge - 43015 - metas- 2001.pdf" />
+    <Content Include="Account\Certificates\sip 50mm plug gauge - 43046 - metas- 2001.pdf" />
+    <Content Include="Account\Certificates\sphere gauge ceramic 35mm - 35-00-087 - metas - 2001.pdf" />
+    <Content Include="Account\Certificates\sphere gauge ceramic 35mm - 35-99-008 - swiss federal office of metrology- 2001.pdf" />
+    <Content Include="Account\Certificates\sphere gauge ceramic 35mm - 35-99-015 - swiss federal office of metrology- 2001.pdf" />
+    <Content Include="Account\Certificates\tektronik oscilloscope 50mhz 2 channel - tds2001c - c014275 - 2012.pdf" />
+    <Content Include="Account\Certificates\test bar 50mm hsk100 - heckert - 95 09 016 004 - 2016.pdf" />
+    <Content Include="Account\Certificates\wyler level blue level bluelevel bluemeter sigma - t1304 - t1305 - t0403 - wyler ag - 2016.pdf" />
+    <Content Include="Account\Pdfs\blank.pdf" />
+    <Content Include="Account\Templates\blank.pdf" />
+    <Content Include="Account\CheckOutPdf\blank.pdf" />
+    <Content Include="Account\Labels\blank.pdf" />
+    <Content Include="Account\Avery\blank.pdf" />
+    <Content Include="Account\Certs\blank.pdf" />
     <None Include="Properties\PublishProfiles\basuta - Web Deploy.pubxml" />
     <None Include="Properties\PublishProfiles\basuta - Web Deploy1.pubxml" />
     <None Include="Properties\PublishProfiles\starrag - Web Deploy.pubxml" />
@@ -1347,6 +1448,13 @@
     </Compile>
     <Compile Include="Account\Templates\StarragPackingSlip.cs" />
     <Compile Include="Account\Templates\StarragReceivingReportTemplate.cs" />
+    <Compile Include="Account\Test.aspx.cs">
+      <DependentUpon>Test.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Account\Test.aspx.designer.cs">
+      <DependentUpon>Test.aspx</DependentUpon>
+    </Compile>
     <Compile Include="Account\Transactions.aspx.cs">
       <DependentUpon>Transactions.aspx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>
@@ -1567,6 +1675,13 @@
     <Compile Include="Default.aspx.designer.cs">
       <DependentUpon>Default.aspx</DependentUpon>
     </Compile>
+    <Compile Include="DocumentViewer.ascx.cs">
+      <DependentUpon>DocumentViewer.ascx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="DocumentViewer.ascx.designer.cs">
+      <DependentUpon>DocumentViewer.ascx</DependentUpon>
+    </Compile>
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
@@ -1587,6 +1702,13 @@
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\BrowserModels.cs" />
     <Compile Include="Models\IdentityModels.cs" />
+    <Compile Include="Pages\Customers.aspx.cs">
+      <DependentUpon>Customers.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Pages\Customers.aspx.designer.cs">
+      <DependentUpon>Customers.aspx</DependentUpon>
+    </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Site.Master.cs">
       <DependentUpon>Site.Master</DependentUpon>
@@ -1626,11 +1748,6 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Account\Avery\" />
-    <Folder Include="Account\Certs\" />
-    <Folder Include="Account\CheckOutPdf\" />
-    <Folder Include="Account\Labels\" />
-    <Folder Include="Account\Pdfs\" />
     <Folder Include="App_Code\" />
     <Folder Include="App_Data\img\" />
     <Folder Include="App_GlobalResources\" />

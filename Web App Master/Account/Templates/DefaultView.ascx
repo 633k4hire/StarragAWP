@@ -1,7 +1,7 @@
-﻿<%@ Control Language="C#" AutoEventWireup="true" CodeBehind="DefaultView.ascx.cs" Inherits="Web_App_Master.Account.Templates.DefaultView" %>
+﻿<%@ Control Language="C#" AutoEventWireup="true" CodeBehind="DefaultView.ascx.cs" Inherits="Web_App_Master.Account.Templates.icon_view" %>
 <!--Icon Template-->
 
-<div  class="file " title='' draggable="true"  onclick="BarcodeScanned('<%# Eval("AssetNumber")%>', '<%# Eval("IsHistoryItem")%>','<%# Eval("DateShippedTicks")%>');">
+<div  class="file " title='' draggable="true"  onclick="ShowLoader();BarcodeScanned('<%# Eval("AssetNumber")%>', '<%# Eval("IsHistoryItem")%>','<%# Eval("DateShippedTicks")%>');">
            <div id =" file-color " class="file-color <%# Eval("Color") %>" style="width:100%; height:100%;"></div>
 
     <div class="i-icon">   

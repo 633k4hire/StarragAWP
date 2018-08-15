@@ -6,7 +6,7 @@
            <asp:PlaceHolder ID ="ApplyChangesButton" runat="server" Visible="true">
                <ul class="nav navbar-nav navbar-right starrag-menu">
                      <li>
-            <asp:LinkButton runat="server" OnClick="ContinueToCheckOutBtn_Click"  ID="ContinueToCheckOutBtn" ClientIDMode="Static" style="vertical-align:bottom; text-decoration:none"><strong>Continue To Shipping&nbsp&nbsp</strong><i style="vertical-align:top" class="glyphicon glyphicon-arrow-right md-glyph"></i></asp:LinkButton>
+            <asp:LinkButton runat="server" OnClientClick="ShowLoader();" OnClick="ContinueToCheckOutBtn_Click"  ID="ContinueToCheckOutBtn" ClientIDMode="Static" style="vertical-align:bottom; text-decoration:none"><strong>Continue To Shipping&nbsp&nbsp</strong><i style="vertical-align:top" class="glyphicon glyphicon-arrow-right md-glyph"></i></asp:LinkButton>
             
         </li>
                </ul>
@@ -67,7 +67,7 @@
                                         <ContentTemplate>   
                                             <asp:Repeater runat="server" ID ="FinalCheckoutRepeater" ClientIDMode="Static" OnItemCommand="FinalCheckoutRepeater_ItemCommand" >                    
                                                 <ItemTemplate>    
-                                                    <div  class="file " title='' draggable="true"  onclick="BarcodeScanned('<%# Eval("AssetNumber")%>', '<%# Eval("IsHistoryItem")%>','<%# Eval("DateShippedTicks")%>');">
+                                                    <div  class="file " title='' draggable="true"  onclick="ShowLoader();BarcodeScanned('<%# Eval("AssetNumber")%>', '<%# Eval("IsHistoryItem")%>','<%# Eval("DateShippedTicks")%>');">
                                                                <div id =" file-color " class="file-color <%# Eval("Color") %>" style="width:100%; height:100%;"></div>
 
                                                         <div class="i-icon">   
@@ -84,7 +84,7 @@
                                                     </div>
 
                                                     </div>
-                                                </ItemTemplate>                                 
+                                                </ItemTemplate>                                
                                         </asp:Repeater>
                                         </ContentTemplate>
                                     

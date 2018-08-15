@@ -894,10 +894,9 @@ namespace Web_App_Master.Account.Admin
             if (rem != null)
             {
                 EmailHelper.SendNotificationSystemNotice(rem);
-                if (!Global.Library.Settings.TESTMODE)
-                {
+                
                      Global.NoticeSystem.Notices.Remove(rem);
-                }
+               
                
             }
             UpdateAssetAdmin();

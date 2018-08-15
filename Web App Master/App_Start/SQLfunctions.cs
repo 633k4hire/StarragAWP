@@ -147,7 +147,18 @@ public static class SQLfunc
             request.Command.Parameters.Add("@PackingSlip", SqlDbType.NVarChar).Value = asset.PackingSlip;
             request.Command.Parameters.Add("@ReturnReport", SqlDbType.NVarChar).Value = asset.ReturnReport;
             request.Command.Parameters.Add("@UPSlabel", SqlDbType.NVarChar).Value = asset.UpsLabel;
-
+            string doc_csv = "";
+            if (asset.Documents != null)
+            {
+                if (asset.Documents.Count > 0)
+                {
+                    foreach (var item in asset.Documents)
+                    {
+                        doc_csv += item + ",";
+                    }
+                }
+            }
+            request.Command.Parameters.Add("@Documents", SqlDbType.NVarChar).Value = doc_csv;
             request.Command.ExecuteNonQuery();
             request.Success = true;
             request.Message = "success:addAsset";
@@ -241,6 +252,16 @@ public static class SQLfunc
                     a.PackingSlip = dr?.Field<string>("PackingSlip");
                     a.UpsLabel = dr?.Field<string>("UpsLabel");
                     a.ReturnReport = dr?.Field<string>("ReturnReport");
+                    var doc_csv = dr?.Field<string>("Documents");
+                    a.Documents = new List<string>();
+                    if (doc_csv!=null)
+                    {
+                        if (doc_csv!="")
+                        {
+                            a.Documents = doc_csv.Split(new string[] { "," }, StringSplitOptions.RemoveEmptyEntries).ToList();
+                        }
+                    }
+                   
                     newassets.Add(a);
                 }
                 request.Tag = newassets;
@@ -335,6 +356,15 @@ public static class SQLfunc
                     a.PackingSlip = dr?.Field<string>("PackingSlip");
                     a.UpsLabel = dr?.Field<string>("UpsLabel");
                     a.ReturnReport = dr?.Field<string>("ReturnReport");
+                    var doc_csv = dr?.Field<string>("Documents");
+                    a.Documents = new List<string>();
+                    if (doc_csv != null)
+                    {
+                        if (doc_csv != "")
+                        {
+                            a.Documents = doc_csv.Split(new string[] { "," }, StringSplitOptions.RemoveEmptyEntries).ToList();
+                        }
+                    }
                     request.Tag = a;
                 }
                  
@@ -428,6 +458,23 @@ public static class SQLfunc
             if (asset.PackingSlip == null) { asset.PackingSlip = ""; }
             request.Command.Parameters.Add("@PackingSlip", SqlDbType.NVarChar).Value = asset.PackingSlip;
             request.Command.Parameters.Add("@ReturnReport", SqlDbType.NVarChar).Value = asset.ReturnReport;
+            string doc_csv = "";
+            if (asset.Documents!=null)
+            {
+                if (asset.Documents.Count>0)
+                {
+                    foreach (var item in asset.Documents)
+                    {
+                        doc_csv += item + ",";
+                    }
+                }
+            }
+            request.Command.Parameters.Add("@Documents", SqlDbType.NVarChar).Value = doc_csv;
+
+            if (asset.UpsLabel==null)
+            {
+                asset.UpsLabel = "/Account/Templates/blank.pdf";
+            }
             request.Command.Parameters.Add("@UPSlabel", SqlDbType.NVarChar).Value = asset.UpsLabel;
 
             string calXml = new CalibrationLibrary().SerializeToXmlString(new CalibrationLibrary());
@@ -514,7 +561,18 @@ public static class SQLfunc
             request.Command.Parameters.Add("@PackingSlip", SqlDbType.NVarChar).Value = asset.PackingSlip;
             request.Command.Parameters.Add("@ReturnReport", SqlDbType.NVarChar).Value = asset.ReturnReport;
             request.Command.Parameters.Add("@UPSlabel", SqlDbType.NVarChar).Value = asset.UpsLabel;
-
+            string doc_csv = "";
+            if (asset.Documents != null)
+            {
+                if (asset.Documents.Count > 0)
+                {
+                    foreach (var item in asset.Documents)
+                    {
+                        doc_csv += item + ",";
+                    }
+                }
+            }
+            request.Command.Parameters.Add("@Documents", SqlDbType.NVarChar).Value = doc_csv;
             string calXml = new CalibrationLibrary().SerializeToXmlString(new CalibrationLibrary());
             try
             {
@@ -643,6 +701,15 @@ public static class SQLfunc
                     a.PackingSlip = dr?.Field<string>("PackingSlip");
                     a.UpsLabel = dr?.Field<string>("UpsLabel");
                     a.ReturnReport = dr?.Field<string>("ReturnReport");
+                    var doc_csv = dr?.Field<string>("Documents");
+                    a.Documents = new List<string>();
+                    if (doc_csv != null)
+                    {
+                        if (doc_csv != "")
+                        {
+                            a.Documents = doc_csv.Split(new string[] { "," }, StringSplitOptions.RemoveEmptyEntries).ToList();
+                        }
+                    }
                     request.Tag = a;
                 }
 
@@ -742,6 +809,15 @@ public static class SQLfunc
                     a.PackingSlip = dr?.Field<string>("PackingSlip");
                     a.UpsLabel = dr?.Field<string>("UpsLabel");
                     a.ReturnReport = dr?.Field<string>("ReturnReport");
+                    var doc_csv = dr?.Field<string>("Documents");
+                    a.Documents = new List<string>();
+                    if (doc_csv != null)
+                    {
+                        if (doc_csv != "")
+                        {
+                            a.Documents = doc_csv.Split(new string[] { "," }, StringSplitOptions.RemoveEmptyEntries).ToList();
+                        }
+                    }
                     newassets.Add(a);
                 }
                 request.Tag = newassets;
@@ -827,7 +903,18 @@ public static class SQLfunc
             request.Command.Parameters.Add("@PackingSlip", SqlDbType.NVarChar).Value = asset.PackingSlip;
             request.Command.Parameters.Add("@ReturnReport", SqlDbType.NVarChar).Value = asset.ReturnReport;
             request.Command.Parameters.Add("@UPSlabel", SqlDbType.NVarChar).Value = asset.UpsLabel;
-
+            string doc_csv = "";
+            if (asset.Documents != null)
+            {
+                if (asset.Documents.Count > 0)
+                {
+                    foreach (var item in asset.Documents)
+                    {
+                        doc_csv += item + ",";
+                    }
+                }
+            }
+            request.Command.Parameters.Add("@Documents", SqlDbType.NVarChar).Value = doc_csv;
             await request.Command.ExecuteNonQueryAsync();
             request.Success = true;
             request.Message = "success:addAsset";

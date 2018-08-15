@@ -13,6 +13,15 @@ namespace Web_App_Master.Account {
     public partial class AssetView {
         
         /// <summary>
+        /// RefreshBtn control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.LinkButton RefreshBtn;
+        
+        /// <summary>
         /// avSearchString control.
         /// </summary>
         /// <remarks>
@@ -101,15 +110,6 @@ namespace Web_App_Master.Account {
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::System.Web.UI.WebControls.LinkButton FilterCalibrated;
-        
-        /// <summary>
-        /// RefreshBtn control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.LinkButton RefreshBtn;
         
         /// <summary>
         /// createLoginView control.

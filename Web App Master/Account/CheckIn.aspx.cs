@@ -113,11 +113,10 @@ namespace Web_App_Master.Account
             CombineReports(filenames);
             ReportIcon.Shake();
             CheckInMultiView.ActiveViewIndex = 1;
-            if (!Global.Library.Settings.TESTMODE)
-            {
+            
                 Finalize.Enabled = false;
                 NotifyCheckInEmail(subEmails);
-            }
+            
             ApplyChangesButton.Visible = false;
             LeavePlaceHolder.Visible = true;
 
@@ -278,6 +277,7 @@ namespace Web_App_Master.Account
                 foreach(var ass in assets)
                 {
                     ass.ReturnReport = "/Account/Receiving/" + info + ".pdf";
+                    ass.Documents.Add("/Account/Receiving/" + info + ".pdf");
                 }
                 var path2 = Server.MapPath(path);
                 filenames.Add(path2);

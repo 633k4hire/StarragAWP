@@ -64,7 +64,16 @@ namespace Web_App_Master.Account
         {
             try
             {
-                Customer cust = (from temp in Global.Library.Settings.Customers where temp.CompanyName == customer select temp).ToList().FirstOrDefault();
+                Customer cust=null;
+                //var bb = Global.Library;
+                foreach (var c in Global.Library.Settings.Customers)
+                {
+                    if (customer.Contains(c.CompanyName) && customer.Contains(c.Address))
+                    {
+                        if (c.CompanyName != "" && c.Address != "")
+                            cust = c;
+                    }
+                }
                 if (cust != null)
                 {
                     ToCompany.Value = cust.CompanyName;
@@ -84,6 +93,7 @@ namespace Web_App_Master.Account
             var starrag = "Starrag USA Inc.";
             Customer defaultshipper = (from temp in Global.Library.Settings.Customers where temp.CompanyName == starrag select temp).ToList().FirstOrDefault();
             FillDefaultShipper(defaultshipper);
+            AddressUpdatePanel.Update();
         }
         protected bool Finalized = false;
         protected void FinalizeBtn_Click(object sender, EventArgs e)
@@ -238,7 +248,7 @@ namespace Web_App_Master.Account
             List<Asset> emaillist = new List<Asset>();
             foreach (var A in assets)
             {
-                A.ShipTo = Session["Customer"] as string;
+                A.ShipTo = ToCompany.Value;
                 A.ServiceEngineer = Session["Engineer"] as string;
                 try
                 {
@@ -256,6 +266,15 @@ namespace Web_App_Master.Account
                 A.PackingSlip = Session["LastPackingSlip"] as string;
                 A.PersonShipping = Session["Shipper"] as string;
                 A.UpsLabel= Session["ShippingLabelPdf"] as string;
+                if (A.UpsLabel==null || A.UpsLabel == "")
+                {A.Documents.Add(Session["LastPackingSlip"] as string);
+                    
+                }
+                else
+                {A.Documents.Add(Session["CombinedPdf"] as string);
+                    
+                }
+                
                 A.IsOut = true;
                 Asset rem=null;
                 foreach (var a in Global.Library.Assets)
@@ -276,14 +295,13 @@ namespace Web_App_Master.Account
                 //AssetController.UpdateAsset(A.Clone() as Asset);
                 Push.Asset(A);
             }
-            if (!Global.Library.Settings.TESTMODE)
-            {
+            
                 Session["Customer"] = null;
                 Session["Shipper"] = null;
                 Session["Engineer"] = null;
                 Session["Ordernumber"] = null;
                
-            }
+            
             NotifyCheckoutEmail(emaillist);
             Push.Alert((Session["Ordernumber"] as string) + ": Checked Out");
         }
@@ -336,16 +354,19 @@ namespace Web_App_Master.Account
             if (checkoutdata == null) checkoutdata = new CheckOutData();
             var CheckoutItems = Session["Checkout"] as List<Asset>;
             checkoutdata.CheckOutItems = CheckoutItems;
+            Customer = Session["Customer"] as string;
+            Shipper = Session["Shipper"] as string;
+            Engineer = Session["Engineer"] as string;
+            Ordernumber = Session["Ordernumber"] as string;
+            DataBindShipping(Customer, Shipper, Engineer, Ordernumber);
             if (!IsPostBack)
             {
-                
-               
+                ScriptManager.GetCurrent(Page).RegisterAsyncPostBackControl(checkout_ShipTo);
+                checkout_ShipTo.DataSource = GetShipToNames();
+                checkout_ShipTo.DataBind();
+
                 but_OK.Enabled = true;
-                Customer = Session["Customer"] as string;
-                    Shipper = Session["Shipper"] as string;
-                    Engineer = Session["Engineer"] as string;
-                    Ordernumber = Session["Ordernumber"] as string;
-                    DataBindShipping(Customer,Shipper,Engineer,Ordernumber);
+
                 
                 var preferShip = Session["PreferedShipMethod"] as string;
                 if (preferShip == null)
@@ -484,6 +505,11 @@ namespace Web_App_Master.Account
                 var dest = Server.MapPath("/Account/CheckOutPdf/" + filename);
                 var pack = Session["LastPackingSlip"] as string;
                 var ship = Session["ShippingLabelPdf"] as string;
+                if (!Directory.Exists(Server.MapPath("/Account/CheckOutPdf/")))
+                {
+                    Directory.CreateDirectory(Server.MapPath("/Account/CheckOutPdf/"));
+                }
+
                 string[] combine = new string[2] { Server.MapPath(pack), Server.MapPath(ship) };
 
                 var result = Pdf.Merge(combine.ToList(), dest);
@@ -496,21 +522,26 @@ namespace Web_App_Master.Account
             catch { }
 
         }
+
         protected void PackingSlipOnly()
         {
             try
             {
                 var filename = Guid.NewGuid().ToString() + ".pdf";
-                Session["CombinedPdf"] = PF.Src = "/Account/CheckOutPdf/" + filename; ;
-                var dest = Server.MapPath("/Account/CheckOutPdf/" + filename);
+                Session["CombinedPdf"] = PF.Src = "/Account/PackingLists/" + filename; ;
+                var dest = Server.MapPath("/Account/PackingLists/" + filename);
                 var pack = Session["LastPackingSlip"] as string;
+                if (!Directory.Exists(Server.MapPath("/Account/PackingLists/")))
+                {
+                    Directory.CreateDirectory(Server.MapPath("/Account/PackingLists/"));
+                }
                 File.Copy(Server.MapPath(pack),dest);
                // string[] combine = new string[2] { Server.MapPath(pack), Server.MapPath(ship) };
 
                // var result = Pdf.Merge(combine.ToList(), dest);
                 //if (result)
                // {
-                    PF.Src = "/Account/CheckOutPdf/" + filename;
+                    PF.Src = "/Account/PackingLists/" + filename;
 
                // }
             }
@@ -568,10 +599,10 @@ namespace Web_App_Master.Account
                     if (checkoutdata.Package.Weight == null) { ShowError("No Package Weight."); return; }
                     if (checkoutdata.From.AddressLine[0] != "" && checkoutdata.To.AddressLine[0] != "" && checkoutdata.Shipper.AddressLine[0] != "" && checkoutdata.Package.Weight != "")
                     {
-                        if (Global.Library.Settings.TESTMODE)
-                        {
-                            checkoutdata.Pickup = DateTime.Now.AddHours(-8).AddDays(1);
-                        }
+                        //if (Global.Library.Settings.TESTMODE)
+                        //{
+                        //    checkoutdata.Pickup = DateTime.Now.AddHours(-8).AddDays(1);
+                        //}
                         //Check UPS Account
                         if (!ValidateUpsAcct(Global.Library.Settings.UpsAccount))
                         { ShowError("Please check your Shipper Account Settings in Admin Panel: "+GetInnerUpsAcctError(Global.Library.Settings.UpsAccount)); return; }
@@ -910,5 +941,31 @@ namespace Web_App_Master.Account
         {
             UpdateUpsLabel();
         }
+        public List<string> GetShipToNames()
+        {
+            var names = (from ship in Global.Library.Settings.Customers orderby ship.CompanyName select ship.CompanyName + "-" + ship.Address + "-" + ship.Postal).ToList();
+            return names;
+        }
+        protected void checkout_ShipTo_TextChanged(object sender, EventArgs e)
+        {
+            Customer cust = (from temp in Global.Library.Settings.Customers where checkout_ShipTo.Text.Contains(temp.CompanyName) && checkout_ShipTo.Text.Contains(temp.Address) select temp).ToList().FirstOrDefault();
+            
+            if (cust != null)
+            {
+                ToCompany.Value = cust.CompanyName;
+                ToAddr.Value = cust.Address;
+                ToAddr2.Value = cust.Address2;
+                ToCty.Value = cust.City;
+                ToState.Value = cust.State;
+                ToPostal.Value = cust.Postal;
+                ToCountry.Value = cust.Country;
+                ToName.Value = cust.Attn;
+                ToEmail.Value = cust.Email;
+                ToPhone.Value = cust.Phone;
+            }
+            Session["CheckOutCustomer"] = cust;
+        }
+
+      
     }
 }

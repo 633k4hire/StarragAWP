@@ -4,11 +4,11 @@
      <nav class="navbar navbar-inverse bg-grayDark" style="margin-top:0px !important; height:auto; width:100%; left:0px!important; border-radius:0px!important; position:fixed !important; z-index:25000;">
      
            <asp:PlaceHolder ID ="ApplyChangesButton" runat="server" Visible="true">
-               <ul class="nav navbar-nav navbar-right starrag-menu">
-                     <li>
-            <asp:LinkButton runat="server" OnClick="ContinueToCheckOutBtn_Click"  ID="ContinueToCheckOutBtn" ClientIDMode="Static" style="vertical-align:bottom; text-decoration:none"><strong>Confirm&nbsp&nbsp</strong><i style="vertical-align:top" class="glyphicon glyphicon-arrow-right md-glyph"></i></asp:LinkButton>
-            
-        </li>
+               <ul class="nav navbar-nav navbar-right fg-white">
+                     <li class="bg-green fg-white">
+            <asp:LinkButton runat="server" OnClick="ContinueToCheckOutBtn_Click"  ID="ContinueToCheckOutBtn" ClientIDMode="Static"><b style="vertical-align:bottom" class="fg-white fg-hover-black"> Place Order</b>&nbsp&nbsp<i style="vertical-align:top" class="glyphicon glyphicon-arrow-right md-glyph fg-white"></i></asp:LinkButton>
+                                 
+                    </li>
                </ul>
 
             </asp:PlaceHolder>     

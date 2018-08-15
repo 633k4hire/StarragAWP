@@ -74,9 +74,8 @@ namespace Web_App_Master
                     switch (query)
                     {
                         case "asset":
-                            var asset = new Helpers.Asset().DeserializeFromXmlString<Helpers.Asset>(xml);
-                            if (!Global.Library.Settings.TESTMODE)
-                            {Web_App_Master.Push.Asset(asset); }
+                            var asset = new Helpers.Asset().DeserializeFromXmlString<Helpers.Asset>(xml);                           
+                            Web_App_Master.Push.Asset(asset); 
                             
                             break;
                         case "notice":

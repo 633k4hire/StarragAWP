@@ -13,7 +13,10 @@ namespace Web_App_Master.Account
         //Master Event Wire Up
         protected void Page_PreInit(object sender, EventArgs e)
         {
-            this.SiteMaster().OnPanelUpdate += Checkout_OnPanelUpdate;
+            if (!IsPostBack)
+            {
+                this.SiteMaster().OnPanelUpdate += Checkout_OnPanelUpdate;
+            }
         }
         private void Checkout_OnPanelUpdate(object sender, UpdateRequestEvent e)
         {
@@ -96,7 +99,9 @@ namespace Web_App_Master.Account
                         if (existing.Count>0)
                         {
                             Session["Customer"] = existing[0].CompanyName;
-                            checkout_ShipTo.Text = Session["Customer"] as string;
+                            var item = (checkout_ShipTo.Items.FindByText(existing[0].CompanyName + "-" + existing[0].Address + "-" + existing[0].Postal));
+                            var idx = checkout_ShipTo.Items.IndexOf(item);
+                            checkout_ShipTo.SelectedIndex = idx;
                         }
                         else
                         {

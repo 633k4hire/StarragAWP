@@ -1,4 +1,4 @@
-﻿<%@ Control Language="C#" AutoEventWireup="true" CodeBehind="icon_view.ascx.cs" Inherits="WebVault.Templates.icon_view" %>
+﻿<%@ Control Language="C#" AutoEventWireup="true" CodeBehind="DefaultView.ascx.cs" Inherits="WebVault.Templates.icon_view" %>
 <!--Icon Template-->
 <link href="../Content/jquery.contextMenu.css" rel="stylesheet" />
 <script src="../Scripts/jquery.contextMenu.js"></script>
