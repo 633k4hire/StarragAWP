@@ -20,7 +20,17 @@ namespace Web_App_Master
         {
             try
             {
-               return AssetController.UpdateAsset(asset);
+                var local = Global.Library.Assets.Find((x) => x.AssetNumber == asset.AssetNumber);
+                if (local != null)
+                {
+                    return AssetController.UpdateAsset(asset);
+                }
+                else
+                {
+                    Global.Library.Assets.Add(asset);
+                    return AssetController.AddNewAsset(asset);
+                }
+               
                 
             }
             catch { return false; }
@@ -272,8 +282,6 @@ namespace Web_App_Master
             }
 
         }
-
-
     }
     public class Pull
     {

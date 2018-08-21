@@ -21,7 +21,7 @@ namespace Web_App_Master.Browser
 {
     public partial class ControlPanel : System.Web.UI.Page
     {
-        public void UpdateAllUpdatePanels()
+        protected void UpdateAllUpdatePanels()
         {
             try
             {
@@ -61,6 +61,104 @@ namespace Web_App_Master.Browser
             UserUpdatePanel.Update();
             AppRightPanelUpdatePanel.Update();          
         }
+
+        protected void BindAndUpdatePersonnel(List<EmailAddress> office=null, List<EmailAddress> field=null, List<EmailAddress> statics=null)
+        {
+            if (statics != null)
+            {
+                BindStaticEmails(statics);
+            }
+            else
+            {
+                BindStaticEmails(Global.Library.Settings.StaticEmails);
+            }
+            if (office != null)
+            {
+                BindOfficePersonnel(office);
+            }
+            else
+            {
+                BindOfficePersonnel(Global.Library.Settings.ShippingPersons);
+            }
+            if (field != null)
+            {
+                BindFieldPersonnel(field);
+            }
+            else
+            {
+                BindFieldPersonnel(Global.Library.Settings.ServiceEngineers);
+            }
+            PersonnelFieldUpdatePanel.Update();
+            PersonnelOfficeUpdatePanel.Update();
+            PersonnelMainViewUpdatePanel.Update();
+        }
+
+        protected void BindAndUpdateCustomers(List<Customer> customers = null)
+        {
+            if (customers!=null)
+            {
+                BindCustomers(customers);
+            }
+            else
+            {
+                BindCustomers(Global.Library.Settings.Customers);
+            }
+            CustomerUpdatePanel.Update();         
+        }
+
+        protected void BindAndUpdateTransactions(List<PendingTransaction> transactions = null)
+        {
+            if (transactions != null)
+            {
+                BindTransactions(transactions);
+            }
+            else
+            {
+                BindTransactions(Pull.Transactions());
+            }
+            TransactionListUpdatePanel.Update();
+        }
+
+        protected void BindAndUpdateNotifications(List<Notification.NotificationSystem.Notice> notices = null)
+        {
+            if (notices != null)
+            {
+                BindNotifications(notices);
+            }
+            else
+            {
+                BindNotifications(Pull.Notifications());
+            }
+            NotificationsViewUpdatePanel.Update();
+        }
+
+        protected void BindAndUpdateAssets(List<Asset> assets = null)
+        {
+            if (assets != null)
+            {
+                BindAssets(assets);
+            }
+            else
+            {
+                BindAssets(Pull.Assets());
+            }
+            AssetsUpdatePanel.Update();
+        }
+
+        protected void BindAndUpdateCertificates(List<CalibrationData> certs = null)
+        {
+            if (certs != null)
+            {
+                BindCertificates(certs);
+            }
+            else
+            {
+                BindCertificates(Pull.Certificates().Calibrations);
+            }
+            CertificateUpdatePanel.Update();
+        }
+
+
         public string TID { get; set; }
         public string OrderNumber { get; set; }
         public string Email { get; set; }
@@ -72,46 +170,58 @@ namespace Web_App_Master.Browser
 
         protected void Page_Load(object sender, EventArgs e)
         {
-            TESTMODE_CHECKBOX.Checked = Global.Library.Settings.TESTMODE;
-
-            try
-            {
-                ups_pwd.Value = Global.Library.Settings.UpsAccount.P;
-                ups_aln.Value = Global.Library.Settings.UpsAccount.A;
-                ups_userid.Value = Global.Library.Settings.UpsAccount.I;
-                ups_shippernumber.Value = Global.Library.Settings.UpsAccount.N;
-            }
-            catch { }
-            try
-            {
-                shipmsgbox.Value = Global.Library.Settings.ShipperNotification;
-                checkinmsgbox.Value = Global.Library.Settings.CheckInMessage;
-                checkoutmsgbox.Value = Global.Library.Settings.CheckOutMessage;
-                notificationmsgbox.Value = Global.Library.Settings.NotificationMessage;
-            }
-            catch
-            {
-
-            }
+         
 
             DirTree.SelectedNodeChanged += DirTree_SelectedNodeChanged;
             //dynamically add postpacks
             ScriptManager.GetCurrent(Page).RegisterAsyncPostBackControl(SuperButton);
             ScriptManager.GetCurrent(Page).RegisterAsyncPostBackControl(DirTree);
             ScriptManager.GetCurrent(Page).RegisterAsyncPostBackControl(COPOkBtn);
+            ScriptManager.GetCurrent(Page).RegisterAsyncPostBackControl(CFPOkBtn);
+            ScriptManager.GetCurrent(Page).RegisterAsyncPostBackControl(CCOkBtn);
+            ScriptManager.GetCurrent(Page).RegisterAsyncPostBackControl(CCertOkBtn);
+            ScriptManager.GetCurrent(Page).RegisterAsyncPostBackControl(CSEOkBtn);
+            ScriptManager.GetCurrent(Page).RegisterAsyncPostBackControl(CreateAssetModalOkBtn);
             ScriptManager.GetCurrent(Page).RegisterAsyncPostBackControl(ControlPanelSaveBtn);
             ScriptManager.GetCurrent(Page).RegisterPostBackControl(ExportXmlBtn);
             ScriptManager.GetCurrent(Page).RegisterPostBackControl(ExportLibraryBtn);
-            if (!IsPostBack)
+
+            if (IsPostBack)
             {
-                Pull.Globals();
-                LoadControlPanelApp();
+               
             }
             
 
             //determkne last view and load it 
             if (!IsPostBack)
             {
+                
+                var a = Global.Library.Settings.UpsAccount;
+                Pull.Globals();
+                a = Global.Library.Settings.UpsAccount;
+                TESTMODE_CHECKBOX.Checked = Global.Library.Settings.TESTMODE;
+
+                try
+                {
+                    ups_pwd.Value = Global.Library.Settings.UpsAccount.P;
+                    ups_aln.Value = Global.Library.Settings.UpsAccount.A;
+                    ups_userid.Value = Global.Library.Settings.UpsAccount.I;
+                    ups_shippernumber.Value = Global.Library.Settings.UpsAccount.N;
+                }
+                catch { }
+                try
+                {
+                    shipmsgbox.Value = Global.Library.Settings.ShipperNotification;
+                    checkinmsgbox.Value = Global.Library.Settings.CheckInMessage;
+                    checkoutmsgbox.Value = Global.Library.Settings.CheckOutMessage;
+                    notificationmsgbox.Value = Global.Library.Settings.NotificationMessage;
+                }
+                catch
+                {
+
+                }
+                
+                LoadControlPanelApp();
                 var cv = Session["cv"] as string; //get current view 
                 switch (cv)
                 {
@@ -135,6 +245,9 @@ namespace Web_App_Master.Browser
                         break;
                    case "certificates":
                         LoadCertificateView(null);
+                        break;
+                    case null:
+                        LoadSettingsView(null);
                         break;
                 }
             }
@@ -277,19 +390,59 @@ namespace Web_App_Master.Browser
 
         private void LoadBatabaseSettingsView()
         {
-            Session["cv"] = "settings";
+            Session["cv"] = "settings-db";
             SettingsMultiview.ActiveViewIndex = 2;
             AppRightPanelMultiView.SetActiveView(SettingsView);
-            //AppRightPanelUpdatePanel.Update();
+            try
+            {
+                TESTMODE_CHECKBOX.Checked = Global.Library.Settings.TESTMODE;
+                ups_pwd.Value = Global.Library.Settings.UpsAccount.P;
+                ups_aln.Value = Global.Library.Settings.UpsAccount.A;
+                ups_userid.Value = Global.Library.Settings.UpsAccount.I;
+                ups_shippernumber.Value = Global.Library.Settings.UpsAccount.N;
+            }
+            catch { }
+            try
+            {
+                shipmsgbox.Value = Global.Library.Settings.ShipperNotification;
+                checkinmsgbox.Value = Global.Library.Settings.CheckInMessage;
+                checkoutmsgbox.Value = Global.Library.Settings.CheckOutMessage;
+                notificationmsgbox.Value = Global.Library.Settings.NotificationMessage;
+            }
+            catch
+            {
+
+            }
+            AppRightPanelUpdatePanel.Update();
         }
 
         private void LoadUserSettingsView()
         {
-            Session["cv"] = "settings";
+            Session["cv"] = "settings-user";
             BindUsersAndRoles();
             SettingsMultiview.ActiveViewIndex = 1;
             AppRightPanelMultiView.SetActiveView(SettingsView);
-            //AppRightPanelUpdatePanel.Update();
+            try
+            {
+                TESTMODE_CHECKBOX.Checked = Global.Library.Settings.TESTMODE;
+                ups_pwd.Value = Global.Library.Settings.UpsAccount.P;
+                ups_aln.Value = Global.Library.Settings.UpsAccount.A;
+                ups_userid.Value = Global.Library.Settings.UpsAccount.I;
+                ups_shippernumber.Value = Global.Library.Settings.UpsAccount.N;
+            }
+            catch { }
+            try
+            {
+                shipmsgbox.Value = Global.Library.Settings.ShipperNotification;
+                checkinmsgbox.Value = Global.Library.Settings.CheckInMessage;
+                checkoutmsgbox.Value = Global.Library.Settings.CheckOutMessage;
+                notificationmsgbox.Value = Global.Library.Settings.NotificationMessage;
+            }
+            catch
+            {
+
+            }
+            AppRightPanelUpdatePanel.Update();
         }
 
         private void LoadFieldPersonnelView()
@@ -340,6 +493,26 @@ namespace Web_App_Master.Browser
             BindUsersAndRoles();
             SettingsMultiview.ActiveViewIndex = 0;
             AppRightPanelMultiView.SetActiveView(SettingsView);
+            try
+            {
+                TESTMODE_CHECKBOX.Checked = Global.Library.Settings.TESTMODE;
+                ups_pwd.Value = Global.Library.Settings.UpsAccount.P;
+                ups_aln.Value = Global.Library.Settings.UpsAccount.A;
+                ups_userid.Value = Global.Library.Settings.UpsAccount.I;
+                ups_shippernumber.Value = Global.Library.Settings.UpsAccount.N;
+            }
+            catch { }
+            try
+            {
+                shipmsgbox.Value = Global.Library.Settings.ShipperNotification;
+                checkinmsgbox.Value = Global.Library.Settings.CheckInMessage;
+                checkoutmsgbox.Value = Global.Library.Settings.CheckOutMessage;
+                notificationmsgbox.Value = Global.Library.Settings.NotificationMessage;
+            }
+            catch
+            {
+
+            }
             AppRightPanelUpdatePanel.Update();
         }
 
@@ -362,6 +535,7 @@ namespace Web_App_Master.Browser
         {
             Session["cv"] = "personnel";
             PersonnelMultiView.ActiveViewIndex = 0;
+            BindStaticEmails(Global.Library.Settings.StaticEmails);
             BindFieldPersonnel(Global.Library.Settings.ServiceEngineers);
             BindOfficePersonnel(Global.Library.Settings.ShippingPersons);            
             AppRightPanelMultiView.SetActiveView(PersonnelView);
@@ -580,7 +754,30 @@ namespace Web_App_Master.Browser
             {
                 if (sc.Contains("delete"))
                 {
-
+                    var local = Global.Library.Assets.Find((x) => x.AssetNumber == sa);
+                    if (local!=null)
+                    {
+                        AssetController.DeleteAsset(sa);
+                        BindAndUpdateAssets(Pull.Assets());
+                    }
+                }
+            }
+            if (sc.Contains("static"))
+            {
+                if (sc.Contains("delete"))
+                {
+                    try
+                    {
+                        var p = from x in Global.Library.Settings.StaticEmails where x.Email == sa select x;
+                        if (p.Count() > 0)
+                        {
+                            Global.Library.Settings.StaticEmails.Remove(p.First());
+                            Push.LibrarySettings();
+                            UpdateStatus(sa + " removed from Static Email List");
+                            BindAndUpdatePersonnel(Global.Library.Settings.ShippingPersons, Global.Library.Settings.ServiceEngineers, Global.Library.Settings.StaticEmails);
+                        }
+                    }
+                    catch { UpdateStatus("Error removing " + sa); }
                 }
             }
             if (sc.Contains("notice"))
@@ -609,40 +806,60 @@ namespace Web_App_Master.Browser
                     try
                     {
                         string[] split = sa.Split(new string[] { "-dd-" }, StringSplitOptions.None);
-                        Global.Library.Settings.Customers = Application["CustomerList"] as List<Customer>;
                         var item = (from n in Global.Library.Settings.Customers where split[0].Contains(n.CompanyName) && split[1].Contains(n.Postal) select n).FirstOrDefault();
                         if (item == null)
                             return;
                         Global.Library.Settings.Customers.Remove(item);
                         Push.LibrarySettings();
-                        BindCustomers(Global.Library.Settings.Customers);
-                        CustomerUpdatePanel.Update();
-                        AppRightPanelUpdatePanel.Update();
-                        // UpdateAllUpdatePanels();
+                        BindAndUpdateCustomers(Global.Library.Settings.Customers);
+                        UpdateStatus(item.CompanyName + " deleted");
                     }
                     catch
-                    { }
+                    { UpdateStatus("Error removing Customer"); }
                 }
             }
             if (sc.Contains("op"))
             {
                 if (sc.Contains("delete"))
                 {
-
+                    try
+                    {
+                        var p = from x in Global.Library.Settings.ShippingPersons where x.Email == sa select x;
+                        if (p.Count()>0)
+                        {
+                            Global.Library.Settings.ShippingPersons.Remove(p.First());
+                            Push.LibrarySettings();
+                            UpdateStatus(sa + " removed from Office Personnel");
+                            BindAndUpdatePersonnel(Global.Library.Settings.ShippingPersons, Global.Library.Settings.ServiceEngineers);
+                        }
+                    }
+                    catch { UpdateStatus("Error removing "+sa); }
                 }
             }
             if (sc.Contains("fp"))
             {
                 if (sc.Contains("delete"))
                 {
-
+                    try
+                    {
+                        var p = from x in Global.Library.Settings.ServiceEngineers where x.Email == sa select x;
+                        if (p.Count() > 0)
+                        {
+                            Global.Library.Settings.ServiceEngineers.Remove(p.First());
+                            Push.LibrarySettings();
+                            UpdateStatus(sa + " removed from Field Personnel");
+                            BindAndUpdatePersonnel(Global.Library.Settings.ShippingPersons, Global.Library.Settings.ServiceEngineers);
+                        }
+                    }
+                    catch { UpdateStatus("Error removing " + sa); }
                 }
             }
             if (sc.Contains("transaction"))
             {
                 if (sc.Contains("delete"))
                 {
-
+                    AssetController.RemoveTransaction(sa);
+                    BindAndUpdateTransactions(Pull.Transactions());
                 }
             }
             //UpdateAllUpdatePanels();
@@ -704,6 +921,13 @@ namespace Web_App_Master.Browser
         }
         #endregion
         #region Personnel Functions
+        public void BindStaticEmails(List<Helpers.EmailAddress> statics)
+        {
+            StaticEmailRepeater.DataSource = statics;
+            StaticEmailRepeater.DataBind();            
+            PersonnelMainViewUpdatePanel.Update();
+        }
+
         public void BindOfficePersonnel(List<Helpers.EmailAddress> personnel)
         {
             PersonnelOfficeRepeater.DataSource = personnel;
@@ -1616,7 +1840,13 @@ namespace Web_App_Master.Browser
             switch (cv)
             {
                 case "settings":
-                    Global.Library.Settings.NotificationMessage = notificationmsgbox.Value;                   
+                   
+                    Global.Library.Settings.TESTMODE = TESTMODE_CHECKBOX.Checked;
+                    break;
+                case "customers":
+                    break;
+                case "settings-user":
+                    Global.Library.Settings.NotificationMessage = notificationmsgbox.Value;
                     Global.Library.Settings.CheckOutMessage = checkoutmsgbox.Value;
                     Global.Library.Settings.CheckInMessage = checkinmsgbox.Value;
                     Global.Library.Settings.ShipperNotification = shipmsgbox.Value;
@@ -1626,9 +1856,18 @@ namespace Web_App_Master.Browser
                     Global.Library.Settings.UpsAccount.A = ups_aln.Value;
                     Global.Library.Settings.UpsAccount.I = ups_userid.Value;
                     Global.Library.Settings.UpsAccount.N = ups_shippernumber.Value;
-                    Global.Library.Settings.TESTMODE = TESTMODE_CHECKBOX.Checked;
                     break;
-                case "customers":
+                case "settings-db":
+                    Global.Library.Settings.NotificationMessage = notificationmsgbox.Value;
+                    Global.Library.Settings.CheckOutMessage = checkoutmsgbox.Value;
+                    Global.Library.Settings.CheckInMessage = checkinmsgbox.Value;
+                    Global.Library.Settings.ShipperNotification = shipmsgbox.Value;
+                    if (Global.Library.Settings.UpsAccount == null)
+                    { Global.Library.Settings.UpsAccount = new UPSaccount(); }
+                    Global.Library.Settings.UpsAccount.P = ups_pwd.Value;
+                    Global.Library.Settings.UpsAccount.A = ups_aln.Value;
+                    Global.Library.Settings.UpsAccount.I = ups_userid.Value;
+                    Global.Library.Settings.UpsAccount.N = ups_shippernumber.Value;
                     break;
                 case "transactions":
                     break;
@@ -1645,7 +1884,6 @@ namespace Web_App_Master.Browser
                     break;
             }
             Push.LibrarySettings();
-            Push.Library();
             UpdateAllUpdatePanels();
            
         }
@@ -1690,17 +1928,90 @@ namespace Web_App_Master.Browser
 
         protected void COPOkBtn_Click(object sender, EventArgs e)
         {
-
+            try
+            {
+                bool isedit = Convert.ToBoolean(IsOPEdit.Value);
+                if (!isedit)
+                {
+                    var local = Global.Library.Settings.ShippingPersons.Find((x) => x.Email == COPEmailTextBox.Value);
+                    if (local != null)
+                    {
+                        UpdateStatus(COPEmailTextBox.Value + " already exists");
+                        return;
+                    }
+                    var name = COPNameTextBox.Value;
+                    var email = COPEmailTextBox.Value;
+                    EmailAddress NEWSTATIC = new EmailAddress() { Name = name, Email = email };
+                    Global.Library.Settings.ShippingPersons.Add(NEWSTATIC);
+                }
+                else
+                {
+                    var local = Global.Library.Settings.ShippingPersons.Find((x) => x.Email == COPEmailTextBox.Value);
+                    local.Email = COPEmailTextBox.Value;
+                    local.Name = COPNameTextBox.Value;
+                }
+                Push.LibrarySettings();
+                UpdateStatus("Personnel added: " + COPEmailTextBox.Value);
+                BindAndUpdatePersonnel(Global.Library.Settings.ShippingPersons, Global.Library.Settings.ServiceEngineers);
+            }
+            catch { UpdateStatus("Error adding Personnel"); }
         }
 
         protected void CFPOkBtn_Click(object sender, EventArgs e)
         {
-
+            try
+            {
+                bool isedit = Convert.ToBoolean(IsFPEdit.Value);
+                if (!isedit)
+                {
+                    var local = Global.Library.Settings.ServiceEngineers.Find((x) => x.Email == CFPEmailTextBox.Value);
+                    if (local != null)
+                    {
+                        UpdateStatus(CFPEmailTextBox.Value + " already exists");
+                        return;
+                    }
+                    var name = CFPNameTextBox.Value;
+                    var email = CFPEmailTextBox.Value;
+                    EmailAddress NEWSTATIC = new EmailAddress() { Name = name, Email = email };
+                    Global.Library.Settings.ServiceEngineers.Add(NEWSTATIC);
+                }
+                else
+                {
+                    var local = Global.Library.Settings.ServiceEngineers.Find((x) => x.Email == CFPEmailTextBox.Value);
+                    local.Email = CFPEmailTextBox.Value;
+                    local.Name = CFPNameTextBox.Value;
+                }
+                Push.LibrarySettings();
+                UpdateStatus("Field Personnel added: " + CFPEmailTextBox.Value);
+                BindAndUpdatePersonnel(Global.Library.Settings.ShippingPersons, Global.Library.Settings.ServiceEngineers);
+            }
+            catch { UpdateStatus("Error adding Field Personnel"); }        
         }
 
         protected void CCOkBtn_Click(object sender, EventArgs e)
         {
+            try
+            {
+                Customer cust = new Customer()
+                {
+                    CompanyName = CustCompany.Value,
+                    Address = CustAddr.Value,
+                    Address2 = CustAddr2.Value,
+                    Postal = CustPostal.Value,
+                    City = CustCty.Value,
+                    Country = CustCountry.Value,
+                    Attn = CustName.Value,
+                    State = CustState.Value,
+                    Phone = CustPhone.Value,
+                    EmailAddress = new EmailAddress() { Name = CustName.Value, Email = CustEmail.Value }
 
+                };
+                Global.Library.Settings.Customers.Add(cust);
+                Push.LibrarySettings();
+                UpdateStatus("Customer added: " + cust.CompanyName);
+                BindAndUpdateCustomers(Global.Library.Settings.Customers);
+            }
+            catch { UpdateStatus("Error Creating Static Email"); }
         }
 
         protected void ExportXmlBtn_Click(object sender, EventArgs e)
@@ -1732,7 +2043,33 @@ namespace Web_App_Master.Browser
 
         protected void CSEOkBtn_Click(object sender, EventArgs e)
         {
-
+            try
+            {
+                bool isedit = Convert.ToBoolean(IsStaticEdit.Value);
+                if (!isedit)
+                {
+                    var local = Global.Library.Settings.StaticEmails.Find((x) => x.Email == CSEEmailTextBox.Value);
+                    if (local != null)
+                    {
+                        UpdateStatus(CSEEmailTextBox.Value + " already exists");
+                        return;
+                    }
+                    var name = CSENameTextBox.Value;
+                    var email = CSEEmailTextBox.Value;
+                    EmailAddress NEWSTATIC = new EmailAddress() { Name = name, Email = email };
+                    Global.Library.Settings.StaticEmails.Add(NEWSTATIC);
+                }
+                else
+                {
+                    var local = Global.Library.Settings.StaticEmails.Find((x) => x.Email == CSEEmailTextBox.Value);
+                    local.Email = CSEEmailTextBox.Value;
+                    local.Name = CSENameTextBox.Value;
+                }
+                Push.LibrarySettings();
+                UpdateStatus("Static Email added: " + CSEEmailTextBox.Value);
+                BindAndUpdatePersonnel();
+            }
+            catch { UpdateStatus("Error Creating Static Email"); }
         }
 
         protected void CreateAssetModalOkBtn_Click(object sender, EventArgs e)
@@ -1811,29 +2148,70 @@ namespace Web_App_Master.Browser
             AppFooterUpdatePanel.Update();
         }
         protected void CreateDirectoriesBtn_Click(object sender, EventArgs e)
-        {
-            if (!Directory.Exists(Server.MapPath("/Account/Admin")))
-            {
-                Directory.CreateDirectory(Server.MapPath("/Account/Admin"));
-            }
-            if (!Directory.Exists(Server.MapPath("/Account/Avery")))
-            {
-                Directory.CreateDirectory(Server.MapPath("/Account/Avery"));
-            }
-            var list = Global.Library.Settings.Customers;
-            foreach (var cust in list )
-            {
-                if (cust.CompanyName.ToUpper().Contains("ANDRE"))
-                {
+        {         
 
-                }
-                cust.CompanyName = cust.CompanyName.Replace("'", "").Replace("\"", "").Replace("<", "").Replace(">", "").Replace("&amp;", "").Replace("(", "").Replace(")", "").Replace("&#39;", "");
-
-            }
-            Push.LibrarySettings();
-
-            
            
+
+            //Global.Library.Settings.Customers.Clear();
+        
+            //var doc = new XmlDocument();
+
+            //using (StreamReader reader = new StreamReader(Server.MapPath("/Account/Templates/lib.xml")))
+            //{
+            //    doc.LoadXml(reader.ReadToEnd());
+            //}
+
+            //try
+            //{
+            //    if (Global.Library.Settings == null) Global.Library.Settings = new Settings();
+            //    if (Global.Library.Settings.Customers == null) Global.Library.Settings.Customers = new List<Customer>();
+            //    XmlNodeList custElemList = doc.GetElementsByTagName("Customer");
+            //    foreach (XmlElement cust in custElemList)
+            //    {
+            //        //create a customer
+            //        Customer newCustomer = new Customer();
+            //        newCustomer.AccountNumber = cust.Attributes["AccountNumber"].Value;
+            //        newCustomer.AccPostalCd = cust.Attributes["AccPostalCd"].Value;
+            //        newCustomer.Address = cust.Attributes["Address"].Value;
+            //        newCustomer.Address2 = cust.Attributes["Address2"].Value;
+            //        newCustomer.Address3 = cust.Attributes["Address3"].Value;
+            //        newCustomer.Attn = cust.Attributes["Attn"].Value;
+            //        newCustomer.City = cust.Attributes["City"].Value;
+            //        newCustomer.CompanyName = cust.Attributes["CompanyName"].Value;
+            //        newCustomer.ConsInd = cust.Attributes["ConsInd"].Value;
+            //        newCustomer.Country = cust.Attributes["Country"].Value;
+            //        newCustomer.EmailAddress = new EmailAddress() { Email = cust.Attributes["Email"].Value };
+            //        newCustomer.Fax = cust.Attributes["Fax"].Value;
+            //        newCustomer.LocID = cust.Attributes["LocID"].Value;
+            //        newCustomer.NickName = cust.Attributes["NickName"].Value;
+            //        newCustomer.OrderNumber = cust.Attributes["OrderNumber"].Value;
+            //        newCustomer.PackageWeight = cust.Attributes["PackageWeight"].Value;
+            //        newCustomer.Phone = cust.Attributes["Phone"].Value;
+            //        newCustomer.Postal = cust.Attributes["Postal"].Value;
+            //        newCustomer.ResInd = cust.Attributes["ResInd"].Value;
+            //        newCustomer.State = cust.Attributes["State"].Value;
+            //        newCustomer.USPSPOBoxIND = cust.Attributes["USPSPOBoxIND"].Value;
+            //        Global.Library.Settings.Customers.Add(newCustomer);
+            //    }
+            //}
+            //catch
+            //{
+
+            //}
+            //var list = Global.Library.Settings.Customers;
+            //foreach (var cust in list)
+            //{
+            //    if (cust.CompanyName.ToUpper().Contains("ANDRE"))
+            //    {
+
+            //    }
+            //    cust.CompanyName = cust.CompanyName.Replace("'", "").Replace("\"", "").Replace("<", "").Replace(">", "").Replace("&amp;", "").Replace("(", "").Replace(")", "").Replace("&#39;", "");
+
+            //}
+            //Push.LibrarySettings();
+
+
+
 
         }
     }

@@ -37,6 +37,7 @@ namespace Web_App_Master
             ErrorBox.Visible = true;
             ErrorLabel.Text = title;
             ErrorMessage.Text = message;
+            ErrorModalUpdatePanel.Update();
             
         }
         public void AddMenuNotice(MenuAlert notice)
@@ -244,6 +245,8 @@ namespace Web_App_Master
             }
             if (!IsPostBack)
             {
+                ScriptManager.GetCurrent(Page).RegisterAsyncPostBackControl(UploadAssetImg);
+
                 ScriptManager.GetCurrent(Page).RegisterAsyncPostBackControl(ASuperBtn);
                 try
                 {
@@ -341,6 +344,8 @@ namespace Web_App_Master
         {
 
             var asset = Session["CurrentAsset"] as Asset;
+            bool newassetnumber = false;
+            var originalassetnumber = asset.AssetNumber;
             try
             {
                 //HOLY SHIT YOU NEED TO CHECK INPUT!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -348,6 +353,26 @@ namespace Web_App_Master
                     if ((from a in AssetController.GetAllAssets() where a.AssetNumber == av_AssetNumber.Value select a).ToList().Count == 0)
                     { //Unique Number
                         asset.AssetNumber = av_AssetNumber.Value;
+                        newassetnumber = true;
+                        if (!Directory.Exists(Server.MapPath("/Account/Images/"+asset.AssetNumber)))
+                        {
+                            Directory.CreateDirectory(Server.MapPath("/Account/Images/" + asset.AssetNumber));
+                        }
+                        try
+                        {
+                            foreach(var file in Directory.GetFiles(Server.MapPath("/Account/Images/" + originalassetnumber)))
+                            {
+                                File.Move(file, Server.MapPath("/Account/Images/" + asset.AssetNumber+"/"+Path.GetFileName(file)));
+                            }
+                            Directory.Delete(Server.MapPath("/Account/Images/" + originalassetnumber));
+                        }
+                        catch {
+
+                        }
+                    }
+                    else
+                    {
+                        av_AssetNumber.Value = asset.AssetNumber;
                     }
                 asset.AssetName = av_AssetName.Value;              
 
@@ -376,7 +401,12 @@ namespace Web_App_Master
             }
             catch
             { }
-            AssetController.UpdateAsset(asset);
+            var test = false;
+            Push.Asset(asset);
+            if (newassetnumber)
+            {
+                AssetController.DeleteAsset(originalassetnumber);
+            }
             AssetViewHeaderLabel.InnerHtml += " - Modified";
             BindAssetToAssetView();
             Push.Alert("Asset Saved");
@@ -390,15 +420,16 @@ namespace Web_App_Master
             {
                 var filename = AssetImageUploader.FileName;              
                 var asset = Session["CurrentAsset"] as Asset;
-               
+               if (!Directory.Exists(Server.MapPath("/Account/Images/"+asset.AssetNumber)))
+                {
+                    Directory.CreateDirectory(Server.MapPath("/Account/Images/"+asset.AssetNumber));
+                }
                     
-                    var name = Server.MapPath("/Account/Images/" + Server.HtmlEncode(filename));
+                    var name = Server.MapPath("/Account/Images/" + asset.AssetNumber+"/" + Server.HtmlEncode(filename));
                     asset.Images += Server.HtmlEncode(filename) + ",";
                     AssetImageUploader.PostedFile.SaveAs(name);
-                
-                    Push.Asset(asset);
-               
-               
+                Push.Asset(asset);
+                Response.Redirect("/Account/AssetView");
             }
             catch { }
         }
@@ -431,7 +462,7 @@ namespace Web_App_Master
             AssetImageCountLiteral.Text = "1/" +((asset.Images.Split(new string[] { "," }, StringSplitOptions.RemoveEmptyEntries)).Length.ToString());
             AssetImageUpdatePanel.Update();
             if (asset == null) { binddummy(); return; }
-            if (asset.History.History.Count==0){ binddummy(); return; }
+            if (asset.History.History.Count==0){ binddummy(); }
             try
             {
                 AssetHistoryRepeater.DataSource = asset.History.History;

@@ -114,9 +114,9 @@
                                      <%-- right items--%>
                                     <ul class="nav navbar-nav starrag-menu navbar-right ">
 <%--MAP--%>                                   
-                                        <li class="fg-hover-starrag">
+                                       <%-- <li class="fg-hover-starrag">
                                             <a href="/Map.aspx" ><i class="glyphicon glyphicon-map-marker"></i></a>
-                                        </li>
+                                        </li>--%>
 <%--CHECKOUT--%>
                                         <li class="dropdown" style="z-index:99999;" >
                                             <a id="CheckinDropDown" class="dropdown-toggle fg-hover-starrag" data-toggle="dropdown" href="#" onclick="Quiet('CheckInIcon')"><i id="CheckInIcon" class="glyphicon glyphicon-cloud-upload"></i>
@@ -337,6 +337,7 @@
                                                 <asp:RoleGroup Roles="Admins,superadmin">
                                                     <ContentTemplate>
                                                         <span class="awp-save-btn bg-red fg-white shadow" "><asp:LinkButton runat="server" ID="AssetSaveBtn" OnClick="AssetSaveBtn_Click"><i title="Save" style="font-size:1em;" class=" fg-white glyphicon glyphicon-floppy-disk av-hand-cursor"></i></asp:LinkButton></span>
+                                                        <span style="right:75px" class="awp-save-btn bg-blue fg-white shadow" "><asp:LinkButton runat="server" ID="AssetImgUploadBtn" OnClientClick="ShowDiv('UploadAssetImage');" ><i title="Upload" style="font-size:1em;" class=" fg-white glyphicon glyphicon-upload av-hand-cursor"></i></asp:LinkButton></span>
                                                     </ContentTemplate>
                                                 </asp:RoleGroup>
                                             </RoleGroups>
@@ -623,15 +624,20 @@
 <!--End Asset View -->
 
 <!--Message Charm-->
-        <div runat="server" id="ErrorBox" class=" transition-bottom" visible="false">
-       <span class="modal-closer fg-white shadow-metro-black" onclick="HideDiv('ErrorBox');">X</span>
-            <div id="error-box-label"><span class="mif-warning mif-2x fg-white shadow-metro-black"></span>
-            <asp:Label Text="" ID="ErrorLabel" ClientIDMode="Static" CssClass="fg-white shadow-metro-black" runat="server" />
-            </div>          
-            <div id="error-box-content">
-                <asp:Label ID="ErrorMessage" ClientIDMode="Static" CssClass="fg-white shadow-metro-black" runat="server" />
-            </div>
-        </div>
+            <asp:UpdatePanel ID ="ErrorModalUpdatePanel" UpdateMode="Conditional" runat="server">
+                <ContentTemplate>
+                    <div runat="server" id="ErrorBox" class=" transition-bottom" style="z-index:99999;" visible="false">
+                        <span class="modal-closer fg-white shadow-metro-black" onclick="HideDiv('ErrorBox');">X</span>
+                        <div id="error-box-label"><span class="mif-warning mif-2x fg-white shadow-metro-black"></span>
+                        <asp:Label Text="" ID="ErrorLabel" ClientIDMode="Static" CssClass="fg-white shadow-metro-black" runat="server" />
+                        </div>          
+                        <div id="error-box-content">
+                            <asp:Label ID="ErrorMessage" ClientIDMode="Static" CssClass="fg-white shadow-metro-black" runat="server" />
+                        </div>
+                    </div>  
+                </ContentTemplate>
+            </asp:UpdatePanel>
+        
 <!--End Message Charm-->
 <!--Super Button & SuperFields-->         
             <div id="IsAvUp" style="display:none">false</div>

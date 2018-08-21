@@ -92,6 +92,26 @@ namespace Web_App_Master.Account
 
         }
 
+        [WebMethod]
+        public static bool AddNewAsset(Asset newasset)
+        {
+
+            try
+            {
+                SQL_Request req = new SQL_Request().OpenConnection();
+                req.AddAsset(newasset);
+                if (req.Success != true)
+                {
+                    return false;
+                }
+            }
+            catch
+            {
+                return false;
+            }
+            return true;
+        }
+
 
         [WebMethod]
         public static bool AssetOnHold(string num, string b)
@@ -1015,6 +1035,25 @@ namespace Web_App_Master.Account
             }
             catch { }
             return new List<Asset>();
+        }
+
+        [WebMethod]
+        public static bool DeleteAsset(string sa)
+        {
+            try
+            {
+                SQL_Request req = new SQL_Request().OpenConnection();
+                req.DeleteAsset(sa);
+                if (req.Success == true)
+                {
+                    return true;
+                }
+                else { return false; }
+            }
+            catch
+            {
+                return false;
+            }
         }
 
         [WebMethod]

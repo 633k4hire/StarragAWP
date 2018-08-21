@@ -274,6 +274,11 @@ namespace Web_App_Master.Account
                 {A.Documents.Add(Session["CombinedPdf"] as string);
                     
                 }
+                if (Session["ShippingLabelPdf"] != null)
+                {
+                    A.Documents.Add(Session["ShippingLabelPdf"] as string);
+
+                }
                 
                 A.IsOut = true;
                 Asset rem=null;
@@ -500,7 +505,9 @@ namespace Web_App_Master.Account
         {
             try
             {
-                var filename = TrackingNumberLabel.Text + ".pdf";
+                var date = DateTime.Now.ToShortDateString();
+                date = date.Replace("/","-");
+                var filename =date+"-"+ TrackingNumberLabel.Text + ".pdf";
                 Session["CombinedPdf"] = PF.Src = "/Account/CheckOutPdf/" + filename; ;
                 var dest = Server.MapPath("/Account/CheckOutPdf/" + filename);
                 var pack = Session["LastPackingSlip"] as string;
@@ -895,6 +902,10 @@ namespace Web_App_Master.Account
             try
             {
                 EstimatedCost.Value = e.Response.Negotiated;
+                if (e.Response.Negotiated==null)
+                {
+                    EstimatedCost.Value = e.Response.Price;
+                }
             }
             catch { }
         }
@@ -902,7 +913,10 @@ namespace Web_App_Master.Account
         {
             try
             {
-                ShowError("A problem has occured, please check that all forms are filled in correctly and try again");
+                var exx = e.Exception.InnerException as System.Web.Services.Protocols.SoapException;
+                var msg = exx.Detail.ChildNodes[0].ChildNodes[0].ChildNodes[1].InnerText;
+                ShowError("A problem has occured, please check that all forms are filled in correctly and try again<br>"+msg);
+                
             }
             catch { }
         }

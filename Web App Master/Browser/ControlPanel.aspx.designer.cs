@@ -766,7 +766,7 @@ namespace Web_App_Master.Browser {
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.HtmlControls.HtmlInputPassword ups_pwd;
+        protected global::System.Web.UI.HtmlControls.HtmlInputText ups_pwd;
         
         /// <summary>
         /// ups_shippernumber control.
@@ -920,6 +920,15 @@ namespace Web_App_Master.Browser {
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::System.Web.UI.UpdatePanel PersonnelMainViewUpdatePanel;
+        
+        /// <summary>
+        /// StaticEmailRepeater control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Repeater StaticEmailRepeater;
         
         /// <summary>
         /// PersonnelOfficeMainViewRepeater control.

@@ -60,4 +60,8 @@
     </asp:UpdatePanel>
     <asp:TextBox ID="ASuperBtnArg" ClientIDMode="Static" style="display:none"  runat="server" />  
     <asp:Button Text="" ID="ASuperBtn" ClientIDMode="Static" style="display:none" runat="server" OnClick="ASuperBtn_Click" />
+</asp:Content>?
+
+<asp:Content      >
+    <asp:TextBox ID =" supersuperbtn"></asp:TextBox>
 </asp:Content>

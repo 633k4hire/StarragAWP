@@ -11,6 +11,12 @@ namespace Web_App_Master.Account
 {
     public partial class CreateAsset : System.Web.UI.Page
     {
+        protected void ShowError(string message, string title="Error")
+        {
+            CErrorBox.Visible = true;
+            CErrorLabel.Text = title;
+            CErrorMessage.Text = message;
+        }
         protected void Page_Load(object sender, EventArgs e)
         {
             if (!IsPostBack)
@@ -29,7 +35,7 @@ namespace Web_App_Master.Account
                 {
                     if (AssetNumber.Text==a.AssetNumber)
                     {
-                        Page.SiteMaster().ShowError("Please use an unique [Asset Number]");
+                        ShowError("Please use an unique [Asset Number]");
                         return;
                     }
                 }
@@ -50,25 +56,11 @@ namespace Web_App_Master.Account
                     asset.CalibrationPeriod = CalPeriodText.Text;
                 }
                 asset.Description = DescriptionText.Text;
-                try
-                {
-                    SQL_Request req = new SQL_Request().OpenConnection();
-                    req.AddAsset(asset);
-                    Global.Library.Assets.Add(asset.Clone() as Asset);
-                    if (req.Success != true)
-                    {
-                        Page.SiteMaster().ShowError("Problem uplaoding Asset to SQl Database");
-                    }
-                    //saveBtnPlaceholder.Visible = false;
-                }
-                catch
-                {
-                    Page.SiteMaster().ShowError("Problem uplaoding Asset to SQl Database");
-                }
+                var r = Push.Asset(asset);
             }
             catch
             {
-                Page.SiteMaster().ShowError("Problem creating new asset");
+                ShowError("Problem creating new asset");
             }
         }
 
@@ -76,16 +68,47 @@ namespace Web_App_Master.Account
         {
             try
             {
+                if(AssetNumber.Text=="")
+                {
+                    ShowError("You Must Enter Asset Number First");
+                    return;
+                }
+                if (Global.Library.Assets.Find((x)=>x.AssetNumber==AssetNumber.Text)!=null)
+                {
+                    ShowError("You Must Enter Unique Asset Number");
+                    return;
+                }
+
+
                 if (creatorImageUploader.PostedFile!=null)
                 {
 
                 
                var asset = Session["CreatorAsset"] as Asset;
+
                     if (asset == null) asset = new Asset();
-                var filename = Guid.NewGuid().ToString();
+                    asset.AssetName = AssetName.Text;
+                    asset.AssetNumber = AssetNumber.Text;
+                    try
+                    {
+                        asset.weight = Convert.ToDecimal(Weight.Text);
+                    }
+                    catch { asset.weight = 1; }
+                    if (CalibratedCheckBox.Checked)
+                    {
+                        asset.IsCalibrated = true;
+                        asset.CalibrationCompany = CalCompanyText.Text;
+                        asset.CalibrationPeriod = CalPeriodText.Text;
+                    }
+                    asset.Description = DescriptionText.Text;
+                    if (!Directory.Exists(Server.MapPath("/Account/Images/" + asset.AssetNumber)))
+                    {
+                        Directory.CreateDirectory(Server.MapPath("/Account/Images/" + asset.AssetNumber));
+                    }
+                    var filename = Guid.NewGuid().ToString();
                 var ext = Path.GetExtension(creatorImageUploader.FileName);
-                creatorImageUploader.SaveAs(Server.MapPath("/Account/Images/"+filename+ext));
-                AssetImgBox.ImageUrl = "/Account/Images/" + filename + ext;
+                creatorImageUploader.SaveAs(Server.MapPath("/Account/Images/" + asset.AssetNumber +"/"+ filename+ext));
+                AssetImgBox.ImageUrl = "/Account/Images/" + asset.AssetNumber + "/" + filename + ext;
                 asset.Images += filename + ext + ",";
                     Session["CreatorAsset"] = asset;
                 //ImagePlaceHolder.Visible = true;
@@ -93,8 +116,10 @@ namespace Web_App_Master.Account
             }
             catch
             {
-                Page.SiteMaster().ShowError("Problem uploading image");
+                ShowError("Problem uploading image");
             }
         }
     }
 }
+
+

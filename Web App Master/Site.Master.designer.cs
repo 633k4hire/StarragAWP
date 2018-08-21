@@ -373,6 +373,15 @@ namespace Web_App_Master {
         protected global::System.Web.UI.WebControls.Repeater AssetHistoryRepeater;
         
         /// <summary>
+        /// ErrorModalUpdatePanel control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.UpdatePanel ErrorModalUpdatePanel;
+        
+        /// <summary>
         /// ErrorBox control.
         /// </summary>
         /// <remarks>

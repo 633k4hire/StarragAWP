@@ -36,8 +36,18 @@
             $("#SuperButtonArg").val(argss);
             $("#SuperButton").click();
         }
+
         function UpdateFooterStatus(stat) {
             $("#FooterStatusLabel").val(stat);
+        }
+
+        function NoEdit() {
+            $("#MainContent_IsCustEdit").val("false");
+            $("#MainContent_IsOPEdit").val("false");
+            $("#MainContent_IsFPEdit").val("false");
+            $("#MainContent_IsStaticEdit").val("false");
+            $("#MainContent_IsAssetEdit").val("false");
+            return false;
         }
 
         function CP_EditCustomer(namepostal) {
@@ -50,17 +60,19 @@
                 success: ShowCustomer
             });     
         }
-        function ShowCustomer(customer) {
-            $("#CustAddr").val(customer.Address);
-            $("#CustAddr2").val(customer.Address2);
-            $("#CustCty").val(customer.City);
-            $("#CustState").val(customer.State);
-            $("#CustPostal").val(customer.Postal);
-            $("#CustCountry").val(customer.Country);
-            $("#CustName").val(customer.CompanyName);
-            $("#CustEmail").val(customer.Email);
-            $("#CustPhone").val(customer.Phone);
-            $("#IsCustEdit").val("true");
+        function ShowCustomer(msg) {
+            var customer = msg.d;
+            $("#MainContent_CustAddr").val(customer.Address);
+            $("#MainContent_CustAddr2").val(customer.Address2);
+            $("#MainContent_CustCty").val(customer.City);
+            $("#MainContent_CustState").val(customer.State);
+            $("#MainContent_CustPostal").val(customer.Postal);
+            $("#MainContent_CustCountry").val(customer.Country);
+            $("#MainContent_CustName").val(customer.Attn);
+            $("#MainContent_CustCompany").val(customer.CompanyName);
+            $("#MainContent_CustEmail").val(customer.Email);
+            $("#MainContent_CustPhone").val(customer.Phone);
+            $("#MainContent_IsCustEdit").val("true");
             ShowDiv('CreateCustomerModal');
         }
 
@@ -74,10 +86,11 @@
                 success: ShowOP
             });   
         }
-        function ShowOP(op) {
-            $("#IsOPEdit").val("true");
-            $("#COPNameTextBox").val(op.Name);
-            $("#COPEmailTextBox").val(op.Email);
+        function ShowOP(msg) {
+            $("#MainContent_IsOPEdit").val("true");
+            var namebox = $("#MainContent_COPNameTextBox");
+            namebox.val(msg.d.Name);
+            $("#MainContent_COPEmailTextBox").val(msg.d.Email);
             ShowDiv('CreateOfficePersonnelModal');
 
         }
@@ -94,9 +107,9 @@
         }
         function ShowFP(op) {
 
-            $("#IsFPEdit").val("true");
-            $("#CFPNameTextBox").val(op.Name);
-            $("#CFPEmailTextBox").val(op.Email);
+            $("#MainContent_IsFPEdit").val("true");
+            $("#MainContent_CFPNameTextBox").val(op.d.Name);
+            $("#MainContent_CFPEmailTextBox").val(op.d.Email);
             ShowDiv('CreateFieldPersonnelModal');
         }
 
@@ -112,9 +125,9 @@
         }
         function ShowStatic(op) {
 
-            $("#IsStaticEdit").val("true");
-            $("#CSENameTextBox").val(op.Name);
-            $("#CSEEmailTextBox").val(op.Email);
+            $("#MainContent_IsStaticEdit").val("true");
+            $("#MainContent_CSENameTextBox").val(op.d.Name);
+            $("#MainContent_CSEEmailTextBox").val(op.d.Email);
             ShowDiv('CreateStaticEmailModal');
         }
          function CP_EditAsset(num) {
@@ -127,14 +140,14 @@
                 success: ShowAsset
             });   
         }
-        function ShowAsset(asset) {
-
-            $("#IsAssetEdit").val("true");
-            $("#AssetImgBox").attr("src",(asset.FirstImage));
-            $("#AssetName").val(asset.Description);
-            $("#AssetNumber").val(asset.Description);
-            $("#Weight").val(asset.Description);
-            $("#DescriptionText").val(asset.Description);
+        function ShowAsset(msg) {
+            var asset = msg.d;
+            $("MainContent_#IsAssetEdit").val("true");
+            $("#MainContent_AssetImgBox").attr("src",(asset.FirstImage));
+            $("#MainContent_AssetName").val(asset.AssetName);
+            $("#MainContent_AssetNumber").val(asset.AssetNumber);
+            $("#MainContent_Weight").val(asset.Weight);
+            $("#MainContent_DescriptionText").val(asset.Description);
             ShowDiv('CreateAssetModal');
         }
 
@@ -162,7 +175,7 @@
                     <input runat="server" id="IsOPEdit" type="hidden" />
                 </div>
                 <div>
-                    <asp:Button OnClientClick="HideDiv('CreateOfficePersonnelModal')"  ID="COPOkBtn" CssClass="btn"  ClientIDMode="Static" runat="server" Text="Create" OnClick="COPOkBtn_Click" />
+                    <asp:Button OnClientClick="HideDiv('CreateOfficePersonnelModal')"  ID="COPOkBtn" CssClass="btn"  ClientIDMode="Static" runat="server" Text="Ok" OnClick="COPOkBtn_Click" />
                 </div>        
             </div>
             <%--CREATE FIELD PERSONNEL--%>
@@ -175,7 +188,7 @@
                     <input runat="server" id="IsFPEdit" type="hidden" />
                 </div>
                 <div>
-                    <asp:Button OnClientClick="HideDiv('CreateFieldPersonnelModal')"  ID="CFPOkBtn" CssClass="btn"  ClientIDMode="Static" runat="server" Text="Create" OnClick="CFPOkBtn_Click" />
+                    <asp:Button OnClientClick="HideDiv('CreateFieldPersonnelModal')"  ID="CFPOkBtn" CssClass="btn"  ClientIDMode="Static" runat="server" Text="Ok" OnClick="CFPOkBtn_Click" />
                 </div>        
             </div>
             <%--Create Static Email--%>
@@ -188,7 +201,7 @@
                     <input runat="server" id="IsStaticEdit" type="hidden" />
                 </div>
                 <div>
-                    <asp:Button OnClientClick="HideDiv('CreateStaticEmailModal')"  ID="CSEOkBtn" CssClass="btn"  ClientIDMode="Static" runat="server" Text="Create" OnClick="CSEOkBtn_Click" />
+                    <asp:Button OnClientClick="HideDiv('CreateStaticEmailModal')"  ID="CSEOkBtn" CssClass="btn"  ClientIDMode="Static" runat="server" Text="Ok" OnClick="CSEOkBtn_Click" />
                 </div>        
             </div>
             <%--Create Customer--%>
@@ -209,7 +222,7 @@
                     <input runat="server" id="IsCustEdit" type="hidden" />
                 </div>
                 <div>
-                    <asp:Button OnClientClick="HideDiv('CreateCustomerModal')"  ID="CCOkBtn" CssClass="btn"  ClientIDMode="Static" runat="server" Text="Create" OnClick="CCOkBtn_Click" />
+                    <asp:Button OnClientClick="HideDiv('CreateCustomerModal')"  ID="CCOkBtn" CssClass="btn"  ClientIDMode="Static" runat="server" Text="Ok" OnClick="CCOkBtn_Click" />
                 </div>        
             </div>
             <%--Create Certificate--%>
@@ -220,7 +233,7 @@
                    
                 </div>
                 <div>
-                    <asp:Button OnClientClick="HideDiv('CreateCertificateModal')"  ID="CCertOkBtn" CssClass="btn"  ClientIDMode="Static" runat="server" Text="Create" OnClick="CCertOkBtn_Click" />
+                    <asp:Button OnClientClick="HideDiv('CreateCertificateModal')"  ID="CCertOkBtn" CssClass="btn"  ClientIDMode="Static" runat="server" Text="Ok" OnClick="CCertOkBtn_Click" />
                 </div>        
             </div>
            <%--Create Asset Email--%>
@@ -290,7 +303,7 @@
                             </Triggers>
                         </asp:UpdatePanel>
 
-                        <asp:Button OnClientClick="HideDiv('CreateAssetModal')"  ID="CreateAssetModalOkBtn" CssClass="btn"  ClientIDMode="Static" runat="server" Text="Create" OnClick="CreateAssetModalOkBtn_Click" />
+                        <asp:Button OnClientClick="HideDiv('CreateAssetModal')"  ID="CreateAssetModalOkBtn" CssClass="btn"  ClientIDMode="Static" runat="server" Text="Ok" OnClick="CreateAssetModalOkBtn_Click" />
                     </div>
                 </div>
                    
@@ -352,12 +365,12 @@
                                                     <a class="dropdown-toggle" data-toggle="dropdown" href="#"><i class="glyphicon glyphicon-plus av-hand-cursor"></i>
                                                     <span class="caret"></span></a>
                                                     <ul class="dropdown-menu pull-right starrag-menu">
-                                                        <li><a href="#" onclick="ShowDiv('CreateStaticEmailModal');"  >Static Email</a></li>   
-                                                        <li><a href="#" onclick="ShowDiv('CreateCustomerModal');"  >Customer</a></li>  
-                                                        <li><a href="#" onclick="ShowDiv('CreateOfficePersonnelModal');"  >Office Personnel</a></li>  
-                                                        <li><a href="#" onclick="ShowDiv('CreateFieldPersonnelModal');" >Field Personnel</a></li>  
-                                                        <li><a href="#" onclick="ShowDiv('CreateAssetModal');" >Asset</a></li>  
-                                                        <li><a href="#" onclick="ShowDiv('CreateCertificateModal');" >Certificate</a></li>  
+                                                        <li><a href="#" onclick="NoEdit(); ShowDiv('CreateStaticEmailModal');"  >Static Email</a></li>   
+                                                        <li><a href="#" onclick="NoEdit(); ShowDiv('CreateCustomerModal');"  >Customer</a></li>  
+                                                        <li><a href="#" onclick="NoEdit(); ShowDiv('CreateOfficePersonnelModal'); "  >Office Personnel</a></li>  
+                                                        <li><a href="#" onclick="NoEdit(); ShowDiv('CreateFieldPersonnelModal');" >Field Personnel</a></li>  
+                                                        <li><a href="#" onclick="NoEdit(); ShowDiv('CreateAssetModal');" >Asset</a></li>  
+                                                        <li><a href="#" onclick="NoEdit(); ShowDiv('CreateCertificateModal');" >Certificate</a></li>  
                                                     </ul>
                                                   </li>
                                                   <li id="ControlPanelSave" runat="server">
@@ -385,7 +398,7 @@
                                                         <fieldset class="groupbox-border">
                                                             <legend class="groupbox-border fg-l0xx0r">Quick Admin</legend>
                                                                 <asp:Button ToolTip="Sort Images" ID="SortAssetImages" OnClientClick="UpdateFooterStatus('Sort Running...');" CssClass="btn btn-sm" runat="server" Text="Sort Asset Images" Font-Bold="true" OnClick="SortAssetImages_Click"  />
-                                                                <asp:Button ToolTip="Create Directories" ID="CreateDirectoriesBtn" CssClass="btn btn-sm" runat="server" Text="Create Default Directories" Font-Bold="true" OnClick="CreateDirectoriesBtn_Click"  />
+                                                                <asp:Button ToolTip="Create Directories" ID="CreateDirectoriesBtn" CssClass="btn btn-sm" runat="server" Text="Developer Test Button" Font-Bold="true" OnClick="CreateDirectoriesBtn_Click"  />
                                                         </fieldset>
                                                     </asp:View>
                                                     <asp:View ID="UserSettingsView" runat="server">
@@ -521,7 +534,7 @@
                                                             <legend class="groupbox-border fg-l0xx0r">UPS Settings</legend>
                                                             <input runat="server" id="ups_aln" type="text" class="form-control" placeholder="Access License #..." />
                                                             <input runat="server" id="ups_userid" type="text" class="form-control" placeholder="User ID..." />
-                                                            <input runat="server" id="ups_pwd" type="password" class="form-control" placeholder="Password..." />
+                                                            <input runat="server" id="ups_pwd" type="text" class="form-control" placeholder="Password..." />
                                                             <input runat="server" id="ups_shippernumber" type="text" class="form-control" placeholder="Shipper #" />
                                                             </fieldset>
                                                             <fieldset class="groupbox-border">
@@ -649,6 +662,22 @@
                                                         <asp:UpdatePanel runat="server" ID="PersonnelMainViewUpdatePanel" UpdateMode="Conditional">
                                                             <ContentTemplate>
                                                                 <div class=" border-bottom-blue" style="margin:0px !important; padding-left:15px">
+                                                                    <span class="fg-black shadow-metro-black"><strong><h3>Static Email List</h3></strong></span>
+                                                                </div>
+                                                                <asp:Repeater ID="StaticEmailRepeater" ClientIDMode="Static" runat="server">
+                                                                    <ItemTemplate>
+                                                                        <div class="border-bottom-blue" style="overflow:hidden">                                        
+                                                                                <div class="col-sm-12 fg-black" style="width:auto !important; padding-left:10px; text-align:left; font-weight:normal !important">
+                                                                                    <a href="#" class="btn" title="Delete" onclick="Super('delete_static','<%#Eval("Email")%>');" >X</a>
+                                                                                    <a title="Edit" onclick="CP_EditStatic('<%# Eval("Email") %>');" style="font-weight:bold" class="btn btn-sm fg-black shadow-metro-black" href="#">(Edit)</a>    
+                                                                                    <span ><%# Eval("Name") %>&nbsp-&nbsp</span>
+                                                                                    <a href='mailto:<%# Eval("Email") %>'>Email: <%# Eval("Email") %></a>
+                                                                                </div>  
+                                                                        </div>
+                                                                    </ItemTemplate>
+                                                                </asp:Repeater>
+                                                                <hr />
+                                                                <div class=" border-bottom-blue" style="margin:0px !important; padding-left:15px">
                                                                     <span class="fg-black shadow-metro-black"><strong><h3>Office Personnel</h3></strong></span>
                                                                 </div>
                                                                 <asp:Repeater ID="PersonnelOfficeMainViewRepeater" ClientIDMode="Static" runat="server">
@@ -656,7 +685,7 @@
                                                                         <div class="border-bottom-blue" style="overflow:hidden">                                        
                                                                                 <div class="col-sm-12 fg-black" style="width:auto !important; padding-left:10px; text-align:left; font-weight:normal !important">
                                                                                     <a href="#" class="btn" title="Delete" onclick="Super('delete_op','<%#Eval("Email")%>');" >X</a>
-                                                                                    <a title="Edit" onclick="CP_EditOP('<%# Eval("Email") %>'>');" style="font-weight:bold" class="btn btn-sm fg-black shadow-metro-black" href="#">(Edit)</a>    
+                                                                                    <a title="Edit" onclick="CP_EditOP('<%# Eval("Email") %>');" style="font-weight:bold" class="btn btn-sm fg-black shadow-metro-black" href="#">(Edit)</a>    
                                                                                     <span ><%# Eval("Name") %>&nbsp-&nbsp</span>
                                                                                     <a href='mailto:<%# Eval("Email") %>'>Email: <%# Eval("Email") %></a>
                                                                                 </div>  
@@ -672,7 +701,7 @@
                                                                         <div class="border-bottom-blue" style="overflow:hidden">                                        
                                                                                 <div class="col-sm-12 fg-black" style="width:auto !important; padding-left:10px; text-align:left; font-weight:normal !important">
                                                                                     <a href="#" class="btn" title="Delete" onclick="Super('delete_fp','<%#Eval("Email")%>');" >X</a>
-                                                                                    <a title="Edit" onclick="CP_EditFP('<%# Eval("Email") %>'>');" style="font-weight:bold" class="btn btn-sm fg-black shadow-metro-black" href="#">(Edit)</a>    
+                                                                                    <a title="Edit" onclick="CP_EditFP('<%# Eval("Email") %>');" style="font-weight:bold" class="btn btn-sm fg-black shadow-metro-black" href="#">(Edit)</a>    
                                                                                     <span ><%# Eval("Name") %>&nbsp-&nbsp</span>
                                                                                     <a href='mailto:<%# Eval("Email") %>'>Email: <%# Eval("Email") %></a>
                                                                                 </div>  
@@ -782,7 +811,7 @@
                                                         <div class="border-bottom-blue" style="overflow:hidden">                                        
                                                                 <div class="col-sm-12 fg-black" style="width:auto !important; padding-left:10px; text-align:left; font-weight:normal !important">
                                                                     <a href="#" class="btn" title="Delete" onclick="Super('delete_asset','<%#Eval("AssetNumber")%>');" >X</a>
-                                                                    <a title="Edit Asset" style="font-weight:bold" class="btn btn-sm fg-black shadow-metro-black" href="#"  onclick="Super('edit_asset','<%# Eval("AssetNumber") %>'); $('#IsAssetEdit').val('true'); ShowDiv('CreateAssetModal');">(Edit)</a>    
+                                                                    <a title="Edit Asset" style="font-weight:bold" class="btn btn-sm fg-black shadow-metro-black" href="#"  onclick="CP_EditAsset('<%#Eval("AssetNumber")%>');">(Edit)</a>    
                                                                     <span ><%# Eval("AssetNumber") %>&nbsp-&nbsp<%# Eval("AssetName") %>&nbsp-&nbsp Is Out: <%# Eval("IsOut").ToString() %></span>
                                                                 </div>  
                                                         </div>

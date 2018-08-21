@@ -40,6 +40,33 @@ namespace Web_App_Master.Account {
         protected global::System.Web.UI.WebControls.Image AssetImgBox;
         
         /// <summary>
+        /// CErrorBox control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.HtmlControls.HtmlGenericControl CErrorBox;
+        
+        /// <summary>
+        /// CErrorLabel control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Label CErrorLabel;
+        
+        /// <summary>
+        /// CErrorMessage control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Label CErrorMessage;
+        
+        /// <summary>
         /// createIdUpdatePanel control.
         /// </summary>
         /// <remarks>
