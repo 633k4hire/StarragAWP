@@ -679,7 +679,7 @@ namespace Web_App_Master
 
         protected void AssetImagePrevBtn_Click(object sender, EventArgs e)
         {
-            var asset = (from a in Global.Library.Assets where a.AssetNumber == CurrentAssetNumber.Text select a).First();
+            var asset = Session["Asset"] as Asset;
             var path = "/Account/Images/" + asset.AssetNumber + "/";
             var imglist = asset.Images.Split(new string[] { "," }, StringSplitOptions.RemoveEmptyEntries);
             int idx = 0;
@@ -731,7 +731,7 @@ namespace Web_App_Master
         protected void AssetImageNextBtn_Click(object sender, EventArgs e)
         {
 
-            var asset = (from a in Global.Library.Assets where a.AssetNumber == CurrentAssetNumber.Text select a).First();
+            var asset = Session["Asset"] as Asset;
             var path = "/Account/Images/" + asset.AssetNumber+"/";
            var imglist = asset.Images.Split(new string[] {","}, StringSplitOptions.RemoveEmptyEntries);
             int idx = 0;

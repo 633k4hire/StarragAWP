@@ -925,7 +925,6 @@
       <DependentUpon>aspnet-Web App Master-20171211020416.mdf</DependentUpon>
     </Content>
     <Content Include="App_Data\settings.xml" />
-    <Content Include="Assets.aspx" />
     <Content Include="Browser\App.aspx" />
     <Content Include="Browser\ControlPanel.aspx" />
     <Content Include="Browser\FileBrowser.aspx" />
@@ -1051,7 +1050,7 @@
     <Content Include="fonts\metro.woff" />
     <Content Include="fonts\metro.ttf" />
     <Content Include="fonts\metro.eot" />
-    <Content Include="Sync.aspx" />
+    <Content Include="Upload\Sync.aspx" />
     <Content Include="WebUserControl1.ascx" />
     <Content Include="Account\Certificates\1250x60x190 mm granite lineal - Planolith - 2013.pdf" />
     <Content Include="Account\Certificates\24x24x4 granite - precision granite - 2017.pdf" />
@@ -1528,13 +1527,6 @@
     <Compile Include="App_Start\Data.cs" />
     <Compile Include="App_Start\XmlHelper.cs" />
     <Compile Include="App_Start\Zip.cs" />
-    <Compile Include="Assets.aspx.cs">
-      <DependentUpon>Assets.aspx</DependentUpon>
-      <SubType>ASPXCodeBehind</SubType>
-    </Compile>
-    <Compile Include="Assets.aspx.designer.cs">
-      <DependentUpon>Assets.aspx</DependentUpon>
-    </Compile>
     <Compile Include="Browser\App.aspx.cs">
       <DependentUpon>App.aspx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>
@@ -1725,11 +1717,11 @@
       <DependentUpon>Site.Mobile.Master</DependentUpon>
     </Compile>
     <Compile Include="Startup.cs" />
-    <Compile Include="Sync.aspx.cs">
+    <Compile Include="Upload\Sync.aspx.cs">
       <DependentUpon>Sync.aspx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>
     </Compile>
-    <Compile Include="Sync.aspx.designer.cs">
+    <Compile Include="Upload\Sync.aspx.designer.cs">
       <DependentUpon>Sync.aspx</DependentUpon>
     </Compile>
     <Compile Include="ViewSwitcher.ascx.cs">

@@ -15,6 +15,9 @@ namespace Web_App_Master
     {
         protected void Page_Load(object sender, EventArgs e)
         {
+            
+
+
             if (PushUpload.HasFile)
             {
                 string path ="/Upload/Temp/"+ Guid.NewGuid().ToString()+".xml";
@@ -60,6 +63,10 @@ namespace Web_App_Master
             catch {
 
             }
+
+            
+
+
         }
       
         public  void Push(string xml)

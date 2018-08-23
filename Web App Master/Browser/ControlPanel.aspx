@@ -142,13 +142,14 @@
         }
         function ShowAsset(msg) {
             var asset = msg.d;
-            $("MainContent_#IsAssetEdit").val("true");
-            $("#MainContent_AssetImgBox").attr("src",(asset.FirstImage));
-            $("#MainContent_AssetName").val(asset.AssetName);
-            $("#MainContent_AssetNumber").val(asset.AssetNumber);
-            $("#MainContent_Weight").val(asset.Weight);
-            $("#MainContent_DescriptionText").val(asset.Description);
-            ShowDiv('CreateAssetModal');
+            
+            //$("MainContent_#IsAssetEdit").val("true");
+            //$("#MainContent_AssetImgBox").attr("src",(asset.FirstImage));
+            //$("#MainContent_AssetName").val(asset.AssetName);
+            //$("#MainContent_AssetNumber").val(asset.AssetNumber);
+            //$("#MainContent_Weight").val(asset.Weight);
+            //$("#MainContent_DescriptionText").val(asset.Description);
+            //ShowDiv('CreateAssetModal');
         }
 
     </script>
@@ -630,7 +631,7 @@
                                             </asp:View>
                                         </asp:MultiView>
                                     </asp:View>
-                                    <%--Customer View--%>
+                                    <%--Customers View--%>
                                     <asp:View ID="CustomersView" runat="server">
                                         <asp:UpdatePanel runat="server"  ID="CustomerUpdatePanel" ChildrenAsTriggers="false" UpdateMode="Conditional" >
                                             <ContentTemplate>
@@ -650,6 +651,98 @@
                                                                 </ItemTemplate>
                                                     
                                                             </asp:Repeater>
+                                            </ContentTemplate>
+                                        </asp:UpdatePanel>
+                                    </asp:View>
+                                    <%--Customer View--%>
+                                    <asp:View ID="CustomerView" runat="server">
+                                        <asp:UpdatePanel runat="server"  ID="CustomerViewUpdatePanel" ChildrenAsTriggers="false" UpdateMode="Conditional" >
+                                            <ContentTemplate>
+                                                <div class=" border-bottom-blue" style="margin:0px !important; padding-left:15px">
+                                                    <span class="fg-black shadow-metro-black"><strong><h3><asp:Label ID="CustomerViewDocumentsLabel" runat="server" /></h3></strong></span>
+                                                </div>
+                                                <div class="row" style="margin-left:15px">
+                                                    <div class="col-md-3">
+                                                        <address>                                                    
+                                                            <strong><asp:Label ID="CustomerViewCompanyNameLabel" runat="server" /></strong><br>
+                                                            <asp:Label ID="CustomerViewAddressLabel" runat="server" />&nbsp;<asp:Label ID="CustomerViewAddress2Label" runat="server" />&nbsp;<asp:Label ID="CustomerViewAddress3Label" runat="server" /><br>
+                                                            <asp:Label ID="CustomerViewCityLabel" runat="server" />, <asp:Label ID="CustomerViewStateLabel" runat="server" />, <asp:Label ID="CustomerViewPostalLabel" runat="server" /><br>
+                                                            <asp:Label ID="CustomerViewCountryLabel" runat="server" /><br>
+                                                            <abbr title="Phone">Phone:</abbr> <asp:Label ID="CustomerViewPhoneLabel" runat="server" />
+                                                        </address>
+                                                        <address>
+                                                            <strong><asp:Label ID="CustomerViewAttnLabel" runat="server" /></strong><br>
+                                                            <a href='#'><asp:Label ID="CustomerViewEmailLabel" runat="server" /></a>
+                                                        </address>
+                                                    </div>
+                                                </div>
+                                                 
+                                                <%--Documents--%>
+                                                <div class=" border-bottom-blue" style="margin:0px !important; padding-left:15px">
+                                                    <span style="display:inline-flex" class="fg-black shadow-metro-black">
+                                                        <strong><h4>Documents &nbsp;&nbsp; </h4></strong>
+                                                      <span style="display:inline-flex;"> <asp:FileUpload  ID="CustomerViewDocumentsFileUpload"  runat="server" CssClass="form-contol" /></span>
+                                                        <span style="display:inline-flex;"> <asp:LinkButton Text="Upload" runat="server" CssClass="btn bg-green" ID="CustomerViewDocumentsBtn" OnClick="CustomerViewDocumentsBtn_Click" /></span>
+                                                    </span>
+                                                </div>
+                                                <asp:Repeater ID="CustomerViewDocumentsRepeater" ClientIDMode="Static" runat="server">
+                                                    <ItemTemplate>
+                                                        <div class="border-bottom-blue" style="overflow:hidden">                                        
+                                                                <div class="col-sm-12 fg-black" style="width:auto !important; padding-left:10px; text-align:left; font-weight:normal !important">
+                                                                    <a href="#" class="btn" title="Delete" onclick="Super('deldoc_cust','<%# CustomerGuid %>-dd-<%#Eval("AssetNumber")%>-dd-<%#Eval("FileName")%>');" >X</a>
+                                                                    <a href="#" style="font-weight:bold" class="btn btn-sm fg-black shadow-metro-black" title="Show" onclick="window.open('<%# Eval("FileName") %>', '_blank', 'fullscreen=no'); return false;" >[show]</a>
+                                                                    <span ><%# Eval("FileName") %></span>
+                                                                </div>  
+                                                        </div>
+                                                    </ItemTemplate>
+                                                </asp:Repeater>
+                                                <%--Current Assets--%>
+                                                <div class=" border-bottom-blue" style="margin:0px !important; padding-left:15px">
+                                                    <span style="display:inline-flex" class="fg-black shadow-metro-black">
+                                                        <strong><h4>Assigned Assets &nbsp;&nbsp; </h4></strong>
+                                                    </span>
+                                                </div>
+                                                <asp:Repeater ID="CustomerViewAssignedAssetRepeater" ClientIDMode="Static" runat="server">
+                                                    <ItemTemplate>
+                                                        <div class="border-bottom-blue" style="overflow:hidden">                                        
+                                                            <div class="col-sm-12 fg-black" style="width:auto !important; padding-left:10px; text-align:left; font-weight:normal !important">
+                                                                <span ><%# Eval("AssetNumber") %>&nbsp-&nbsp<%# Eval("AssetName") %>&nbsp-&nbsp Is Out: <%# Eval("IsOut").ToString() %></span>
+                                                            </div>  
+                                                        </div>
+                                                    </ItemTemplate>
+                                                </asp:Repeater>
+                                                <%--Kits--%>
+                                                <div class=" border-bottom-blue" style="margin:0px !important; padding-left:15px">
+                                                    <span style="display:inline-flex" class="fg-black shadow-metro-black">
+                                                        <strong><h4>Asset Kits &nbsp;&nbsp; </h4></strong>
+                                                    </span>
+                                                </div>
+                                                <asp:Repeater ID="CustomerViewAssetKitsRepeater" ClientIDMode="Static" runat="server">
+                                                    <ItemTemplate>
+                                                        <div class="border-bottom-blue" style="overflow:hidden">                                        
+                                                            <div class="col-sm-12 fg-black" style="width:auto !important; padding-left:10px; text-align:left; font-weight:normal !important">
+                                                                <a href="#" class="btn" title="Delete" onclick="Super('delkit_cust','<%# CustomerGuid %>-dd-<%#Eval("Guid")%>');" >X</a>
+                                                                <a href="#" style="font-weight:bold" class="btn btn-sm fg-black shadow-metro-black" title="Show" onclick=" Super('send_kit','<%# CustomerGuid %>-dd-<%#Eval("Guid")%>');" >[Send To Checkout]</a>
+                                                                <span >Assets:&nbsp;<%# Eval("AssetsString") %></span>
+                                                            </div>  
+                                                        </div>
+                                                    </ItemTemplate>
+                                                </asp:Repeater>
+                                                <%--Order Numbers--%>
+                                                <div class=" border-bottom-blue" style="margin:0px !important; padding-left:15px">
+                                                    <span style="display:inline-flex" class="fg-black shadow-metro-black">
+                                                        <strong><h4>Order Numbers &nbsp;&nbsp; </h4></strong>                                                      
+                                                    </span>
+                                                </div>
+                                                <asp:Repeater ID="CustomerViewOrderNumbersRepeater" ClientIDMode="Static" runat="server">
+                                                    <ItemTemplate>
+                                                        <div class="border-bottom-blue" style="overflow:hidden">                                        
+                                                                <div class="col-sm-12 fg-black" style="width:auto !important; padding-left:10px; text-align:left; font-weight:normal !important">
+                                                                    <span ><%# Eval("FileName") %></span>
+                                                                </div>  
+                                                        </div>
+                                                    </ItemTemplate>
+                                                </asp:Repeater>
                                             </ContentTemplate>
                                         </asp:UpdatePanel>
                                     </asp:View>
@@ -799,7 +892,7 @@
                                         </asp:UpdatePanel>
 
                                     </asp:View>
-                                    <%--Asset View --%>
+                                    <%--Assets View --%>
                                     <asp:View ID="AssetsView" runat="server">
                                         <asp:UpdatePanel runat="server" ID="AssetsUpdatePanel" UpdateMode="Conditional">
                                             <ContentTemplate>
@@ -811,7 +904,7 @@
                                                         <div class="border-bottom-blue" style="overflow:hidden">                                        
                                                                 <div class="col-sm-12 fg-black" style="width:auto !important; padding-left:10px; text-align:left; font-weight:normal !important">
                                                                     <a href="#" class="btn" title="Delete" onclick="Super('delete_asset','<%#Eval("AssetNumber")%>');" >X</a>
-                                                                    <a title="Edit Asset" style="font-weight:bold" class="btn btn-sm fg-black shadow-metro-black" href="#"  onclick="CP_EditAsset('<%#Eval("AssetNumber")%>');">(Edit)</a>    
+                                                                    <a title="Edit Asset" style="font-weight:bold" class="btn btn-sm fg-black shadow-metro-black" href="#"  onclick="Super('edit_asset','<%#Eval("AssetNumber")%>');">(Edit)</a>    
                                                                     <span ><%# Eval("AssetNumber") %>&nbsp-&nbsp<%# Eval("AssetName") %>&nbsp-&nbsp Is Out: <%# Eval("IsOut").ToString() %></span>
                                                                 </div>  
                                                         </div>
@@ -823,6 +916,80 @@
                                             </Triggers>
                                         </asp:UpdatePanel>
                                     </asp:View>
+                                    <%--Assets View --%>
+                                    <asp:View ID="SingleAssetView" runat="server">
+                                        <asp:UpdatePanel runat="server" ID="SingleAssetViewUpdatePanel" UpdateMode="Conditional">
+                                            <ContentTemplate>
+                                                <div class=" border-bottom-blue" style="margin:0px !important; padding-left:15px">
+                                                    <span class="fg-black shadow-metro-black"><strong><h3><asp:Label ID="SingleAssetViewLabel" runat="server" Text="0000"></asp:Label></h3></strong></span>
+                                                </div>
+                                                <%--Description--%>
+                                                <%--Images--%>
+                                                <div class=" border-bottom-blue" style="margin:0px !important; padding-left:15px">
+                                                    <span style="display:inline-flex" class="fg-black shadow-metro-black">
+                                                        <strong><h4>Images &nbsp;&nbsp; </h4></strong>
+                                                      <span style="display:inline-flex;"> <asp:FileUpload  ID="SingleAssetImageFileUpload"  runat="server" CssClass="form-contol" /></span>
+                                                        <span style="display:inline-flex;"> <asp:LinkButton Text="Upload" runat="server" CssClass="btn bg-green" ID="SingleAssetImageUploadBtn" OnClick="SingleAssetImageUploadBtn_Click" /></span>
+
+                                                    </span>
+                                                </div>
+                                                <asp:Repeater ID="SingleAssetViewImageRepeater" ClientIDMode="Static" runat="server">
+                                                    <ItemTemplate>
+                                                        <div class="border-bottom-blue" style="overflow:hidden">                                        
+                                                                <div class="col-sm-12 fg-black" style="width:auto !important; padding-left:10px; text-align:left; font-weight:normal !important">
+                                                                    <a href="#" class="btn" title="Delete" onclick="Super('delimg_asset','<%#Eval("AssetNumber")%>-dd-<%#Eval("FileName")%>');" >X</a>
+                                                                    <a href="#" class="btn btn-sm fg-black shadow-metro-black" style="font-weight:bold" title="Show" onclick="window.open('/Account/Images/<%#Eval("AssetNumber")%>/<%# Eval("FileName") %>', '_blank', 'fullscreen=no'); return false;" >[show]</a>
+
+                                                                    <span ><%# Eval("FileName").ToString().Replace("/Account/","") %></span>
+                                                                </div>  
+                                                        </div>
+                                                    </ItemTemplate>
+                                                </asp:Repeater>
+                                                <%--Documents--%>
+                                                <div class=" border-bottom-blue" style="margin:0px !important; padding-left:15px">
+                                                    <span style="display:inline-flex" class="fg-black shadow-metro-black">
+                                                        <strong><h4>Documents &nbsp;&nbsp; </h4></strong>
+                                                        <span style="display:inline-flex;"> <asp:FileUpload  ID="SingleAssetDocumentFileUpload" runat="server" CssClass="form-contol" /></span>
+                                                        <span style="display:inline-flex;"> <asp:LinkButton Text="Upload" runat="server" CssClass="btn bg-green" ID="SingleAssetDocumentFileUploadBtn" OnClick="SingleAssetDocumentFileUploadBtn_Click" /></span>
+                                                    </span>
+                                                </div>
+                                                <asp:Repeater ID="SingleAssetViewDocumentRepeater" ClientIDMode="Static" runat="server">
+                                                    <ItemTemplate>
+                                                        <div class="border-bottom-blue" style="overflow:hidden">                                        
+                                                                <div class="col-sm-12 fg-black" style="width:auto !important; padding-left:10px; text-align:left; font-weight:normal !important">
+                                                                    <a href="#" class="btn" title="Delete" onclick="Super('deldoc_asset','<%#Eval("AssetNumber")%>-dd-<%#Eval("FileName")%>');" >X</a>
+                                                                    <a href="#" style="font-weight:bold" class="btn btn-sm fg-black shadow-metro-black" title="Show" onclick="window.open('<%# Eval("FileName") %>', '_blank', 'fullscreen=no'); return false;" >[show]</a>
+                                                                    <span ><%# Eval("FileName").ToString().Replace("/Account/","") %></span>
+                                                                </div>  
+                                                        </div>
+                                                    </ItemTemplate>
+                                                </asp:Repeater>
+                                                <%--History--%>
+                                                <div class=" border-bottom-blue" style="margin:0px !important; padding-left:15px">
+                                                    <span style="display:inline-flex" class="fg-black shadow-metro-black">
+                                                        <strong><h4>History &nbsp;&nbsp; </h4></strong>
+                                                    </span>
+                                                </div>
+                                                <asp:Repeater ID="SingleAssetViewHistoryRepeater" ClientIDMode="Static" runat="server">
+                                                    <ItemTemplate>
+                                                        <div class="border-bottom-blue" style="overflow:hidden">                                        
+                                                                <div class="col-sm-12 fg-black" style="width:auto !important; padding-left:10px; text-align:left; font-weight:normal !important">
+                                                                    <a href="#" class="btn" title="Delete" onclick="Super('delhist_asset','<%#Eval("AssetNumber")%>-dd-<%#Eval("DateShippedString")%>');" >X</a>
+                                                                    <a title="Show" style="font-weight:bold" class="btn btn-sm fg-black shadow-metro-black" href="#"  onclick="Super('history_asset','<%#Eval("AssetNumber")%>-dd-<%#Eval("DateShippedString")%>');">[show]</a>    
+                                                                    <span ><%# Eval("OrderNumber") %>&nbsp;-&nbsp;<%# Eval("ShipTo") %>&nbsp;-&nbsp;<%# Eval("DateRecievedString") %>&nbsp;-&nbsp;<%# Eval("DateShippedString") %></span>
+                                                                </div>  
+                                                        </div>
+                                                    </ItemTemplate>
+                                                </asp:Repeater>
+                                                
+                                                
+                                            </ContentTemplate>
+                                            <Triggers>
+                                                <asp:AsyncPostBackTrigger ControlID="AssetSearchBtn" EventName="click" />
+                                            </Triggers>
+                                        </asp:UpdatePanel>
+                                    </asp:View>
+
                                     <%--Certificate View--%>
                                     <asp:View ID="CertificateView" runat="server">
                                         <asp:UpdatePanel runat="server" ID="CertificateUpdatePanel" UpdateMode="Conditional" ChildrenAsTriggers="false">

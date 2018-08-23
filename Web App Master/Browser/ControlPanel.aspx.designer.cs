@@ -877,6 +877,186 @@ namespace Web_App_Master.Browser {
         protected global::System.Web.UI.WebControls.Repeater CustomersRepeater;
         
         /// <summary>
+        /// CustomerView control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.View CustomerView;
+        
+        /// <summary>
+        /// CustomerViewUpdatePanel control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.UpdatePanel CustomerViewUpdatePanel;
+        
+        /// <summary>
+        /// CustomerViewDocumentsLabel control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Label CustomerViewDocumentsLabel;
+        
+        /// <summary>
+        /// CustomerViewCompanyNameLabel control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Label CustomerViewCompanyNameLabel;
+        
+        /// <summary>
+        /// CustomerViewAddressLabel control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Label CustomerViewAddressLabel;
+        
+        /// <summary>
+        /// CustomerViewAddress2Label control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Label CustomerViewAddress2Label;
+        
+        /// <summary>
+        /// CustomerViewAddress3Label control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Label CustomerViewAddress3Label;
+        
+        /// <summary>
+        /// CustomerViewCityLabel control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Label CustomerViewCityLabel;
+        
+        /// <summary>
+        /// CustomerViewStateLabel control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Label CustomerViewStateLabel;
+        
+        /// <summary>
+        /// CustomerViewPostalLabel control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Label CustomerViewPostalLabel;
+        
+        /// <summary>
+        /// CustomerViewCountryLabel control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Label CustomerViewCountryLabel;
+        
+        /// <summary>
+        /// CustomerViewPhoneLabel control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Label CustomerViewPhoneLabel;
+        
+        /// <summary>
+        /// CustomerViewAttnLabel control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Label CustomerViewAttnLabel;
+        
+        /// <summary>
+        /// CustomerViewEmailLabel control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Label CustomerViewEmailLabel;
+        
+        /// <summary>
+        /// CustomerViewDocumentsFileUpload control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.FileUpload CustomerViewDocumentsFileUpload;
+        
+        /// <summary>
+        /// CustomerViewDocumentsBtn control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.LinkButton CustomerViewDocumentsBtn;
+        
+        /// <summary>
+        /// CustomerViewDocumentsRepeater control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Repeater CustomerViewDocumentsRepeater;
+        
+        /// <summary>
+        /// CustomerViewAssignedAssetRepeater control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Repeater CustomerViewAssignedAssetRepeater;
+        
+        /// <summary>
+        /// CustomerViewAssetKitsRepeater control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Repeater CustomerViewAssetKitsRepeater;
+        
+        /// <summary>
+        /// CustomerViewOrderNumbersRepeater control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Repeater CustomerViewOrderNumbersRepeater;
+        
+        /// <summary>
         /// PersonnelView control.
         /// </summary>
         /// <remarks>
@@ -1055,6 +1235,96 @@ namespace Web_App_Master.Browser {
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::System.Web.UI.WebControls.Repeater AssetsRepeater;
+        
+        /// <summary>
+        /// SingleAssetView control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.View SingleAssetView;
+        
+        /// <summary>
+        /// SingleAssetViewUpdatePanel control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.UpdatePanel SingleAssetViewUpdatePanel;
+        
+        /// <summary>
+        /// SingleAssetViewLabel control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Label SingleAssetViewLabel;
+        
+        /// <summary>
+        /// SingleAssetImageFileUpload control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.FileUpload SingleAssetImageFileUpload;
+        
+        /// <summary>
+        /// SingleAssetImageUploadBtn control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.LinkButton SingleAssetImageUploadBtn;
+        
+        /// <summary>
+        /// SingleAssetViewImageRepeater control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Repeater SingleAssetViewImageRepeater;
+        
+        /// <summary>
+        /// SingleAssetDocumentFileUpload control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.FileUpload SingleAssetDocumentFileUpload;
+        
+        /// <summary>
+        /// SingleAssetDocumentFileUploadBtn control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.LinkButton SingleAssetDocumentFileUploadBtn;
+        
+        /// <summary>
+        /// SingleAssetViewDocumentRepeater control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Repeater SingleAssetViewDocumentRepeater;
+        
+        /// <summary>
+        /// SingleAssetViewHistoryRepeater control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Repeater SingleAssetViewHistoryRepeater;
         
         /// <summary>
         /// CertificateView control.

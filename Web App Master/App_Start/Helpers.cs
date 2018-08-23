@@ -514,6 +514,7 @@ namespace Helpers
     {
         public Customer()
         {
+            DataGuid = "";
            CompanyName = "";
             Attn = "";
         Address = "";
@@ -599,8 +600,24 @@ namespace Helpers
         public string OrderNumber { get; set; }
         [XmlElement("CurrentAssignedAssets")]
         public List<string> CurrentAssignedAssets { get; set; }
+        [XmlElement("DataGuid")]
+        public string DataGuid { get; set; }
         [XmlIgnore]
         public object Tag { get; set; }
+        [XmlIgnore]
+        public CustomerData CustomerData { get {
+                CustomerData cd = new CustomerData();
+                if (DataGuid!="")
+                {
+                    cd = Pull.CustomerData(DataGuid);
+                }
+                else
+                {
+                    DataGuid = cd.Guid;
+
+                }
+                return cd;
+            } }
     }
 
     [Serializable]//xml
@@ -1020,7 +1037,7 @@ namespace Helpers
         }
 
     }  
-  [Serializable]    
+    [Serializable]    
     public class PendingTransaction : Serializers.XSerializer<PendingTransaction>
     {
         public static PendingTransaction Create()
@@ -1089,4 +1106,99 @@ namespace Helpers
         public object Tag { get; set; }       
 
     }
+    [Serializable]    
+    public class CustomerData : Serializers.XSerializer<CustomerData>
+    {
+        public static CustomerData Create()
+        {
+            CustomerData n = new CustomerData();
+            
+            return n;
+        }
+
+        public CustomerData()
+        {
+            Guid = System.Guid.NewGuid().ToString();
+            Data = HttpContext.Current.User.Identity.Name;
+            var list = from a in Global.Library.Settings.ServiceEngineers where a.Email == HttpContext.Current.User.Identity.Name select a;
+            OrderNumbers = new List<string>();
+            Comment = "";
+            Customer = new Customer();
+            Assets = new List<string>();
+            Documents = new List<string>();
+            Date = DateTime.Now;
+        }
+
+        public CustomerData( List<Asset> assets)
+        {
+            Guid = System.Guid.NewGuid().ToString();
+            Documents = new List<string>();
+            Comment = "";
+            Data = HttpContext.Current.User.Identity.Name;
+            Customer = new Customer();
+            this.Assets = (from a in assets select a.AssetNumber).ToList();
+            Date = DateTime.Now;
+            OrderNumbers = new List<string>();
+        }
+        
+        [XmlElement]
+        public DateTime Date { get; set; }
+
+        [XmlElement]
+        public List<string> Assets = new List<string>();
+
+        [XmlElement]
+        public string Data { get; set; }
+
+        [XmlElement]
+        public string Guid { get; set; }
+
+        [XmlElement]
+        public List<string> Documents { get; set; }
+
+        [XmlElement]
+        public string Comment { get; set; }      
+
+        [XmlElement]
+        public Customer Customer { get; set; }
+
+        [XmlElement]
+        public List<AssetKit> AssetKitHistory { get; set; }
+
+        [XmlElement]
+        public List<string> OrderNumbers { get; set; }
+
+        [XmlIgnore]
+        public object Tag { get; set; }       
+    }
+    [Serializable]
+    public class AssetKit : Serializers.XSerializer<AssetKit>
+    {
+        public AssetKit()
+        {
+            Guid = System.Guid.NewGuid().ToString();
+            CustomerDataGuid = "";
+            Assets = new List<string>();
+        }
+
+        [XmlElement]
+        public string Guid { get; set; }
+       
+        [XmlElement]
+        public List<string> Assets { get; set; }
+
+        [XmlElement]
+        public string CustomerDataGuid { get; set; }
+
+        [XmlIgnore]
+        public string AssetsString { get
+            {
+                string ret = "";
+                Assets.ForEach((asset) => { ret += asset + ","; });
+                return ret;
+            }
+        }
+
+    }
+
 }

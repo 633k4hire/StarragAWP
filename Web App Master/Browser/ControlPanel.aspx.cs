@@ -21,6 +21,205 @@ namespace Web_App_Master.Browser
 {
     public partial class ControlPanel : System.Web.UI.Page
     {
+        //SUPER BUTTON
+        protected void SuperButton_Click(object sender, EventArgs e)
+        {
+            var sc = SuperButtonCommand.Text;
+            var sa = SuperButtonArg.Text;
+            if (sc.Contains("asset"))
+            {
+                if (sc.Contains("delete"))
+                {
+                    var local = Global.Library.Assets.Find((x) => x.AssetNumber == sa);
+                    if (local != null)
+                    {
+                        AssetController.DeleteAsset(sa);
+                        BindAndUpdateAssets(Pull.Assets());
+                    }
+                }
+                if (sc.Contains("edit"))
+                {
+                    LoadSingleAssetView(Pull.Asset(sa));
+                }
+                if (sc.Contains("history"))
+                {
+                    var split = sa.Split(new string[] { "-dd-" }, StringSplitOptions.RemoveEmptyEntries);
+                    var tempasset = Pull.Asset(split[0]);
+                    var hist = from h in tempasset.History.History where h.DateShippedString == split[1] select h;
+                    if (hist.Count() >0)
+                    {
+                        LoadSingleAssetView(hist.First());
+                    }
+                    
+                }
+                if (sc.Contains("delhist"))
+                {
+                    var split = sa.Split(new string[] { "-dd-" }, StringSplitOptions.RemoveEmptyEntries);
+                    var tempasset = Pull.Asset(split[0]);
+                    var hist = from h in tempasset.History.History where h.DateShippedString == split[1] select h;
+                    if (hist.Count() > 0)
+                    {
+                        tempasset.History.History.Remove(hist.First());
+                        Push.Asset(tempasset);
+                        LoadSingleAssetView(tempasset);
+                        UpdateStatus("History Item Removed");
+                    }
+                }
+                if (sc.Contains("deldoc"))
+                {
+                    var split = sa.Split(new string[] { "-dd-" }, StringSplitOptions.RemoveEmptyEntries);
+                    var tempasset = Pull.Asset(split[0]);
+                    tempasset.Documents.Remove(split[1]);
+                    Push.Asset(tempasset);
+                    LoadSingleAssetView(tempasset);
+                    UpdateStatus("Document Removed");
+                }
+                if (sc.Contains("delimg"))
+                {
+                    var split = sa.Split(new string[] { "-dd-" }, StringSplitOptions.RemoveEmptyEntries);
+                    var tempasset = Pull.Asset(split[0]);
+                    tempasset.Images = tempasset.Images.Replace(split[1]+",","");
+                    File.Delete(Server.MapPath("/Account/Images/"+split[0]+"/"+split[1]));
+                    Push.Asset(tempasset);
+                    LoadSingleAssetView(tempasset);
+                    UpdateStatus("Image Removed");
+                }
+            }
+            if (sc.Contains("static"))
+            {
+                if (sc.Contains("delete"))
+                {
+                    try
+                    {
+                        var p = from x in Global.Library.Settings.StaticEmails where x.Email == sa select x;
+                        if (p.Count() > 0)
+                        {
+                            Global.Library.Settings.StaticEmails.Remove(p.First());
+                            Push.LibrarySettings();
+                            UpdateStatus(sa + " removed from Static Email List");
+                            BindAndUpdatePersonnel(Global.Library.Settings.ShippingPersons, Global.Library.Settings.ServiceEngineers, Global.Library.Settings.StaticEmails);
+                        }
+                    }
+                    catch { UpdateStatus("Error removing " + sa); }
+                }
+            }
+            if (sc.Contains("notice"))
+            {
+                if (sc.Contains("delete"))
+                {
+                    try
+                    {
+                        Global.NoticeSystem.Notices = new NoticeBindinglist((Application["NotificationList"] as List<Notification.NotificationSystem.Notice>));
+                        var item = (from n in Global.NoticeSystem.Notices where n.Guid == sa select n).FirstOrDefault();
+                        if (item == null)
+                            return;
+                        Global.NoticeSystem.Notices.Remove(item);
+                        Push.NotificationSystem();
+                        BindNotifications(Global.NoticeSystem.Notices.ToList());
+                        NotificationsViewUpdatePanel.Update();
+                        AppRightPanelUpdatePanel.Update();
+                        UpdateAllUpdatePanels();
+                    }
+                    catch
+                    { }
+                }
+            }
+            if (sc.Contains("customer"))
+            {
+                if (sc.Contains("delete"))
+                {
+                    try
+                    {
+                        string[] split = sa.Split(new string[] { "-dd-" }, StringSplitOptions.None);
+                        var item = (from n in Global.Library.Settings.Customers where split[0].Contains(n.CompanyName) && split[1].Contains(n.Postal) select n).FirstOrDefault();
+                        if (item == null)
+                            return;
+                        Global.Library.Settings.Customers.Remove(item);
+                        Push.LibrarySettings();
+                        BindAndUpdateCustomers(Global.Library.Settings.Customers);
+                        UpdateStatus(item.CompanyName + " deleted");
+                    }
+                    catch
+                    { UpdateStatus("Error removing Customer"); }
+                }
+            }
+            if (sc.Contains("op"))
+            {
+                if (sc.Contains("delete"))
+                {
+                    try
+                    {
+                        var p = from x in Global.Library.Settings.ShippingPersons where x.Email == sa select x;
+                        if (p.Count() > 0)
+                        {
+                            Global.Library.Settings.ShippingPersons.Remove(p.First());
+                            Push.LibrarySettings();
+                            UpdateStatus(sa + " removed from Office Personnel");
+                            BindAndUpdatePersonnel(Global.Library.Settings.ShippingPersons, Global.Library.Settings.ServiceEngineers);
+                        }
+                    }
+                    catch { UpdateStatus("Error removing " + sa); }
+                }
+            }
+            if (sc.Contains("fp"))
+            {
+                if (sc.Contains("delete"))
+                {
+                    try
+                    {
+                        var p = from x in Global.Library.Settings.ServiceEngineers where x.Email == sa select x;
+                        if (p.Count() > 0)
+                        {
+                            Global.Library.Settings.ServiceEngineers.Remove(p.First());
+                            Push.LibrarySettings();
+                            UpdateStatus(sa + " removed from Field Personnel");
+                            BindAndUpdatePersonnel(Global.Library.Settings.ShippingPersons, Global.Library.Settings.ServiceEngineers);
+                        }
+                    }
+                    catch { UpdateStatus("Error removing " + sa); }
+                }
+            }
+            if (sc.Contains("transaction"))
+            {
+                if (sc.Contains("delete"))
+                {
+                    AssetController.RemoveTransaction(sa);
+                    BindAndUpdateTransactions(Pull.Transactions());
+                }
+            }
+            if (sc.Contains("cust"))
+            {
+                if (sc.Contains("customer")) return;
+                string[] split = sa.Split(new string[] { "-dd-" }, StringSplitOptions.RemoveEmptyEntries);
+                if (sc.Contains("deldoc"))
+                {
+                    var customer = Session["CurrentCustomer"] as Customer;
+                    CustomerData cd = Pull.CustomerData(customer.DataGuid);
+                    if (cd != null)
+                    {
+                        cd.Documents.Remove(split[1]);
+                        Push.CustomerData(cd);
+                        LoadCustomerView(customer);
+                    }
+                }
+                if (sc.Contains("delkit"))
+                {
+                    var customer = Session["CurrentCustomer"] as Customer;
+                    CustomerData cd = Pull.CustomerData(customer.DataGuid);
+                    if (cd != null)
+                    {
+                        var kit = cd.AssetKitHistory.Find((k)=>  k.Guid== split[0]);
+                        cd.AssetKitHistory.Remove(kit);
+                        Push.CustomerData(cd);
+                        LoadCustomerView(customer);
+                    }
+                }
+                
+                
+            }
+           
+        }
+
         protected void UpdateAllUpdatePanels()
         {
             try
@@ -157,8 +356,161 @@ namespace Web_App_Master.Browser
             }
             CertificateUpdatePanel.Update();
         }
+        public class FileRepeaterItem
+        {           
+            public string AssetNumber { get; set; }
+            public string FileName { get; set; }
+        }
+        protected void BindAndUpdateSingleAssetView(Asset asset)
+        {
+            SingleAssetViewLabel.Text = asset.AssetNumber + ":" + asset.AssetName;
+
+            List<FileRepeaterItem> images = new List<FileRepeaterItem>();
+            foreach (var img  in asset.Images.Split(new string[] { "," }, StringSplitOptions.RemoveEmptyEntries))
+            {
+                images.Add(new FileRepeaterItem() { AssetNumber=asset.AssetNumber, FileName=img });
+            }
+            SingleAssetViewImageRepeater.DataSource = images;
+            SingleAssetViewImageRepeater.DataBind();
+
+            List<FileRepeaterItem> documents = new List<FileRepeaterItem>();
+            foreach (var doc in asset.Documents)
+            {
+                documents.Add(new FileRepeaterItem() { AssetNumber = asset.AssetNumber, FileName = doc });
+            }
+            SingleAssetViewDocumentRepeater.DataSource = documents;
+            SingleAssetViewDocumentRepeater.DataBind();
+
+            SingleAssetViewHistoryRepeater.DataSource = asset.History.History;
+            SingleAssetViewHistoryRepeater.DataBind();
 
 
+            SingleAssetViewUpdatePanel.Update();
+        }
+
+        protected void BindAndUpdateCustomer(Customer input)
+        {
+            if (input == null) return;
+            CustomerViewDocumentsLabel.Text = input.CompanyName+": "+input.Address+","+input.Postal;
+            CustomerViewCompanyNameLabel.Text = input.CompanyName;
+            CustomerViewAddressLabel.Text = input.Address;
+            CustomerViewAddress2Label.Text = input.Address2;
+            CustomerViewAddress3Label.Text = input.Address3;
+            CustomerViewCityLabel.Text = input.City;
+            CustomerViewStateLabel.Text = input.State;
+            CustomerViewPostalLabel.Text = input.Postal;
+            CustomerViewPhoneLabel.Text = input.Phone;
+            CustomerViewAttnLabel.Text = input.Attn;
+            CustomerViewEmailLabel.Text = input.Email;
+            List<Asset> assigned = new List<Asset>();
+            List<string> removableassets = new List<string>();
+            bool updatecust = false;
+                input.CurrentAssignedAssets.ForEach((a) =>
+                {
+
+                    if (input.CurrentAssignedAssets.Contains(a))
+                    {
+                        removableassets.Add(a);
+                         updatecust = true;
+                    }
+                    else
+                    {
+                        var aa = Global.Library.Assets.FindAssetByNumber(a);
+                        assigned.Add(aa);
+                    }
+                });
+             
+            CustomerViewAssignedAssetRepeater.DataSource = assigned;
+            CustomerViewAssignedAssetRepeater.DataBind();
+
+            CustomerData cd = new CustomerData();
+            if (input.DataGuid != null)
+            {
+                if (input.DataGuid == "")
+                {
+                    Global.Library.Settings.Customers.ForEach((c) =>
+                    {
+                        if (c.Equals(input))
+                        {
+                            c.DataGuid = cd.Guid;
+                            Push.LibrarySettings();
+                        }
+                    });
+                    cd.Customer = input;
+                    cd.Date = DateTime.Now;
+                    Push.CustomerData(cd);
+                }
+                else
+                {
+                    cd= Pull.CustomerData(input.DataGuid);
+                    if (updatecust)
+                    {
+                        Global.Library.Settings.Customers.ForEach((c) =>
+                        {
+                            if (c.Equals(input))
+                            {
+                                removableassets.ForEach((f) => { c.CurrentAssignedAssets.Remove(f); });
+                                Push.LibrarySettings();
+                            }
+                        });
+                    }
+                      
+                }
+            }
+            else
+            {
+                Global.Library.Settings.Customers.ForEach((c) =>
+                {
+                    if (c.Equals(input))
+                    {
+                        c.DataGuid = cd.Guid;
+                        Push.LibrarySettings();
+                    }
+                });
+                cd.Customer = input;
+                cd.Date = DateTime.Now;
+                Push.CustomerData(cd);
+            }
+            try
+            {
+                
+                var list = new List<FileRepeaterItem>();
+                if (cd == null)
+                {
+                    cd = new CustomerData();                    
+                    cd.Guid = input.DataGuid;                   
+                    cd.Customer = input;
+                    cd.Date = DateTime.Now;
+                    Push.CustomerData(cd);
+                }
+
+                cd.Documents.ForEach((d) => {
+                    list.Add(new FileRepeaterItem() { AssetNumber = cd.Guid, FileName = d });
+                });
+
+
+                CustomerViewDocumentsRepeater.DataSource = list;
+                CustomerViewDocumentsRepeater.DataBind();
+            }
+            catch
+            {
+                UpdateStatus("No Customer Data");
+            }
+
+            //Asset Kits
+            CustomerViewAssetKitsRepeater.DataSource = cd.AssetKitHistory;
+            CustomerViewAssetKitsRepeater.DataBind();
+
+            List<FileRepeaterItem> onlist = new List<FileRepeaterItem>();
+            cd.OrderNumbers.ForEach((o) => { onlist.Add(new FileRepeaterItem() { FileName = o, AssetNumber = o });});
+            CustomerViewOrderNumbersRepeater.DataSource = onlist;
+            CustomerViewOrderNumbersRepeater.DataBind();
+
+            CustomerGuid = cd.Guid;
+            CustomerViewUpdatePanel.Update();
+        }
+
+        public string CustomerGuid { get; set; }
         public string TID { get; set; }
         public string OrderNumber { get; set; }
         public string Email { get; set; }
@@ -230,6 +582,9 @@ namespace Web_App_Master.Browser
                         break;
                     case "customers":
                         LoadCustomersView(null);
+                        break;
+                    case "customer":
+                        LoadCustomerView(null);
                         break;
                     case "transactions":
                         LoadTransactionsView(null);
@@ -308,6 +663,7 @@ namespace Web_App_Master.Browser
             UpdateAllUpdatePanels();
         }
 
+        //LEFT PANEL ACTIONS
         private void DirTree_SelectedNodeChanged(object sender, EventArgs e)
         {
             var tree = sender as TreeView;
@@ -358,7 +714,12 @@ namespace Web_App_Master.Browser
                     break;
 
                 case "CustomerNode":
-                    LoadCustomersView(value);
+                    var customer = from c in Global.Library.Settings.Customers where value.Contains(c.CompanyName) && value.Contains(c.Address) select c;
+                    if (customer.Count() >0)
+                    {
+                        LoadCustomerView(customer.First());
+                    }
+                    
                     break;
                 case "TransactionNode":
                     LoadTransactionsView(value);
@@ -381,7 +742,7 @@ namespace Web_App_Master.Browser
                     LoadNoticeView(value);
                     break;
                 case "AssetsNode":
-                    LoadAssetView(value);
+                    LoadSingleAssetView(Pull.Asset(value));
                     break;
                 default:
                     break;
@@ -566,6 +927,27 @@ namespace Web_App_Master.Browser
             AppRightPanelUpdatePanel.Update();
         }
 
+        private void LoadSingleAssetView(Asset input)
+        {
+            Session["cv"] = "asset";
+            Session["CreatorAsset"] = input;
+            BindAndUpdateSingleAssetView(input);
+            AppRightPanelMultiView.SetActiveView(SingleAssetView);
+            AppRightPanelUpdatePanel.Update();
+            ScriptManager.GetCurrent(Page).RegisterPostBackControl(SingleAssetImageUploadBtn);
+            ScriptManager.GetCurrent(Page).RegisterPostBackControl(SingleAssetDocumentFileUploadBtn);
+        }
+
+        private void LoadCustomerView(Customer input)
+        {
+            Session["cv"] = "customer";
+            Session["CurrentCustomer"] = input;
+            BindAndUpdateCustomer(input);
+            AppRightPanelMultiView.SetActiveView(CustomerView);
+            AppRightPanelUpdatePanel.Update();
+            ScriptManager.GetCurrent(Page).RegisterPostBackControl(CustomerViewDocumentsBtn);
+        }              
+
         private void LoadControlPanelApp()
         {
            
@@ -745,126 +1127,7 @@ namespace Web_App_Master.Browser
             AppRightPanelUpdatePanel.Update();
         }
 
-        //SUPER BUTTON
-        protected void SuperButton_Click(object sender, EventArgs e)
-        {
-            var sc = SuperButtonCommand.Text;
-            var sa = SuperButtonArg.Text;
-            if (sc.Contains("asset"))
-            {
-                if (sc.Contains("delete"))
-                {
-                    var local = Global.Library.Assets.Find((x) => x.AssetNumber == sa);
-                    if (local!=null)
-                    {
-                        AssetController.DeleteAsset(sa);
-                        BindAndUpdateAssets(Pull.Assets());
-                    }
-                }
-            }
-            if (sc.Contains("static"))
-            {
-                if (sc.Contains("delete"))
-                {
-                    try
-                    {
-                        var p = from x in Global.Library.Settings.StaticEmails where x.Email == sa select x;
-                        if (p.Count() > 0)
-                        {
-                            Global.Library.Settings.StaticEmails.Remove(p.First());
-                            Push.LibrarySettings();
-                            UpdateStatus(sa + " removed from Static Email List");
-                            BindAndUpdatePersonnel(Global.Library.Settings.ShippingPersons, Global.Library.Settings.ServiceEngineers, Global.Library.Settings.StaticEmails);
-                        }
-                    }
-                    catch { UpdateStatus("Error removing " + sa); }
-                }
-            }
-            if (sc.Contains("notice"))
-            {                
-                if (sc.Contains("delete"))
-                {
-                    try {
-                        Global.NoticeSystem.Notices = new NoticeBindinglist( (Application["NotificationList"] as List<Notification.NotificationSystem.Notice>));
-                        var item = (from n in Global.NoticeSystem.Notices  where n.Guid == sa select n).FirstOrDefault();
-                        if (item == null)
-                            return;
-                        Global.NoticeSystem.Notices.Remove(item);
-                        Push.NotificationSystem();
-                        BindNotifications(Global.NoticeSystem.Notices.ToList());
-                        NotificationsViewUpdatePanel.Update();
-                        AppRightPanelUpdatePanel.Update();
-                        UpdateAllUpdatePanels();
-                    } catch
-                    { }
-                }
-            }
-            if (sc.Contains("customer"))
-            {
-                if (sc.Contains("delete"))
-                {
-                    try
-                    {
-                        string[] split = sa.Split(new string[] { "-dd-" }, StringSplitOptions.None);
-                        var item = (from n in Global.Library.Settings.Customers where split[0].Contains(n.CompanyName) && split[1].Contains(n.Postal) select n).FirstOrDefault();
-                        if (item == null)
-                            return;
-                        Global.Library.Settings.Customers.Remove(item);
-                        Push.LibrarySettings();
-                        BindAndUpdateCustomers(Global.Library.Settings.Customers);
-                        UpdateStatus(item.CompanyName + " deleted");
-                    }
-                    catch
-                    { UpdateStatus("Error removing Customer"); }
-                }
-            }
-            if (sc.Contains("op"))
-            {
-                if (sc.Contains("delete"))
-                {
-                    try
-                    {
-                        var p = from x in Global.Library.Settings.ShippingPersons where x.Email == sa select x;
-                        if (p.Count()>0)
-                        {
-                            Global.Library.Settings.ShippingPersons.Remove(p.First());
-                            Push.LibrarySettings();
-                            UpdateStatus(sa + " removed from Office Personnel");
-                            BindAndUpdatePersonnel(Global.Library.Settings.ShippingPersons, Global.Library.Settings.ServiceEngineers);
-                        }
-                    }
-                    catch { UpdateStatus("Error removing "+sa); }
-                }
-            }
-            if (sc.Contains("fp"))
-            {
-                if (sc.Contains("delete"))
-                {
-                    try
-                    {
-                        var p = from x in Global.Library.Settings.ServiceEngineers where x.Email == sa select x;
-                        if (p.Count() > 0)
-                        {
-                            Global.Library.Settings.ServiceEngineers.Remove(p.First());
-                            Push.LibrarySettings();
-                            UpdateStatus(sa + " removed from Field Personnel");
-                            BindAndUpdatePersonnel(Global.Library.Settings.ShippingPersons, Global.Library.Settings.ServiceEngineers);
-                        }
-                    }
-                    catch { UpdateStatus("Error removing " + sa); }
-                }
-            }
-            if (sc.Contains("transaction"))
-            {
-                if (sc.Contains("delete"))
-                {
-                    AssetController.RemoveTransaction(sa);
-                    BindAndUpdateTransactions(Pull.Transactions());
-                }
-            }
-            //UpdateAllUpdatePanels();
-        }
-
+        
 
         protected void ViewAll_Click(object sender, EventArgs e)
         {
@@ -2213,6 +2476,135 @@ namespace Web_App_Master.Browser
 
 
 
+        }
+
+        protected void SingleAssetImageUploadBtn_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                if (SingleAssetImageFileUpload.PostedFile != null)
+                {
+                    var asset = Session["CreatorAsset"] as Asset;                   
+                    if (!Directory.Exists(Server.MapPath("/Account/Images/" + asset.AssetNumber)))
+                    {
+                        Directory.CreateDirectory(Server.MapPath("/Account/Images/" + asset.AssetNumber));
+                    }
+                    var filename = Path.GetFileNameWithoutExtension(Path.GetRandomFileName());
+                    var ext = Path.GetExtension(SingleAssetImageFileUpload.FileName);
+                    SingleAssetImageFileUpload.SaveAs(Server.MapPath("/Account/Images/" + asset.AssetNumber + "/" + filename + ext));
+                    //AssetImgBox.ImageUrl = "/Account/Images/" + asset.AssetNumber + "/" + filename + ext;
+                    asset.Images += filename + ext + ",";
+                    Session["CreatorAsset"] = asset;
+                    Push.Asset(asset);
+                    LoadSingleAssetView(asset);
+                    UpdateStatus("Image uploaded");
+                    //ImagePlaceHolder.Visible = true;
+                }
+            }
+            catch
+            {
+                UpdateStatus("Problem uploading image");
+            }
+
+        }
+
+        protected void SingleAssetDocumentFileUploadBtn_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                if (SingleAssetDocumentFileUpload.PostedFile != null)
+                {
+                    var asset = Session["CreatorAsset"] as Asset;
+                    if (!Directory.Exists(Server.MapPath("/Account/Images/" + asset.AssetNumber+"/Documents")))
+                    {
+                        Directory.CreateDirectory(Server.MapPath("/Account/Images/" + asset.AssetNumber + "/Documents"));
+                    }
+                    var filename = SingleAssetDocumentFileUpload.FileName;
+                    SingleAssetDocumentFileUpload.SaveAs(Server.MapPath("/Account/Images/" + asset.AssetNumber+"/Documents/" + filename ));
+                    //AssetImgBox.ImageUrl = "/Account/Images/" + asset.AssetNumber + "/" + filename + ext;
+                    asset.Documents.Add("/Account/Images/" + asset.AssetNumber + "/Documents/" + filename);
+                    Session["CreatorAsset"] = asset;
+                    Push.Asset(asset);
+                    LoadSingleAssetView(asset);
+                    UpdateStatus("Document uploaded");
+                    //ImagePlaceHolder.Visible = true;
+                }
+            }
+            catch
+            {
+                UpdateStatus("Problem uploading image");
+            }
+        }
+
+        protected void CustomerViewDocumentsBtn_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                if (CustomerViewDocumentsFileUpload.PostedFile != null)
+                {
+                    var customer = Session["CurrentCustomer"] as Customer;
+                    CustomerData cd = new CustomerData();
+                    if (customer.DataGuid!=null)
+                    {
+                        if (customer.DataGuid=="")
+                        {         
+                            Global.Library.Settings.Customers.ForEach((c) => 
+                            {
+                                if (c.Equals(customer))
+                                {
+                                    c.DataGuid = cd.Guid;
+                                    Push.LibrarySettings();
+                                }
+                            });
+                            cd.Customer = customer;
+                            cd.Date = DateTime.Now;
+                        }
+                        else
+                        {
+                            cd = Pull.CustomerData(customer.DataGuid);
+                        }
+                    }
+                    else
+                    {
+                        Global.Library.Settings.Customers.ForEach((c) =>
+                        {
+                            if (c.Equals(customer))
+                            {
+                                c.DataGuid = cd.Guid;
+                                Push.LibrarySettings();
+                            }
+                        });
+                        cd.Customer = customer;
+                        cd.Date = DateTime.Now;
+                    }
+                    if (cd==null)
+                    {
+                        cd = new CustomerData();
+                    }
+                    if (!Directory.Exists(Server.MapPath("/Account/CustomerData/" )))
+                    {
+                        Directory.CreateDirectory(Server.MapPath("/Account/CustomerData/"));
+                    }
+                    if (!Directory.Exists(Server.MapPath("/Account/CustomerData/" + customer.DataGuid)))
+                    {
+                        Directory.CreateDirectory(Server.MapPath("/Account/CustomerData/" + customer.DataGuid));
+                    }
+                    var filename = CustomerViewDocumentsFileUpload.FileName;
+                    CustomerViewDocumentsFileUpload.SaveAs(Server.MapPath("/Account/CustomerData/" + customer.DataGuid + "/" + filename));
+                    cd.Documents.Add("/Account/CustomerData/" + customer.DataGuid + "/" + filename);
+                    Session["CurrentCustomer"] = customer;
+
+                    Push.CustomerData(cd);
+                    LoadCustomerView(customer);
+                    UpdateStatus("Document uploaded");
+                }
+            }
+            catch
+            {
+                UpdateStatus("Problem uploading image");
+            }
+
+            LoadCustomerView(Session["CurrentCustomer"] as Customer);
         }
     }
 }

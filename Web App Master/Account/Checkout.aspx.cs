@@ -107,6 +107,7 @@ namespace Web_App_Master.Account
             var checkoutdata = Session["CheckOutData"] as CheckOutData;
             checkoutdata = UpdateCheckOutData(checkoutdata);
             if (checkoutdata.CheckOutItems == null) return;
+           
             if (checkoutdata.CheckOutItems.Count > 0)
             {
                 if (ShippingMethodDropDownList.SelectedValue == "00-NoLabel")
@@ -153,9 +154,12 @@ namespace Web_App_Master.Account
 
                     SaveToUserPersistantLog();
 
+                    
+
                     FinalizeAssets(Session["Checkout"] as List<Asset>);
 
                     Session["Checkout"] = new List<Asset>();
+
 
                     but_OK.Enabled = false;
 
@@ -245,9 +249,51 @@ namespace Web_App_Master.Account
 
         private void FinalizeAssets(List<Asset> assets)
         {
+            var customer = Session["CheckOutCustomer"] as Customer;
+            CustomerData cd = new CustomerData();
+            if (customer.DataGuid != "")
+            {
+                cd = Pull.CustomerData(customer.DataGuid);
+                Global.Library.Settings.Customers.ForEach((c) =>
+                {
+                    if (c.Equals(customer))
+                    {
+                        c.DataGuid = cd.Guid;
+                        c.CurrentAssignedAssets.Clear();
+                        assets.ForEach((x) => { c.CurrentAssignedAssets.Add(x.AssetNumber); });
+                        Push.LibrarySettings();
+                    }
+                });
+            }
+            else
+            {
+                customer.DataGuid = cd.Guid;
+                Global.Library.Settings.Customers.ForEach((c) =>
+                {
+                    if (c.Equals(customer))
+                    {
+                        c.DataGuid = cd.Guid;
+                        c.CurrentAssignedAssets.Clear();
+                        assets.ForEach((x) => { c.CurrentAssignedAssets.Add(x.AssetNumber); });
+                        Push.LibrarySettings();
+                    }
+                });
+                cd.Customer = customer;
+                cd.Date = DateTime.Now;
+            }
+            var on = Session["Ordernumber"] as string;
+            if (on != null)
+            {
+                cd.OrderNumbers.Add(on);
+            }
+
             List<Asset> emaillist = new List<Asset>();
+
+            AssetKit assetKit = new AssetKit();
+
             foreach (var A in assets)
             {
+                assetKit.Assets.Add(A.AssetNumber);
                 A.ShipTo = ToCompany.Value;
                 A.ServiceEngineer = Session["Engineer"] as string;
                 try
@@ -267,17 +313,19 @@ namespace Web_App_Master.Account
                 A.PersonShipping = Session["Shipper"] as string;
                 A.UpsLabel= Session["ShippingLabelPdf"] as string;
                 if (A.UpsLabel==null || A.UpsLabel == "")
-                {A.Documents.Add(Session["LastPackingSlip"] as string);
-                    
+                {
+                    A.Documents.Add(Session["LastPackingSlip"] as string);
+                    cd.Documents.Add(Session["LastPackingSlip"] as string);
                 }
                 else
-                {A.Documents.Add(Session["CombinedPdf"] as string);
-                    
+                {
+                    A.Documents.Add(Session["CombinedPdf"] as string);
+                    cd.Documents.Add(Session["CombinedPdf"] as string);
                 }
                 if (Session["ShippingLabelPdf"] != null)
                 {
                     A.Documents.Add(Session["ShippingLabelPdf"] as string);
-
+                    cd.Documents.Add(Session["ShippingLabelPdf"] as string);
                 }
                 
                 A.IsOut = true;
@@ -301,14 +349,15 @@ namespace Web_App_Master.Account
                 Push.Asset(A);
             }
             
-                Session["Customer"] = null;
-                Session["Shipper"] = null;
-                Session["Engineer"] = null;
-                Session["Ordernumber"] = null;
-               
-            
+            cd.AssetKitHistory.Add(assetKit);
+            Push.CustomerData(cd);
+
             NotifyCheckoutEmail(emaillist);
             Push.Alert((Session["Ordernumber"] as string) + ": Checked Out");
+            Session["Customer"] = null;
+            Session["Shipper"] = null;
+            Session["Engineer"] = null;
+            Session["Ordernumber"] = null;
         }
 
         private void FillDefaultShipper(Customer cust)

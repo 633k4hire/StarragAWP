@@ -282,6 +282,22 @@ namespace Web_App_Master
             }
 
         }
+        public static bool CustomerData(CustomerData data,  string app_name = "AWP_CustomerData_System")
+        {
+            try
+            {
+                SettingsDBData db = new SettingsDBData();
+                db.Appname = data.Guid;
+                db.XmlData = data.SerializeToXmlString(data);
+                return AssetController.PushSetting(db);
+            }
+            catch
+            {
+                //Global.NoticeSystem.Notices = new Notification.NotificationSystem.NoticeBindinglist();
+                return false;
+            }
+
+        }
     }
     public class Pull
     {
@@ -407,6 +423,18 @@ namespace Web_App_Master
         {            
             return HttpContext.Current.Session["Notifications"] as List<MenuAlert>;
         }
+        public static CustomerData CustomerData(string CustomerDataGuid, string AppName = "AWP_CustomerData_System")
+        {
+            var db = AssetController.GetSetting(CustomerDataGuid);
+            if (db ==null)
+            {
+                CustomerData data = new CustomerData();
+                return null;
+            }
+            var cd = new CustomerData().DeserializeFromXmlString<CustomerData>(db.XmlData);
+            return cd;
+        }
+
     }
     public class Add
     {
