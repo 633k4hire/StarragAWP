@@ -182,7 +182,7 @@ namespace Web_App_Master
                 };
                 if (FormsAuthentication.RequireSSL && Request.IsSecureConnection)
                 {
-                    responseCookie.Secure = true;
+                    responseCookie.Secure = false;
                 }
                 Response.Cookies.Set(responseCookie);
             }
@@ -225,6 +225,7 @@ namespace Web_App_Master
 
             }
         }
+
         protected void Page_Load(object sender, EventArgs e)
         {
             
@@ -234,8 +235,8 @@ namespace Web_App_Master
                 {
                     var t = Web_App_Master.Pull.Transactions();
                     Session["Transactions"] = t;
-                    var script = @"$(document).ready(function (){ PollTransactions();});";
-                    ScriptManager.RegisterStartupScript(this, this.GetType(), "pollScript", script, true);
+                    //var script = @"$(document).ready(function (){ PollTransactions();});";
+                    //ScriptManager.RegisterStartupScript(this, this.GetType(), "pollScript", script, true);
 
                 }
                 catch (Exception)

@@ -216,7 +216,7 @@
                     <input runat="server" id="CustCty" type="text" class="form-control" placeholder="City">
                     <input runat="server" id="CustState" type="text"  class="form-control" placeholder="State">
                     <input runat="server" id="CustPostal" type="text"  class="form-control" placeholder="Postal">
-                    <input runat="server" id="CustCountry" type="text"  value="USA" class="form-control" placeholder="Country">
+                    <input runat="server" id="CustCountry" type="text"  value="US" class="form-control" placeholder="Country">
                     <input runat="server" id="CustName" type="text" class="form-control" placeholder="Attn">
                     <input runat="server" id="CustEmail" type="text" class="form-control" placeholder="Email">
                     <input runat="server" id="CustPhone" type="text" class="form-control" placeholder="Phone">  

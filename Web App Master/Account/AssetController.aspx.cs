@@ -71,6 +71,36 @@ namespace Web_App_Master.Account
             return ret;
         }
 
+
+
+        [WebMethod]
+        public static PollItems PollNavItems()
+        {
+            PollItems pi = new PollItems();
+            try
+            {
+                if (HttpContext.Current.User.Identity.IsAuthenticated)
+                {
+                    //add all for admins
+                   
+                    pi.InOutItems = GetInOutItems("");
+                    pi.Transactions = GetAllTransactions();
+                    pi.Notices = GetNotifications("");
+                }else
+                {  //add transaction data and check in data data just for normal user
+                    pi.InOutItems = GetInOutItems("");
+                    pi.Notices = GetNotifications("");
+                    pi.Transactions = null;
+                }
+            }
+            catch (Exception)
+            {
+
+                return null;
+            }
+            return pi;
+        }
+
         [WebMethod]
         public static bool UpdateAsset(Asset asset)
         {
@@ -209,11 +239,11 @@ namespace Web_App_Master.Account
         public static Settings GetSettings(string AppName="AWP_STARRAG_US")
         {
            
-            var connected = Extensions.CheckForInternetConnection();
-            if (!connected)
-            {               
-                return Global.Library.Settings;
-            }
+            //var connected = Extensions.CheckForInternetConnection();
+            //if (!connected)
+            //{               
+            //    return Global.Library.Settings;
+            //}
             //barcode was scanned or manually inputted
         
             SQL_Request req = new SQL_Request().OpenConnection();
@@ -236,11 +266,7 @@ namespace Web_App_Master.Account
         public static bool PushSettings( Settings settings, string AppName = "AWP_STARRAG_US")
         {
             string xmldata = settings.Serialize();
-            var connected = Extensions.CheckForInternetConnection();
-            if (!connected)
-            {
-                return false;
-            }
+     
             SQL_Request req = new SQL_Request().OpenConnection();
             //barcode was scanned or manually inputted
             var sql_settings = GetSettings();
@@ -267,11 +293,11 @@ namespace Web_App_Master.Account
         public static bool PushSetting(string xml, string guid)
         {
             string xmldata = xml;
-            var connected = Extensions.CheckForInternetConnection();
-            if (!connected)
-            {
-                return false;
-            }
+            //var connected = Extensions.CheckForInternetConnection();
+            //if (!connected)
+            //{
+            //    return false;
+            //}
             SQL_Request req = new SQL_Request().OpenConnection();
             //barcode was scanned or manually inputted
             var sql_settings = GetSetting(guid);
@@ -298,11 +324,11 @@ namespace Web_App_Master.Account
         public static bool PushSetting(SettingsDBData data)
         {
             
-            var connected = Extensions.CheckForInternetConnection();
-            if (!connected)
-            {
-                return false;
-            }
+            //var connected = Extensions.CheckForInternetConnection();
+            //if (!connected)
+            //{
+            //    return false;
+            //}
             SQL_Request req = new SQL_Request().OpenConnection();
             //barcode was scanned or manually inputted
             var sql_settings = GetSetting(data.Appname);
@@ -329,11 +355,11 @@ namespace Web_App_Master.Account
         public static SettingsDBData GetSetting(string guid)
         {
 
-            var connected = Extensions.CheckForInternetConnection();
-            if (!connected)
-            {
-                return null;
-            }
+            //var connected = Extensions.CheckForInternetConnection();
+            //if (!connected)
+            //{
+            //    return null;
+            //}
             //barcode was scanned or manually inputted
 
             SQL_Request req = new SQL_Request().OpenConnection();
@@ -404,7 +430,7 @@ namespace Web_App_Master.Account
             var checkout = HttpContext.Current.Session["CheckOut"] as List<Asset>;
             
 
-            var asset = Pull.Assets().FindAssetByNumber(num);
+            var asset = Global.Library.Assets.FindAssetByNumber(num);
             if (asset.IsOut == true) return null;
             if (checkout == null)
                 checkout = new List<Asset>();
@@ -494,7 +520,7 @@ namespace Web_App_Master.Account
 
            num = ParseBarCode(num);
             var checkin = HttpContext.Current.Session["CheckIn"] as List<Asset>;
-            var asset = Pull.Assets().FindAssetByNumber(num);
+            var asset = Global.Library.Assets.FindAssetByNumber(num);
             if (asset.IsOut == false) return null;
             if (checkin == null)
                 checkin = new List<Asset>();
@@ -561,8 +587,9 @@ namespace Web_App_Master.Account
             }
 
         }
+
         [WebMethod]
-        public static List<Asset> GetMenuItems(string num)
+        public static List<Asset> GetInOutItems(string num)
         {
             var checkin = HttpContext.Current.Session["CheckIn"] as List<Asset>;
             if (checkin == null) checkin = new List<Asset>();
@@ -649,17 +676,17 @@ namespace Web_App_Master.Account
         public static Asset GetAsset(string num)
         {
             num = ParseBarCode(num);
-            var connected = Extensions.CheckForInternetConnection();
-            if (!connected)
-            {
-                var a = from ass in Global.Library.Assets where ass.AssetNumber == num select ass;
-                var al = a.ToList();
-                var asset = al.FirstOrDefault();
-                asset.Images = asset.Images.Replace(",,,", "<@#$>").Replace(",", "").Replace("<@#$>", ",").Replace("Images", "").Replace("\\", "");
-                HttpContext.Current.Session["CurrentAsset"] = asset;
-                HttpContext.Current.Session["Asset"] = asset;
-                return asset;
-            }
+            //var connected = Extensions.CheckForInternetConnection();
+            //if (!connected)
+            //{
+            //    var a = from ass in Global.Library.Assets where ass.AssetNumber == num select ass;
+            //    var al = a.ToList();
+            //    var asset = al.FirstOrDefault();
+            //    asset.Images = asset.Images.Replace(",,,", "<@#$>").Replace(",", "").Replace("<@#$>", ",").Replace("Images", "").Replace("\\", "");
+            //    HttpContext.Current.Session["CurrentAsset"] = asset;
+            //    HttpContext.Current.Session["Asset"] = asset;
+            //    return asset;
+            //}
             //barcode was scanned or manually inputted
             //num = ParseScanInput(num);
             SQL_Request req = new SQL_Request().OpenConnection();
@@ -671,6 +698,12 @@ namespace Web_App_Master.Account
                 {
                     HttpContext.Current.Session["CurrentAsset"] = req.Tag as Asset;
                     HttpContext.Current.Session["Asset"] = req.Tag as Asset;
+                    Global.Library.Assets.ForEach((ass) => {
+                        if (ass.AssetNumber== (req.Tag as Asset).AssetNumber )
+                        {
+                            ass = req.Tag as Asset;
+                        }
+                    });
                 }
                 catch
                 {
@@ -688,17 +721,17 @@ namespace Web_App_Master.Account
             try
             {
                 num = ParseBarCode(num);
-                var connected = Extensions.CheckForInternetConnection();
-                if (!connected)
-                {
-                    var a = from ass in Global.Library.Assets where ass.AssetNumber == num select ass;
-                    var al = a.ToList();
-                    var asset = al.FirstOrDefault();
-                    asset.Images = asset.Images.Replace(",,,", "<@#$>").Replace(",", "").Replace("<@#$>", ",").Replace("Images", "").Replace("\\", "");
-                    HttpContext.Current.Session["CurrentAsset"] = asset;
-                    var ret = GetAssetByDateShipped(asset, date);
-                    return ret;
-                }
+                //var connected = Extensions.CheckForInternetConnection();
+                //if (!connected)
+                //{
+                //    var a = from ass in Global.Library.Assets where ass.AssetNumber == num select ass;
+                //    var al = a.ToList();
+                //    var asset = al.FirstOrDefault();
+                //    asset.Images = asset.Images.Replace(",,,", "<@#$>").Replace(",", "").Replace("<@#$>", ",").Replace("Images", "").Replace("\\", "");
+                //    HttpContext.Current.Session["CurrentAsset"] = asset;
+                //    var ret = GetAssetByDateShipped(asset, date);
+                //    return ret;
+                //}
                 //barcode was scanned or manually inputted
                 num = ParseScanInput(num);
                 SQL_Request req = new SQL_Request().OpenConnection();
@@ -759,15 +792,15 @@ namespace Web_App_Master.Account
         {
             //check internet for online offlne access
 
-            var connected = Extensions.CheckForInternetConnection();
-            if (!connected)
-            {
+            //var connected = Extensions.CheckForInternetConnection();
+            //if (!connected)
+            //{
 
-                //load local
-                var file = HttpContext.Current.Server.MapPath("/Account/library.xml");
-                Extensions.ImportXmlLibraryFile(file);
-                return Global.Library.Assets;
-            }
+            //    //load local
+            //    var file = HttpContext.Current.Server.MapPath("/Account/library.xml");
+            //    Extensions.ImportXmlLibraryFile(file);
+            //    return Global.Library.Assets;
+            //}
             SQL_Request req = await new SQL_Request().OpenConnectionAsync();
 
             //request all assets
@@ -1356,12 +1389,7 @@ namespace Web_App_Master.Account
         [WebMethod]
         public static List<PendingTransaction> GetAllTransactions(string AppName = "AWP_STARRAG_US")
         {
-            var connected = Extensions.CheckForInternetConnection();
-            if (!connected)
-            {
-
-                return null;
-            }
+         
             SQL_Request req = new SQL_Request().OpenConnection();
             //request all assets
             req.TransactionsGetAll(AppName, true);
@@ -1386,12 +1414,12 @@ namespace Web_App_Master.Account
         [WebMethod]
         public static PendingTransaction PullTransaction(string transactionID,string AppName = "AWP_STARRAG_US")
         {
-            var connected = Extensions.CheckForInternetConnection();
-            if (!connected)
-            {
+            //var connected = Extensions.CheckForInternetConnection();
+            //if (!connected)
+            //{
 
-                return null;
-            }
+            //    return null;
+            //}
             SQL_Request req = new SQL_Request().OpenConnection();
             //request all assets
             req.TransactionGet(transactionID, AppName, true);
@@ -1429,11 +1457,11 @@ namespace Web_App_Master.Account
         public static bool PushTransaction(PendingTransaction data)
         {
 
-            var connected = Extensions.CheckForInternetConnection();
-            if (!connected)
-            {
-                return false;
-            }
+            //var connected = Extensions.CheckForInternetConnection();
+            //if (!connected)
+            //{
+            //    return false;
+            //}
             SQL_Request req = new SQL_Request().OpenConnection();
             //barcode was scanned or manually inputted
             var sdata = new TransationDBData(data);
@@ -1461,12 +1489,12 @@ namespace Web_App_Master.Account
         public static bool RemoveTransaction(string transactionID )
         {
             string AppName = "AWP_STARRAG_US";
-            var connected = Extensions.CheckForInternetConnection();
-            if (!connected)
-            {
+            //var connected = Extensions.CheckForInternetConnection();
+            //if (!connected)
+            //{
 
-                return false;
-            }
+            //    return false;
+            //}
             SQL_Request req = new SQL_Request().OpenConnection();
             //request all assets
             req.TransactionDelete(transactionID, AppName, true);

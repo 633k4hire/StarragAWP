@@ -6,248 +6,220 @@ var _TotalNotices = 0;
 var _checkin_idx = 0;
 var _checkout_idx = 0;
 var _notice_idx = 0;var _transaction_idx = 0;
-var PollInterval = 1000;
-var RunNoticeTimer = true;
-var RunPollTimer = true;
-var RunTransactionTimer = true;
+//document.IsAvUp = false;
+var Monitor = function (e) {
+    //technically a logger but we will not store all strokes...just capture superfast input and escape key
+
+    //sequenceLimitMs should be set as low as possible to prevent capture of human keyed numbers.
+    //200 allow testing without a barcode scanner, you could try a value of 50 with a scanner.
+    var sequenceLimitMs = 10;
+    var now = new Date();
+    var elapsed = now - document.lastKeypress;
+    document.lastKeypress = now;
+    //capture escape
+   
+    lastkey = e.keyCode;
+    var keysArray = getNumberArray(keys);
+    //CTRL_ENTER IS HOOKED
+    if (keysArray.toString() == "13,17") {
+        try {
+            var url = document.location.href;
+            try {
+                url = url.substr(url.lastIndexOf('/') + 1);
+            } catch (er) {
+                url = url.substr(url.lastIndexOf('/'));
+            }
+            if (url.startsWith("CheckIn")) {
+                var hr = $("#Finalize").attr('href');
+                window.location.href = hr;
+            }
+            if (url.startsWith("Login")) {
+                $("LoginBtn").click();
+            }
+            if (url.startsWith("OutCart")) {
+                var newpath = document.location.href;
+                newpath = newpath.replace(url, "");
+                newpath = newpath + "CheckOut.aspx";
+                window.location.href = newpath;
+            }
+        } catch (err) { }
+        keys = [];
+    }
+
+    setTimeout(TimedKeyUp, 1000);
+
+    //ENTER IS HOOKED
+    if (e.charCode == 13)
+    {
+        var barcodeHasFocus = $('#BarcodeSearchBox').is(':focus');
+        if (barcodeHasFocus == true) {
+            BarcodeScanned($('#BarcodeSearchBox').val());
+            return false;
+        } 
+        var SearchHasFocus = $('#avSearchString').is(':focus');
+        if (SearchHasFocus == true) {
+            //Search
+            var aaa = $('#AssetSearchBtn');
+            __doPostBack('ctl00$MainContent$AssetSearchBtn', '');
+            return false;
+        } 
+
+        //do same for search here
+
+        var url = document.location.href;
+        url = url.substr(url.lastIndexOf('/') + 1);
+       
+        
+        if (url.startsWith("CheckOut")) {
+            var hr = $("#Finalize").attr('href');
+            window.location.href = hr;
+        }
+
+        if (url.startsWith("CheckIn")) {
+            var hr = $("#Finalize").attr('href');
+            window.location.href = hr;
+        }
+        if (url.startsWith("AssetView"))
+        {
+            
+        }
+        if (url.startsWith("Login"))
+        {
+            $("LoginBtn").click();
+        }
+        return false;
+    }
+    //EESCAPE IS HOOKED
+    if (e.charCode == 27) {
+        var url = document.location.href;
+        url = url.substr(url.lastIndexOf('/') + 1);
+        if (url.startsWith("Checkout")) {
+           
+            //window.location.href = "/Account/AssetView.aspx";
+        }
+        //hideMetroCharm('#assets');
+        //hideMetroCharm('#settings-charm');
+        //hideMetroCharm('#assetview-charm');
+        //hideMetroCharm('#AlertCharm');
+        $('#ErrorBox').removeClass('open-error');
+        $('#asset-modal-new').hide();
+        HideDiv('asset-modal-new');
+        window.sessionStorage.setItem("IsAvUp", "false");
+        document.IsAvUp = false;
+        HideLoader();
+       
+    }
+    //only 0-9 e.charCode >= 48 && e.charCode <= 57
+    var charStr = String.fromCharCode(e.charCode);
+    var tt = (e.charCode - 48);
+    if (/[a-z0-9A-Z]/i.test(charStr)) {
+        //pressed key is a number
+        if (elapsed < sequenceLimitMs || document.currentBarcodeSequence === "") {
+            //event is part of a barcode sequence
+            var tmp = String.fromCharCode((e.charCode - 48));
+            if (/[a-zA-Z]/i.test(charStr))
+            {
+                document.currentBarcodeSequence += charStr;
+            } else {
+                document.currentBarcodeSequence += charStr;
+
+            }
+            if (document.currentBarcodeSequence.length > 1) {
+                clearTimeout(document.printBarcodeTimeout);
+                document.printBarcodeTimeout = setTimeout("setBarcode()", sequenceLimitMs + 10);
+            }
+        } else {
+            if (/[a-zA-Z]/i.test(charStr)) {
+                document.currentBarcodeSequence = "" + charStr;
+            } else {
+                document.currentBarcodeSequence = "" + charStr;
+            }
+            clearTimeout(document.printBarcodeTimeout);
+        }
+    } else {
+        document.currentBarcodeSequence = "";
+        clearTimeout(document.printBarcodeTimeout);
+    }
+    var res1 = document.currentBarcodeSequence;
+    var res2 = 0;
+}
+var setBarcode = function () {
+    var res1 = document.currentBarcodeSequence;
+    var barcodeInput = document.getElementById("BarcodeSearchBox");
+    if (barcodeInput != null) //user not logged in yet
+    {
+        barcodeInput.value = document.currentBarcodeSequence;
+        //change icon to searching id="barcodeIcon" class="glyphicon glyphicon-barcode"
+        var NAME = document.getElementById("barcodeIcon");
+        if (NAME != null) {
+            NAME.className = "glyphicon glyphicon-refresh normal-right-spinner";   // Set other class name
+        }
+        //fire off ajax call for auto search here
+        document.currentAsset = document.currentBarcodeSequence;
+        BarcodeScanned(document.currentBarcodeSequence);
+    } else {
+        alert("Please login to use Asset Scanner");
+    }
+
+}
+
+//Event Hookups
+window.onkeypress = Monitor;
+var keys = [];
+var lastkey;
+window.addEventListener("keydown",
+    function (e) {
+        keys[e.keyCode] = e.keyCode;
+        lastkey = e.keyCode;
+        var keysArray = getNumberArray(keys);
+        
+        setTimeout(TimedKeyUp, 1000);
+    },
+    false);
+window.addEventListener('keyup',
+    function (e) {
+        keys[e.keyCode] = false;        
+    },
+    false);
 
 //Document Ready
 $(document).ready(function () {
+
     // define our variables
     var fullHeightMinusHeader = 0;
     // create function to calculate ideal height values
     function calcHeights() {
-        try {
+        try {    
             fullHeightMinusHeader = jQuery(window).height() - jQuery("#MainMenu").outerHeight();
             jQuery(".main-content").height(fullHeightMinusHeader);
         } catch (err) {
             return false
         }
-
-    }
+        
+    } 
 
     // run on page load    
     calcHeights();
-
+   
     // run on window resize event
     $(window).resize(function () {
-        try { calcHeights(); } catch (er) { }
-    }); 
-    HideLoader();
+        try { calcHeights(); } catch (er) { } 
+    });
+
+    //var isAvUp = window.sessionStorage.getItem("IsAvUp");
+    //if (isAvUp == "true")
+    //{
+    //   var temp = window.sessionStorage.getItem('Asset');
+    //   var asset = $.parseJSON(temp);
+       
+    //    LoadAsset(asset);
+    //} else
+    //{
+     
+    //    HideAssetModal();
+    //}
+
 });
-
-
-//POLLING
-function PollNavItems() {
-    if (RunPollTimer) {
-        $.ajax({
-            type: 'POST',
-            url: '/Account/AssetController.aspx/PollNavItems',
-            data: "{'num':'0'}",
-            contentType: 'application/json; charset=utf-8',
-            dataType: 'json',
-            success: GetPollItemsPollSuccess,
-            error: GetPollItemsPollError
-
-        });
-    }
-}
-
-function GetPollItemsPollSuccess(msg) {
-    var pollItems = msg.d;
-    //notices
-    if (pollItems.Notices !== null) {
-    SetNotices(pollItems.Notices)
-
-    }
-    //transactions
-    if (pollItems.Transactions !== null) {
-        SetTransactions(pollItems.Transactions);
-    }
-    
-    //menuitems`
-    if (pollItems.InOutItems !== null) {
-        SetInOutMenu(pollItems.InOutItems);   
-
-    }
-    var i = PollInterval;
-    setTimeout(PollNavItems, PollInterval);
-}
-
-function GetPollItemsPollError(msg) {
-    setTimeout(PollNavItems, PollInterval);
-}
-
-function SetInOutMenu(data) {
-    var area = $("#checkin_items");
-
-    area.html("");
-    var area2 = $("#checkout_items");
-    _checkin_idx = 0;
-    _checkout_idx = 0;
-    area2.html("");
-    var bb = $("#checkin_badge")
-    bb.text("0");
-    var b2 = $("#checkout_badge")
-    b2.text("0");
-
-    
-    data.forEach(function (entry) {
-        if (entry.IsOut) {
-            AddNotice("checkin_items", entry.AssetName, _checkin_idx);
-            _checkin_idx++;
-            var count = _checkin_idx;
-            var badge = $("#checkin_badge")
-            badge.text(count);
-        } else {
-            AddNotice("checkout_items", entry.AssetName, _checkout_idx);
-            _checkout_idx++;
-            count = _checkout_idx;
-            badge = $("#checkout_badge")
-            badge.text(count);
-        }
-    });
-}
-
-function SetTransactions(data) {
-    try {        
-        _transaction_idx = 0;
-        var area = $("#transaction_items");
-        area.html("");
-        var bb = $("#transaction_badge")
-        bb.text("0");
-        data.forEach(function (entry) {
-            AddTransaction("transaction_items", entry.Name, entry.TransactionID);
-            _transaction_idx++;
-            var count = _transaction_idx;
-            var badge = $("#transaction_badge")
-            badge.text(count);
-        });
-        var a = PollInterval
-       // setTimeout(PollTransactions, PollInterval + 100);
-    } catch (e) {
-        return false; 
-    }
-
-
-}
-
-function SetNotices(data) {
-    _notice_idx = 0;
-    var area = $("#notice_items");
-
-    area.html("");
-    var bb = $("#notice_badge")
-    bb.text("0");
-    data.forEach(function (entry) {
-        AddNotice("notice_items", entry.Text, _notice_idx);
-        _notice_idx++;
-        var count = _notice_idx;
-        var badge = $("#notice_badge")
-        badge.text(count);
-    });
-    var a = PollInterval
-    if (_TotalNotices !== _notice_idx && _notice_idx !== 0) {
-        Blink("notice_badge", 250, 5);
-    }
-    _TotalNotices = _notice_idx;
-    //setTimeout(PollNotices, PollInterval);
-}
-
-function ResetNoticeBadge() {
-    var badge = $("#notice_badge")
-    badge.text("0");
-}
-
-function DeleteNotice(target, idx) {
-    switch (target) {
-        case "transaction_items":
-            $.ajax({
-                type: 'POST',
-                url: '/Account/AssetController.aspx/RemoveTransaction',
-                data: "{'transactionID':'" + idx + "'}",
-                contentType: 'application/json; charset=utf-8',
-                dataType: 'json',
-                error: function (result) {
-                    alert("Error Removed Item");
-                }
-            });
-            break;
-        case "notice_items":
-            $.ajax({
-                type: 'POST',
-                url: '/Account/AssetController.aspx/RemoveNoticeItem',
-                data: "{'num':'" + idx + "'}",
-                contentType: 'application/json; charset=utf-8',
-                dataType: 'json',
-                error: function (result) {
-                    alert("Error Removed Item");
-                }
-            });
-            break;
-        case "checkin_items":
-            $.ajax({
-                type: 'POST',
-                url: '/Account/AssetController.aspx/RemoveCheckinItem',
-                data: "{'num':'" + idx + "'}",
-                contentType: 'application/json; charset=utf-8',
-                dataType: 'json',
-                error: function (result) {
-                    alert("Error Removed Item");
-                }
-            });
-
-            break;
-        case "checkout_items":
-            $.ajax({
-                type: 'POST',
-                url: '/Account/AssetController.aspx/RemoveCheckoutItem',
-                data: "{'num':'" + idx + "'}",
-                contentType: 'application/json; charset=utf-8',
-                dataType: 'json',
-                error: function (result) {
-                    alert("Error Removed Item");
-                }
-            });
-
-            break;
-
-
-        default:
-            break;
-    }
-    UpdateAllPanels();
-    UpdateMenuItems();
-}
-
-function AddNotice(target, text, idx) {
-
-    var template = $('#notice-template').text();
-    template = template.replace('%%TEXT%%', text);
-    template = template.replace('%%Target%%', target); template = template.replace('%%Index%%', idx);
-    template = $(template);
-    //template.prop('id', asset.AssetNumber);
-    // template.data('asset-id', asset.AssetNumber);
-
-    var area = $("#" + target);
-
-    area.prepend(template);
-
-}
-
-function AddTransaction(target, text, transactionID) {
-
-    var template = $('#transaction-template').text();
-    template = template.replace('%%TEXT%%', text);
-    template = template.replace('%%Target%%', target);
-    template = template.replace('%%Index%%', transactionID);
-    template = template.replace('%%TID%%', transactionID);
-    template = $(template);
-    var area = $("#" + target);
-    area.prepend(template);
-}
-
-
 function openPage(pageName, elmnt, color) {
     var i, tabcontent, tablinks;
     tabcontent = document.getElementsByClassName("tabcontent");
@@ -261,7 +233,7 @@ function openPage(pageName, elmnt, color) {
     try {
         document.getElementById(pageName).style.display = "block";
         window.sessionStorage.setItem("currrentTab", pageName);
-    } catch (er) { return false;  }
+    } catch (er) { }
     //elmnt.style.backgroundColor = color;
 
 }
@@ -279,7 +251,7 @@ function ShowAssetModal() {
     if (currentTab !== null)
     {
         openPage(currentTab, this, 'red');
-        if (currentTab === "ReportTab")
+        if (currentTab == "ReportTab")
         {
             ShowAssetFrames();
             ResizeAssetReport();
@@ -301,7 +273,7 @@ function TimedKeyUp() {
 function getNumberArray(arr) {
     var newArr = new Array();
     for (var i = 0; i < arr.length; i++) {
-        if (typeof arr[i] === "number") {
+        if (typeof arr[i] == "number") {
             newArr[newArr.length] = arr[i];
         }
     }
@@ -368,7 +340,7 @@ function BarcodeScanned(num, isHistory, date) {
             return false;
         }
 
-        if (isHistory === "True") {
+        if (isHistory == "True") {
             $.ajax({
                 type: 'POST',
                 url: '/Account/AssetController.aspx/GetHistory',
@@ -537,7 +509,7 @@ function LoadAsset(asset) {
         }
         else {
             $("#InOutBtn").attr("onclick", "AjaxAddCheckout('" + asset.AssetNumber + "')");
-             header = $("#AssetHeader");
+            var header = $("#AssetHeader");
             if (header.hasClass("bg-red")) {
                 header.removeClass("bg-red");
                 header.addClass("bg-sg-title");
@@ -553,7 +525,7 @@ function LoadAsset(asset) {
             header.addClass("bg-sg-title");
         }  
         if (asset.IsHistoryItem) {            
-            header = $("#AssetHeader");
+            var header = $("#AssetHeader");
             if (header.hasClass("bg-sg-title")) {
                 header.removeClass("bg-sg-title");
                 header.addClass("bg-gray");
@@ -610,7 +582,7 @@ function LoadAsset(asset) {
         var aaaa = $("#CurrentAssetNumber").val();
         HideLoader(); 
         
-    } catch (err) { return false;  }
+    } catch (err) { }
 }
 function LoadAssetView(asset)
 {
@@ -620,7 +592,6 @@ function LoadAssetView(asset)
         $("#ViewChangeBtn").click();
     } catch (ex)
     {
-        return false; 
     }
 }
 function ResizeAssetReport() {
@@ -666,7 +637,7 @@ function ShowAssetFrames() {
         ShowDiv('AssetPackingReportDiv');
         ShowDiv('AssetShippingReportDiv');
         ShowDiv('AssetReceivingReportDiv');
-    } catch (er) { return false;  }
+    } catch (er) { }
 }
 function BindAssetHistory() {
     $("#HistoryBinderBtn").click();   
@@ -685,7 +656,7 @@ function JumpToTab(dest)
    // $("#" + dest).css("opacity", 1);
 }
 function AjaxAddCheckout(num, autocheck) {
-    if (autocheck === null)
+    if (autocheck == null)
     {
         autocheck = false;
     }
@@ -703,7 +674,7 @@ function AjaxAddCheckout(num, autocheck) {
    
 };
 function AjaxAddCheckin(num, autocheck) {
-    if (autocheck === null) {
+    if (autocheck == null) {
         autocheck = false;
     }
 
@@ -721,8 +692,8 @@ function AjaxAddCheckin(num, autocheck) {
 };
 function AddCheckInItem(msg) {
     try {
-        if (msg.d === null) return;    
-        if (msg.d.IsOut === false) return false;
+        if (msg.d == null) return;    
+        if (msg.d.IsOut == false) return false;
         AddNotice("checkin_items", msg.d.AssetName, _checkin_idx);
         _checkin_idx++;
         var count = _checkin_idx;
@@ -730,20 +701,20 @@ function AddCheckInItem(msg) {
         badge.text(count);        
         Blink("checkin_badge", 250, 5);
         CheckOutPanelUpdate();
-    } catch (err) { return false;  }
+    } catch (err) { }
 }
 function AddCheckOutItem(msg) {
     try {
-        if (msg.d === null) return false;
-        if (msg.d.IsOut === true || msg.d.OnHold === true || msg.d.IsDamaged === true) { return false };
+        if (msg.d == null) return false;
+        if (msg.d.IsOut == true || msg.d.OnHold == true || msg.d.IsDamaged == true) { return false };
         AddNotice("checkout_items", msg.d.AssetName, _checkout_idx);
         _checkout_idx++;
         var count = _checkout_idx;
         var badge = $("#checkout_badge")        
         badge.text(count);
         Blink("checkout_badge", 250, 5);
-            // CheckOutPanelUpdate();
-    } catch (err) { return false;  }
+             CheckOutPanelUpdate();
+    } catch (err) { }
     return false;
 }
 function ClearCheckOut() {
@@ -827,23 +798,23 @@ function SetSearchType(t)
 function ChangeAssetViewListType(type)
 {
     var lv = $("#lv1");
-    if (lv !== null)
+    if (lv != null)
     {
         try {
             lv.removeClass("default");
-        } catch (er) { return false;  }
+        } catch (er) { }
         try {
             lv.removeClass("list-type-icons");
-        } catch (er) { return false;  }
+        } catch (er) { }
         try {
             lv.removeClass("list-type-tiles");
-        } catch (er) { return false;  }
+        } catch (er) { }
         try {
             lv.removeClass("list-type-listing");
-        } catch (er) { return false;  }
+        } catch (er) { }
         try {
             lv.addClass(type);
-        } catch (err) { return false;  }
+        } catch (err) { }
     }
 }
 function hideCheckInOut()
@@ -919,13 +890,13 @@ function openModalDiv(divname) {
             minwidth: 10});
         $('#' + divname).dialog('open');
         $('#' + divname).parent().appendTo($("form:first"));
-    } catch (err) { return false;  }
+    } catch (err) { }
     return false;
 }
 function closeModalDiv(divname) {
     try {
         $('#' + divname).dialog('close');
-    } catch (err) { return false;  }
+    } catch (err) { }
     return false;
 }
 function ShowLoader() {
@@ -937,16 +908,18 @@ function HideLoader() {
 function ShowDiv(divname) {
     try {
         $('#' + divname).show();
-    } catch (err) { return false;  }
+    } catch (err) { }
 }
 function HideDiv(divname) {
     try {
         $('#' + divname).hide();
         event.stopPropagation();
-    } catch (err) { return false;  }
+    } catch (err) { }
 }
 function ToggleDiv(divname) {
-    return false;
+     try {
+       
+     } catch (err) { }
 }
 function UpdateAsset(asset) {
     $.ajax({
@@ -1033,7 +1006,7 @@ function IsDamagedResponse(msg) {
                 alert("Error Update Asset");
             }
         });
-    } catch (err) { return false; }
+    } catch (err) { }
     return false;
 }
 function IsCalibratedResponse(msg) {
@@ -1053,7 +1026,7 @@ function IsCalibratedResponse(msg) {
                 alert("Error Update Asset");
             }
         });
-    } catch (err) { return false; }
+    } catch (err) { }
     return false;
 }
 function SetAvView()
@@ -1091,7 +1064,7 @@ function ChangeTheme()
 }
 function PrevAsset()
 {
-    if (window.sessionStorage.getItem("IsAvUp") === "true") {
+    if (window.sessionStorage.getItem("IsAvUp") == "true") {
         var temp = window.sessionStorage.getItem('Asset');
         var asset = $.parseJSON(temp);
 
@@ -1099,7 +1072,7 @@ function PrevAsset()
 }
 function NextAsset()
 {   
-    if (window.sessionStorage.getItem("IsAvUp") === "true") {
+    if (window.sessionStorage.getItem("IsAvUp") == "true") {
         var temp = window.sessionStorage.getItem('Asset');
         var asset = $.parseJSON(temp);
        
@@ -1134,11 +1107,248 @@ function UpdateMenuItems()
 
         //});
         event.stopPropagation();
-    } catch (err) { return false; }
+    } catch (err) { }
    
 }
 
+var PollInterval = 500;
+var RunNoticeTimer = true;
+var RunTransactionTimer = true;
+//POLLING
+function PollNotices()
+{
+    if (RunNoticeTimer) {
+        $.ajax({
+            type: 'POST',
+            url: '/Account/AssetController.aspx/GetNotifications',
+            data: "{'num':'0'}",
+            contentType: 'application/json; charset=utf-8',
+            dataType: 'json',
+            success: GetNoticeItemsPollSuccess,
+            error: GetNoticeItemsPollError
 
+        });
+    }
+}
+function PollTransactions()
+{
+    if (RunTransactionTimer) {
+        $.ajax({
+            type: 'POST',
+            url: '/Account/AssetController.aspx/GetAllTransactions',
+            data: "{'AppName':'AWP_STARRAG_US'}",
+            contentType: 'application/json; charset=utf-8',
+            dataType: 'json',
+            success: GettransactionItemsPollSuccess,
+            error: GetTransItemsPollError
+
+        });
+    }
+}
+function GetTransItemsPollError(msg)
+{
+    setTimeout(PollTransactions, PollInterval);
+}
+
+function GettransactionItemsPollSuccess(msg) {
+    try {
+        var data = msg.d;
+        _transaction_idx = 0;
+        var area = $("#transaction_items");
+
+        area.html("");
+        var bb = $("#transaction_badge")
+        bb.text("0");
+        data.forEach(function (entry) {
+            AddTransaction("transaction_items", entry.Name, entry.TransactionID);
+            _transaction_idx++;
+            var count = _transaction_idx;
+            var badge = $("#transaction_badge")
+            badge.text(count);
+        });
+        var a = PollInterval
+        setTimeout(PollTransactions, PollInterval+100);
+    } catch (e) {
+
+    }
+    
+
+}
+
+function GetNoticeItemsSuccess(msg) {
+    var data = msg.d;
+    data.forEach(function (entry) {
+        AddNotice("notice_items", entry.Text, _notice_idx);
+        _notice_idx++;
+        var count = _notice_idx;
+        var badge = $("#notice_badge")
+        badge.text(count);
+    });
+
+}
+function GetNoticeItemsPollSuccess(msg) {
+    var data = msg.d;
+    
+    _notice_idx = 0;
+    var area = $("#notice_items");
+
+    area.html("");
+    var bb = $("#notice_badge")
+    bb.text("0");
+    data.forEach(function (entry) {
+        AddNotice("notice_items", entry.Text, _notice_idx);
+        _notice_idx++;
+        var count = _notice_idx;
+        var badge = $("#notice_badge")
+        badge.text(count);
+    });
+    var a = PollInterval
+    if (_TotalNotices != _notice_idx && _notice_idx!=0) {
+        Blink("notice_badge", 250, 5);        
+    }
+    _TotalNotices = _notice_idx;
+    setTimeout(PollNotices, PollInterval);
+}
+
+function GetNoticeItemsPollError(msg)
+{
+    RunNoticeTimer = false;
+}
+
+function ResetNoticeBadge()
+{
+    var badge = $("#notice_badge")
+    badge.text("0");
+}
+
+function DeleteNotice(target, idx)
+{
+    switch (target) {
+        case "transaction_items":
+            $.ajax({
+                type: 'POST',
+                url: '/Account/AssetController.aspx/RemoveTransaction',
+                data: "{'transactionID':'" + idx + "'}",
+                contentType: 'application/json; charset=utf-8',
+                dataType: 'json',
+                error: function (result)
+                {
+                    alert("Error Removed Item");
+                }
+            });
+            break;
+        case "notice_items":
+            $.ajax({
+                type: 'POST',
+                url: '/Account/AssetController.aspx/RemoveNoticeItem',
+                data: "{'num':'" + idx + "'}",
+                contentType: 'application/json; charset=utf-8',
+                dataType: 'json',
+                error: function (result) {
+                    alert("Error Removed Item");
+                }
+            });
+            break;
+        case "checkin_items":
+            $.ajax({
+                type: 'POST',
+                url: '/Account/AssetController.aspx/RemoveCheckinItem',
+                data: "{'num':'" + idx + "'}",
+                contentType: 'application/json; charset=utf-8',
+                dataType: 'json',
+                error: function (result) {
+                    alert("Error Removed Item");
+                }
+            });
+            
+            break;
+        case "checkout_items":
+            $.ajax({
+                type: 'POST',
+                url: '/Account/AssetController.aspx/RemoveCheckoutItem',
+                data: "{'num':'"+idx+"'}",
+                contentType: 'application/json; charset=utf-8',
+                dataType: 'json',
+                error: function (result) {
+                    alert("Error Removed Item");
+                }
+            });
+            
+            break;
+
+
+        default:
+            break;
+    }
+    UpdateAllPanels();
+    UpdateMenuItems();
+}
+
+function GetMenuItemsSuccess(msg)
+{
+    var area = $("#checkin_items");
+
+    area.html("");
+    var area2 = $("#checkout_items");
+    _checkin_idx = 0;
+    _checkout_idx = 0;
+    area2.html("");
+    var bb = $("#checkin_badge")
+    bb.text("0");
+    var b2 = $("#checkout_badge")
+    b2.text("0");
+
+    var data = msg.d;
+    data.forEach(function (entry)
+    {
+        if (entry.IsOut)
+        {
+            AddNotice("checkin_items", entry.AssetName, _checkin_idx);
+            _checkin_idx++;
+            var count = _checkin_idx;
+            var badge = $("#checkin_badge")
+            badge.text(count);
+        } else
+        {
+            AddNotice("checkout_items", entry.AssetName, _checkout_idx);
+            _checkout_idx++;
+            var count = _checkout_idx;
+            var badge = $("#checkout_badge")
+            badge.text(count);
+        }
+    });
+}
+
+function GetMenuItemsError(msg) {
+
+}
+
+function AddNotice(target, text, idx)
+{
+
+    var template = $('#notice-template').text();
+    template = template.replace('%%TEXT%%', text);
+    template = template.replace('%%Target%%', target); template = template.replace('%%Index%%', idx);
+    template = $(template);
+    //template.prop('id', asset.AssetNumber);
+   // template.data('asset-id', asset.AssetNumber);
+
+    var area = $("#" + target);
+    
+    area.prepend(template);
+    
+}
+function AddTransaction(target, text, transactionID) {
+
+    var template = $('#transaction-template').text();
+    template = template.replace('%%TEXT%%', text);
+    template = template.replace('%%Target%%', target);
+    template = template.replace('%%Index%%', transactionID);
+    template = template.replace('%%TID%%', transactionID);
+    template = $(template);
+    var area = $("#" + target);
+    area.prepend(template);
+}
 
 function CustomCheckoutAddressChecked()
 {

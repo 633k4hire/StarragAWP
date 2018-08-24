@@ -1,4 +1,4 @@
-﻿<%@ Page Title="" Language="C#" MasterPageFile="~/Site.Master" AutoEventWireup="true" CodeBehind="UserCheckout.aspx.cs" Inherits="Web_App_Master.Account.UserCheckout" %>
+﻿<%@ Page Title="" Language="C#" MasterPageFile="~/Site.Master" EnableEventValidation="false" ViewStateEncryptionMode="Never" EnableViewStateMac="false" AutoEventWireup="true" CodeBehind="UserCheckout.aspx.cs" Inherits="Web_App_Master.Account.UserCheckout" %>
 <asp:Content ID="Content1" ContentPlaceHolderID="MainContent" runat="server">
   
      <div class="bg-shaded"></div>
@@ -36,7 +36,7 @@
         </div>
         <div class="col-md-4">
             <div>
-                <asp:Repeater ID="ReceiptRepeater"  runat="server">
+                <asp:Repeater  EnableViewState="false" ID="ReceiptRepeater"  runat="server">
                     <ItemTemplate>
                             <div  class="file " title='' draggable="true"  onclick="BarcodeScanned('<%# Eval("AssetNumber")%>', '<%# Eval("IsHistoryItem")%>','<%# Eval("DateShippedTicks")%>');">
                                                                <div id =" file-color " class="file-color <%# Eval("Color") %>" style="width:100%; height:100%;"></div>

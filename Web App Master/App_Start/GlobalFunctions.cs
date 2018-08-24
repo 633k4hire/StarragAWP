@@ -673,7 +673,7 @@ namespace Web_App_Master
             }
         }
 
-        public static void AddCookie(string name, string value, int expireAfter=3, bool secure = true, bool shareable=false)
+        public static void AddCookie(string name, string value, int expireAfter=3, bool secure = false, bool shareable=false)
         {
             HttpCookie cookie = new HttpCookie(name);
             cookie.Secure = secure;

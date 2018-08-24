@@ -258,10 +258,23 @@ namespace Web_App_Master.Account
                 {
                     if (c.Equals(customer))
                     {
-                        c.DataGuid = cd.Guid;
-                        c.CurrentAssignedAssets.Clear();
-                        assets.ForEach((x) => { c.CurrentAssignedAssets.Add(x.AssetNumber); });
-                        Push.LibrarySettings();
+                        try
+                        {
+                            if (cd == null)
+                            {
+                                cd = new CustomerData();
+                                cd.Guid = c.DataGuid;
+                            }
+                            c.DataGuid = cd.Guid;
+                            c.CurrentAssignedAssets.Clear();
+                            assets.ForEach((x) => { c.CurrentAssignedAssets.Add(x.AssetNumber); });
+                            Push.LibrarySettings();
+                            Push.CustomerData(cd);
+                        }
+                        catch
+                        {
+
+                        }
                     }
                 });
             }

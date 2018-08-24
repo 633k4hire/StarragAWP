@@ -1,4 +1,4 @@
-﻿<%@ Page Title="Check Out" Language="C#" MasterPageFile="~/Site.Master" Async="true" AutoEventWireup="true" CodeBehind="Checkout.aspx.cs" Inherits="Web_App_Master.Account.Checkout1" %>
+﻿<%@ Page Title="Check Out" Language="C#" EnableViewStateMac="false" MasterPageFile="~/Site.Master" Async="true" AutoEventWireup="true" CodeBehind="Checkout.aspx.cs" Inherits="Web_App_Master.Account.Checkout1" %>
 <asp:Content ID="CheckOutContent" ContentPlaceHolderID="MainContent" runat="server">
 
               <nav class="navbar navbar-inverse bg-grayDark shadow-bottom" style="margin-top:0px !important;  width:100%; left:0px!important; height:auto; z-index:25000; border-radius:0px !important; position:fixed;">

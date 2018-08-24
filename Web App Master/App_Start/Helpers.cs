@@ -604,20 +604,7 @@ namespace Helpers
         public string DataGuid { get; set; }
         [XmlIgnore]
         public object Tag { get; set; }
-        [XmlIgnore]
-        public CustomerData CustomerData { get {
-                CustomerData cd = new CustomerData();
-                if (DataGuid!="")
-                {
-                    cd = Pull.CustomerData(DataGuid);
-                }
-                else
-                {
-                    DataGuid = cd.Guid;
-
-                }
-                return cd;
-            } }
+       
     }
 
     [Serializable]//xml
@@ -1198,6 +1185,26 @@ namespace Helpers
                 return ret;
             }
         }
+
+    }
+
+    [Serializable]
+    public class PollItems : Serializers.XSerializer<PollItems>
+    {
+        public PollItems()
+        {
+            Guid = System.Guid.NewGuid().ToString();      
+        }
+
+        [XmlElement]
+        public string Guid { get; set; }
+
+        [XmlElement]
+        public List<Asset> InOutItems { get; set; }
+        [XmlElement]
+        public List<PendingTransaction> Transactions { get; set; }
+        [XmlElement]
+        public List<MenuAlert> Notices { get; set; }
 
     }
 

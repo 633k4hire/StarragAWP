@@ -21,7 +21,7 @@
     <link href="Content/fontawesome-all.css" rel="stylesheet" />
 
 </head>
-    <body style="" onload="UpdateMenuItems()">
+    <body style="" onload="PollNavItems();" >   <%--onload="UpdateMenuItems()"--%>
 	    <form id="form1" runat="server" style="height:100%">
 <!--App-header -->
           <asp:ScriptManager ID="ScriptManager1" runat="server" AjaxFrameworkMode="Enabled" EnablePageMethods="true"> </asp:ScriptManager> 

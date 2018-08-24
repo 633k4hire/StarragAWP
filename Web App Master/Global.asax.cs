@@ -35,6 +35,7 @@ namespace Web_App_Master
         }
         void Application_Start(object sender, EventArgs e)
         {
+            Error += Global_Error;
             Cleanup = new System.Timers.Timer();
             Cleanup.Interval = (60000 * 30);
             Cleanup.Elapsed += Cleanup_Elapsed;
@@ -45,6 +46,16 @@ namespace Web_App_Master
             // Code that runs on application startup
             RouteConfig.RegisterRoutes(RouteTable.Routes);
             BundleConfig.RegisterBundles(BundleTable.Bundles);
+        }
+
+        private void Global_Error(object sender, EventArgs e)
+        {
+            throw new NotImplementedException();
+        }
+
+        void Application_Error(object sender, EventArgs e)
+        {
+
         }
 
         private void Cleanup_Elapsed(object sender, System.Timers.ElapsedEventArgs e)

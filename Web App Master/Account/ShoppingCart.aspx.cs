@@ -12,7 +12,7 @@ namespace Web_App_Master.Account
     {
         protected void Page_PreInit(object sender, EventArgs e)
         {
-            this.SiteMaster().OnPanelUpdate += Checkout_OnPanelUpdate;
+            //this.SiteMaster().OnPanelUpdate += Checkout_OnPanelUpdate;
         }
         private void Checkout_OnPanelUpdate(object sender, UpdateRequestEvent e)
         {
@@ -29,7 +29,9 @@ namespace Web_App_Master.Account
 
         protected void Page_Load(object sender, EventArgs e)
         {
-            this.PreInit += Page_PreInit;
+            // ScriptManager.GetCurrent(Page).RegisterAsyncPostBackControl(ContinueToCheckOutBtn); 
+            
+          
             Button btn = (Button)this.Master.FindControl("UpdateAllCarts");
             AsyncPostBackTrigger Trigger1 = new AsyncPostBackTrigger();
             Trigger1.ControlID = btn.ID;
@@ -79,6 +81,9 @@ namespace Web_App_Master.Account
 
                 checkout_ShipTo.Text = Customer;
                 checkout_ShipTo.Focus();
+                //Response.Cache.SetExpires(DateTime.Now.AddMonths(1));
+                //Response.Cache.SetCacheability(HttpCacheability.ServerAndPrivate);
+                //Response.Cache.SetValidUntilExpires(true);
             }
         }
         public void BindCheckout()
@@ -198,7 +203,7 @@ namespace Web_App_Master.Account
                 }
             }
             Session["CheckOut"] = new List<Asset>();
-            Session["PendingTransaction"] = transaction;
+            //Session["PendingTransaction"] = transaction;
             Push.Transaction(transaction);
             Push.Alert("Request Confirmed");
             //save to log
@@ -228,7 +233,9 @@ namespace Web_App_Master.Account
             //if logged in add transation to recent user transactions
 
             //redirect
-            Context.Response.Redirect("/Account/UserCheckout.aspx?tid=" + transaction.TransactionID);            
+            // Context.Response.Redirect("/Account/UserCheckout.aspx?tid=" + transaction.TransactionID);    
+            ApplyChangesButton.Visible = false;
+            ShowError("Thank You For Placing an Order");
         }
 
         protected void FinalCheckoutRepeater_ItemCommand(object source, RepeaterCommandEventArgs e)
