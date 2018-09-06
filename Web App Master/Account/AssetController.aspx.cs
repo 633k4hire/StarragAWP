@@ -386,12 +386,12 @@ namespace Web_App_Master.Account
                 if (Convert.ToBoolean(ischecked))
                 {
                     Global.Library.Settings.TESTMODE = true;
-                    Push.LibrarySettings();
+                    Push.AppSettings();
                 }
                 else
                 {
                     Global.Library.Settings.TESTMODE = false;
-                    Push.LibrarySettings();
+                    Push.AppSettings();
                 }
                 return true;
             }
@@ -430,7 +430,7 @@ namespace Web_App_Master.Account
             var checkout = HttpContext.Current.Session["CheckOut"] as List<Asset>;
             
 
-            var asset = Global.Library.Assets.FindAssetByNumber(num);
+            var asset = Pull.Asset(num);
             if (asset.IsOut == true) return null;
             if (checkout == null)
                 checkout = new List<Asset>();
@@ -520,7 +520,7 @@ namespace Web_App_Master.Account
 
            num = ParseBarCode(num);
             var checkin = HttpContext.Current.Session["CheckIn"] as List<Asset>;
-            var asset = Global.Library.Assets.FindAssetByNumber(num);
+            var asset = Global.AssetCache.FindAssetByNumber(num);
             if (asset.IsOut == false) return null;
             if (checkin == null)
                 checkin = new List<Asset>();
@@ -679,7 +679,7 @@ namespace Web_App_Master.Account
             //var connected = Extensions.CheckForInternetConnection();
             //if (!connected)
             //{
-            //    var a = from ass in Global.Library.Assets where ass.AssetNumber == num select ass;
+            //    var a = from ass in Global.AssetCache where ass.AssetNumber == num select ass;
             //    var al = a.ToList();
             //    var asset = al.FirstOrDefault();
             //    asset.Images = asset.Images.Replace(",,,", "<@#$>").Replace(",", "").Replace("<@#$>", ",").Replace("Images", "").Replace("\\", "");
@@ -698,7 +698,7 @@ namespace Web_App_Master.Account
                 {
                     HttpContext.Current.Session["CurrentAsset"] = req.Tag as Asset;
                     HttpContext.Current.Session["Asset"] = req.Tag as Asset;
-                    Global.Library.Assets.ForEach((ass) => {
+                    Global.AssetCache.ForEach((ass) => {
                         if (ass.AssetNumber== (req.Tag as Asset).AssetNumber )
                         {
                             ass = req.Tag as Asset;
@@ -724,7 +724,7 @@ namespace Web_App_Master.Account
                 //var connected = Extensions.CheckForInternetConnection();
                 //if (!connected)
                 //{
-                //    var a = from ass in Global.Library.Assets where ass.AssetNumber == num select ass;
+                //    var a = from ass in Global.AssetCache where ass.AssetNumber == num select ass;
                 //    var al = a.ToList();
                 //    var asset = al.FirstOrDefault();
                 //    asset.Images = asset.Images.Replace(",,,", "<@#$>").Replace(",", "").Replace("<@#$>", ",").Replace("Images", "").Replace("\\", "");
@@ -775,17 +775,17 @@ namespace Web_App_Master.Account
             req.GetAssets(true);
             if (req.Tag != null)
             {
-                Global.Library.Assets = req.Tag as List<Asset>;
-
+                Global.AssetCache = req.Tag as List<Asset>;
+                var ttt = 0;
             }
             else
             {
                 var file = HttpContext.Current.Server.MapPath("/Account/library.xml");
                 Extensions.ImportXmlLibraryFile(file);
-                return Global.Library.Assets;
+                return Global.AssetCache;
             }
 
-            return Global.Library.Assets;
+            return Global.AssetCache;
         }
         [WebMethod]
         public static async Task< List<Asset>> GetAllAssetsAsync()
@@ -799,7 +799,7 @@ namespace Web_App_Master.Account
             //    //load local
             //    var file = HttpContext.Current.Server.MapPath("/Account/library.xml");
             //    Extensions.ImportXmlLibraryFile(file);
-            //    return Global.Library.Assets;
+            //    return Global.AssetCache;
             //}
             SQL_Request req = await new SQL_Request().OpenConnectionAsync();
 
@@ -814,7 +814,7 @@ namespace Web_App_Master.Account
             {
                 var file = HttpContext.Current.Server.MapPath("/Account/library.xml");
                 Extensions.ImportXmlLibraryFile(file);
-                return Global.Library.Assets;
+                return Global.AssetCache;
             }            
         }
 

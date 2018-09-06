@@ -37,7 +37,7 @@
                             <div class="awp_box_content bg-sg-box" style="text-align:left;" >   
                                 <h4 class="fg-white shadow-metro-black"> <%= Page.User.Identity.GetUserName() %></h4>
                                 <h4 class="fg-white shadow-metro-black">
-                                    <asp:Label Text="Email" CssClass="fg-white shadow-metro-black" runat="server" ID="AnonLabel" Visible="false"  />
+                                    <asp:Label Text="Your Email" CssClass="fg-white shadow-metro-black" runat="server" ID="AnonLabel" Visible="false"  />
                                     <asp:TextBox Visible="false" ID="AnonUserInput" CssClass="form-control" runat="server" />
                                 </h4>
                                 <hr />

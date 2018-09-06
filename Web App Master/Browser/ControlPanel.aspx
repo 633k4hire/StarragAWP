@@ -333,7 +333,7 @@
                 </div>
                 <div class="resizable resizable2">
                     <div class="inner">   
-                        <asp:UpdatePanel runat="server" ID="AppRightPanelUpdatePanel" ChildrenAsTriggers="false" UpdateMode="Conditional" >
+                        <asp:UpdatePanel runat="server" ID="AppRightPanelUpdatePanel" ChildrenAsTriggers="true" UpdateMode="Conditional" >
                             <ContentTemplate>
                                      <nav class="navbar navbar-inverse  bg-grayDark" style="border-bottom-left-radius:8px !important;border-bottom-right-radius:0px !important;border-top-left-radius:0px !important;border-top-right-radius:0px !important; position:fixed; padding-right:25px; width:auto; right:0px; text-align:left !important; margin-top:-23px !important; margin-left:7px!important; z-index:25000; vertical-align:top">
                                           <div class="container-fluid">
@@ -381,7 +381,7 @@
                                             </div>
                                           </div>
                                         </nav>
-                                <asp:MultiView ID ="AppRightPanelMultiView" EnableViewState="false"  ActiveViewIndex="0" runat="server">
+                                <asp:MultiView ID ="AppRightPanelMultiView" EnableViewState="true"  ActiveViewIndex="0" runat="server">
                                     <%--Settings View--%>
                                     <asp:View ID="SettingsView" runat="server">      
                                         <asp:UpdatePanel runat="server" ID="SettingsViewUpdatePanel" UpdateMode="Conditional">
@@ -399,7 +399,7 @@
                                                         <fieldset class="groupbox-border">
                                                             <legend class="groupbox-border fg-l0xx0r">Quick Admin</legend>
                                                                 <asp:Button ToolTip="Sort Images" ID="SortAssetImages" OnClientClick="UpdateFooterStatus('Sort Running...');" CssClass="btn btn-sm" runat="server" Text="Sort Asset Images" Font-Bold="true" OnClick="SortAssetImages_Click"  />
-                                                                <asp:Button ToolTip="Create Directories" ID="CreateDirectoriesBtn" CssClass="btn btn-sm" runat="server" Text="Developer Test Button" Font-Bold="true" OnClick="CreateDirectoriesBtn_Click"  />
+                                                                <asp:Button ToolTip="Create Directories" ID="CreateDirectoriesBtn" CssClass="btn btn-sm" runat="server" Text="Developer Test Button" Font-Bold="true" OnClick="DeveloperAction_Click"  />
                                                         </fieldset>
                                                     </asp:View>
                                                     <asp:View ID="UserSettingsView" runat="server">
@@ -408,11 +408,28 @@
                                                         </div>
                                                         <hr />
                                                         <div class=" border-bottom-blue" style="margin:0px !important; padding-left:15px">
+                                                            <span class="shadow-metro-black"><strong><h4>Role Action</h4></strong></span>
+                                                        </div>
+                                                        <div class="border-bottom-blue" style="overflow:hidden; padding-left:15px">
+                                                            
+                                                            <span>User</span>
+                                                            <asp:DropDownList ViewStateMode="Enabled" Visible="true"  ClientIDMode="Static" ID='UserDropDownList' AppendDataBoundItems="true" runat="server" DataSource='<%#GetUserNames() %>'  CssClass="dropdown-button" >
+                                                                <asp:ListItem Text="--Select One--" Value="" /> 
+                                                            </asp:DropDownList>
+                                                            <span>Role</span>
+                                                            <asp:DropDownList  ViewStateMode="Enabled" Visible="true"  ClientIDMode="Static" ID='RoleDropDown' AppendDataBoundItems="true" runat="server" DataSource='<%#GetRoleNames() %>'  CssClass="dropdown-button" >
+                                                                <asp:ListItem Text="--Select One--" Value="" /> 
+                                                            </asp:DropDownList>
+                                                            <asp:Button ID="CopyUserToRoleBtn" runat="server" OnClick="CopyUserToRoleBtn_Click" CssClass="btn btn-sm" Text="Copy To" />
+                                                            <asp:Button ID="ChangeUserToRoleBtn" runat="server" OnClick="ChangeUserToRoleBtn_Click" CssClass="btn btn-sm" Text="Change To" />
+                                                        </div>
+                                                        <hr />
+                                                        <div class=" border-bottom-blue" style="margin:0px !important; padding-left:15px">
                                                             <span class="shadow-metro-black"><strong><h4>Roles</h4></strong></span>
                                                         </div>
-                                                        <asp:UpdatePanel ChildrenAsTriggers="true" ID="RolesUpdatePanel" ClientIDMode="Static" runat="server" UpdateMode="Conditional">
+                                                        <asp:UpdatePanel ChildrenAsTriggers="true" ID="RolesUpdatePanel" EnableViewState="true" ViewStateMode="Enabled" ClientIDMode="Static" runat="server" UpdateMode="Conditional">
                                                             <ContentTemplate>
-                                                                <asp:Repeater ID="RolesAndUsersRepeater" OnItemDataBound="RolesAndUsersRepeater_ItemDataBound" ClientIDMode="Static" runat="server" ViewStateMode="Enabled" EnableViewState="true">
+                                                                <asp:Repeater ID="RolesAndUsersRepeater" ClientIDMode="Static" runat="server" ViewStateMode="Enabled" EnableViewState="true">
                                                                     <HeaderTemplate>
                                                                         <div class="panel-group" id="rolesAccordion">
                                                                     </HeaderTemplate>
@@ -428,17 +445,12 @@
                                                                             <div id='collapse<%# Container.ItemIndex + 1%>' class="panel-collapse collapse">
                                                                             <div class="panel-body text-left">
                                                                                 <!--Repeaters for users of this role-->
-                                                                                <asp:Repeater DataSource='<%# Eval("RoleUsers")%>' runat="server">
+                                                                                <asp:Repeater DataSource='<%# Eval("RoleUsers")%>' ViewStateMode="Enabled" EnableViewState="true" runat="server" >
                                                                                     <ItemTemplate>
                                                                                         <div class="row bg-sg-box">                                           
                                                                                                 <div class="col-sm-12  text-left bg-white" style="width:auto !important">
-                                                                                                    <asp:Button ToolTip="Delete User From Role" ID="DeleteFromRole" CssClass="btn btn-sm" runat="server" Text="X" Font-Bold="true" CommandName='<%#Eval("UserId")%>' CommandArgument='<%#Eval("RoleId") %>' OnCommand="DeleteFromRole_Command" />
-                                                    
-                                                                                                    <asp:DropDownList ClientIDMode="Static" ID='RoleDropDown' AppendDataBoundItems="true" runat="server" DataSource='<%#GetRoleNames() %>'  CssClass="dropdown-button">
-                                                                                                        <asp:ListItem Text="--Select One--" Value="" /> 
-                                                                                                    </asp:DropDownList>
-                                                                                                    <asp:Button ToolTip="Copy User To ROle" ID="CopyRole" CssClass="btn btn-sm" runat="server" Text="Copy" Font-Bold="true" CommandName='<%#Eval("UserId")%>' CommandArgument='<%#Eval("RoleId") %>' OnCommand="CopyRole_Command" />
-                                                                                                    <asp:Button ToolTip="Change User Role" ID="ChangeRole" CssClass="btn btn-sm" runat="server" Text="Change" Font-Bold="true" CommandName='<%#Eval("UserId")%>' CommandArgument='<%#Eval("RoleId") %>' OnCommand="ChangeRole_Command" />
+                                                                                                    <a href="#" class="btn btn-sm" title="Delete" onclick="Super('delete_role','<%#Eval("UserId")%>-dd-<%#Eval("RoleId") %>');" >X</a>
+                                                                                                    
                                                                                                 <strong><%# Eval("UserName")%></strong> 
                                                                                                 </div>                      
                                                                                         </div>                                     
@@ -467,7 +479,8 @@
                                                                     
                                                                           <div class="border-bottom-blue" style="overflow:hidden">                                        
                                                                                 <div class="col-sm-12 fg-black" style="width:auto !important; padding-left:10px; text-align:left; font-weight:normal !important">
-                                                                                    <asp:Button Height="25" Width="15" ToolTip="Delete User" ID="DeleteTransactionBtn" CssClass="btn btn-sm" runat="server" Text="X" Font-Bold="true" CommandName='<%#Eval("UserId")%>' CommandArgument='<%#Eval("RoleId")%>'  OnCommand="DeleteUser_Command"/>
+                                                                                    <a href="#" class="btn btn-sm" title="Delete User" onclick="Super('delete_user','<%#Eval("UserId")%>-dd-<%#Eval("RoleId") %>');" >X</a>
+                                                                                    <a href="#" class="btn btn-sm" title="Approve User" onclick="Super('approve_user','<%#Eval("UserId")%>-dd-<%#Eval("RoleId") %>');" >Approve</a>
                                                                                     <span><%# Eval("UserName")%></span>
                                                                                 </div>  
                                                                         </div>

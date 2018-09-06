@@ -155,87 +155,98 @@ namespace Web_App_Master.Account
         }
         protected void ContinueToCheckOutBtn_Click(object sender, EventArgs e)
         {
-                      
-            if ((Session["CheckOut"]) == null) return;
-            if ((Session["CheckOut"] as List<Asset>).Count == 0) return;
-            var transaction = new PendingTransaction(Session["CheckOut"] as List<Asset>);
-            transaction.Comment = checkout_OrderNumber.Value;
-            if (transaction.Email.Email=="")
+            try
             {
-                if (AnonUserInput.Text=="")
+
+
+                if ((Session["CheckOut"]) == null) return;
+                if ((Session["CheckOut"] as List<Asset>).Count == 0) return;
+                var transaction = new PendingTransaction(Session["CheckOut"] as List<Asset>);
+                transaction.Comment = checkout_OrderNumber.Value;
+                if (transaction.Email.Email == "")
                 {
-                    ShowError("Please enter a Valid email address");
-                    return;
+                    if (AnonUserInput.Text == "")
+                    {
+                        ShowError("Please enter a Valid email address");
+                        return;
+                    }
+                    if (!EmailHelper.IsValid(AnonUserInput.Text))
+                    {
+                        ShowError("Please enter a Valid email address");
+                        return;
+                    }
+                    else
+                    {
+                        transaction.Email = new EmailAddress() { Name = AnonUserInput.Text, Email = AnonUserInput.Text };
+                        transaction.Name = AnonUserInput.Text;
+                    }
                 }
-                if (!EmailHelper.IsValid(AnonUserInput.Text))
+                if (cb_CustomAddress.Checked)
                 {
-                    ShowError("Please enter a Valid email address");
-                    return;
+                    transaction.Customer = GetCustomAddress();
+
+                    if (transaction.Customer == null)
+                    {
+                        ShowError("No customer selected.");
+                        return;
+                    }
                 }
                 else
                 {
-                    transaction.Email = new EmailAddress() { Name = AnonUserInput.Text, Email = AnonUserInput.Text };
-                    transaction.Name = AnonUserInput.Text;
+                    if (checkout_ShipTo.SelectedValue == "")
+                    {
+                        ShowError("No customer selected.");
+                        return;
+                    }
+                    transaction.Customer = (from a in Global.Library.Settings.Customers where checkout_ShipTo.Text.Contains(a.CompanyName) && checkout_ShipTo.Text.Contains(a.Address) select a).ToList().FirstOrDefault();
+                    if (transaction.Customer == null)
+                    {
+                        ShowError("No customer");
+                        return;
+                    }
                 }
+                Session["CheckOut"] = new List<Asset>();
+                //Session["PendingTransaction"] = transaction;
+                Push.Transaction(transaction);
+                Push.Alert("Request Confirmed");
+                //save to log
+
+                //add notification with transactionID
+
+                var staturl = "http://starrag.azurewebsites.net/Account/OutCart.aspx?pend=" + transaction.TransactionID;
+                var rurl = "http://starrag.azurewebsites.net/Account/UserCheckout.aspx?tid=" + transaction.TransactionID;
+                var body = "Thank you for placing a tool request<br>Your confirmation number is: " + transaction.TransactionID + "<br> you can view your reciept here <a href='" + rurl + "'></a><br>" + rurl;
+                var staticbody = "A new Service Tool Request has been made:<br>Pending Transaction Id number is: " + transaction.TransactionID + "<br> Complete Transaction here <a href='" + staturl + "'></a><br>" + staturl;
+
+                if (!Global.Library.Settings.TESTMODE)
+                {
+                    try
+                    {
+
+                        EmailHelper.SendEmail(transaction.Email.Email, body, "AWP - Order Confirmation:");
+
+                        var turl = "http://starrag-awp.com/Account/OutCart.aspx?pend=" + transaction.TransactionID;
+                        var staticBody = "A new order has been placed by " + transaction.Email.Email + "<br>For Customer " + transaction.Customer.CompanyName + "<br>  Transation ID: " + transaction.TransactionID + "<br> you can complete this transaction here <a href=\"" + turl + "\"></a><br>" + turl;
+                        var statics = (from a in Global.Library.Settings.StaticEmails select a.Email).ToArray();
+                        EmailHelper.SendMassEmail(statics, staticbody, "AWP - New Pending Transaction");
+                    }
+                    catch (Exception ex)
+                    {
+                        Context.AddError(ex);
+                    }
+                }
+                //if logged in add transation to recent user transactions
+
+                //redirect
+                // Context.Response.Redirect("/Account/UserCheckout.aspx?tid=" + transaction.TransactionID);    
+                ApplyChangesButton.Visible = false;
+                ShowError("Thank You For Placing an Order");
             }
-            if (cb_CustomAddress.Checked)
+            catch (Exception exx)
             {
-                transaction.Customer = GetCustomAddress();
-               
-                if (transaction.Customer==null)
-                {
-                    ShowError("No customer selected.");
-                    return;
-                }
+                ShowError("Error Placing Order\r\n"+exx.StackTrace);
+
             }
-            else
-            {
-                if (checkout_ShipTo.SelectedValue=="")
-                {
-                    ShowError("No customer selected.");
-                    return;
-                }
-                transaction.Customer = (from a in Global.Library.Settings.Customers where checkout_ShipTo.Text.Contains(a.CompanyName) && checkout_ShipTo.Text.Contains(a.Address) select a).ToList().FirstOrDefault();
-                if (transaction.Customer==null)
-                {
-                    ShowError("No customer");
-                    return;
-                }
-            }
-            Session["CheckOut"] = new List<Asset>();
-            //Session["PendingTransaction"] = transaction;
-            Push.Transaction(transaction);
-            Push.Alert("Request Confirmed");
-            //save to log
-
-            //add notification with transactionID
-
-            
-            var rurl = "http://starrag-awp.com/Account/UserCheckout.aspx?tid=" + transaction.TransactionID;
-            var body = "Thank you for placing a tool request<br>Your confirmation number is: " + transaction.TransactionID + "<br> you can view your reciept here <a href='"+ rurl + "'></a><br>" + rurl;
-            if (!Global.Library.Settings.TESTMODE)
-            {
-                try
-                {
-
-                    EmailHelper.SendEmail(transaction.Email.Email, body, "AWP - Order Confirmation:");
-
-                    var turl = "http://starrag-awp.com/Account/OutCart.aspx?pend=" + transaction.TransactionID;
-                    var staticBody = "A new order has bee nplaced<br>Transation ID: " + transaction.TransactionID + "<br> you can complete this transaction here <a href=\"" + turl + "\"></a><br>"+turl;
-                    var statics = (from a in Global.Library.Settings.StaticEmails select a.Email).ToArray();
-                    EmailHelper.SendMassEmail(statics, "", "AWP - New Pending Transaction");
-                }
-                catch (Exception ex)
-                {
-                    Context.AddError(ex);
-                }
-            }
-            //if logged in add transation to recent user transactions
-
-            //redirect
-            // Context.Response.Redirect("/Account/UserCheckout.aspx?tid=" + transaction.TransactionID);    
-            ApplyChangesButton.Visible = false;
-            ShowError("Thank You For Placing an Order");
         }
 
         protected void FinalCheckoutRepeater_ItemCommand(object source, RepeaterCommandEventArgs e)

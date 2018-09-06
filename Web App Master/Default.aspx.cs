@@ -18,10 +18,15 @@ namespace Web_App_Master
 {
     public partial class _Default : Page
     {
+        
         protected void Page_Load(object sender, EventArgs e)
         {
+            Page.RegisterAsyncTask(new PageAsyncTask( Global.RefreshAssetCacheAsync));
             if (!User.IsInRole("Admins")|| !User.IsInRole("superadmin"))
-            Response.Redirect("/Account/AssetView.aspx");
+            {
+                Response.Redirect("/Account/AssetView.aspx");
+            }
+            
         }
 
         protected void reateRoleBtn_Click(object sender, EventArgs e)

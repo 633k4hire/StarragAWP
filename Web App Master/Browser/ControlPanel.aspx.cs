@@ -19,6 +19,7 @@ using Web_App_Master.Account;
 
 namespace Web_App_Master.Browser
 {
+    
     public partial class ControlPanel : System.Web.UI.Page
     {
         //SUPER BUTTON
@@ -26,15 +27,73 @@ namespace Web_App_Master.Browser
         {
             var sc = SuperButtonCommand.Text;
             var sa = SuperButtonArg.Text;
+            if (sc.Contains("role"))
+            {
+                try
+                {
+                    var split = sa.StringSplit("-dd-"); 
+                    if (sc.Contains("delete"))
+                    {
+
+                    }
+                    if (sc.Contains("change"))
+                    {
+                        string name = HttpContext.Current.GetOwinContext().GetUserManager<ApplicationUserManager>().FindById(split[0]).UserName;
+                        foreach (RepeaterItem i in RolesAndUsersRepeater.Items)
+                        {
+
+                            Repeater repeater = (Repeater)i.Controls[1];
+                            foreach (RepeaterItem item in repeater.Items)
+                            {
+                                var changebutton = item.FindControl("ChangeRole") as Button;
+                                var temprole = changebutton.CommandName;
+                                if (temprole == name)
+                                {
+                                    var dropdown = item.FindControl("RoleDropDown") as DropDownList;
+                                    if (dropdown != null)
+                                    {
+                                        var selected = dropdown.SelectedValue;
+
+                                        var result = ChangeUserRole(name, selected);
+                                        result = RemoveUserFromRole(name, split[1]);
+
+                                        return;
+                                    }
+                                }
+
+                            }
+
+                        }
+                    }
+                    if (sc.Contains("copy"))
+                    {
+
+                    }
+                }
+                catch { }
+            }
+            if (sc.Contains("user"))
+            {
+                if (sc.Contains("delete"))
+                {
+
+                }
+                if (sc.Contains("approve"))
+                {
+
+                }                
+            }
             if (sc.Contains("asset"))
             {
                 if (sc.Contains("delete"))
                 {
-                    var local = Global.Library.Assets.Find((x) => x.AssetNumber == sa);
+                    var local = Global.AssetCache.Find((x) => x.AssetNumber == sa);
                     if (local != null)
                     {
                         AssetController.DeleteAsset(sa);
-                        BindAndUpdateAssets(Pull.Assets());
+                        var assetCache = Application[(Session["guid"] as string)] = Pull.Assets();
+                        BindAndUpdateAssets((assetCache as List<Asset>));
+                        Page.SiteMaster().UpdateAssetView();
                     }
                 }
                 if (sc.Contains("edit"))
@@ -95,7 +154,7 @@ namespace Web_App_Master.Browser
                         if (p.Count() > 0)
                         {
                             Global.Library.Settings.StaticEmails.Remove(p.First());
-                            Push.LibrarySettings();
+                            Push.AppSettings();
                             UpdateStatus(sa + " removed from Static Email List");
                             BindAndUpdatePersonnel(Global.Library.Settings.ShippingPersons, Global.Library.Settings.ServiceEngineers, Global.Library.Settings.StaticEmails);
                         }
@@ -135,7 +194,7 @@ namespace Web_App_Master.Browser
                         if (item == null)
                             return;
                         Global.Library.Settings.Customers.Remove(item);
-                        Push.LibrarySettings();
+                        Push.AppSettings();
                         BindAndUpdateCustomers(Global.Library.Settings.Customers);
                         UpdateStatus(item.CompanyName + " deleted");
                     }
@@ -153,7 +212,7 @@ namespace Web_App_Master.Browser
                         if (p.Count() > 0)
                         {
                             Global.Library.Settings.ShippingPersons.Remove(p.First());
-                            Push.LibrarySettings();
+                            Push.AppSettings();
                             UpdateStatus(sa + " removed from Office Personnel");
                             BindAndUpdatePersonnel(Global.Library.Settings.ShippingPersons, Global.Library.Settings.ServiceEngineers);
                         }
@@ -171,7 +230,7 @@ namespace Web_App_Master.Browser
                         if (p.Count() > 0)
                         {
                             Global.Library.Settings.ServiceEngineers.Remove(p.First());
-                            Push.LibrarySettings();
+                            Push.AppSettings();
                             UpdateStatus(sa + " removed from Field Personnel");
                             BindAndUpdatePersonnel(Global.Library.Settings.ShippingPersons, Global.Library.Settings.ServiceEngineers);
                         }
@@ -217,8 +276,58 @@ namespace Web_App_Master.Browser
                 
                 
             }
-           
+            if (sc.Contains("kit"))
+            {
+                if (sc.Contains("send"))
+                {
+                    try
+                    {
+                        var split = sa.Split(new string[] { "-dd-" }, StringSplitOptions.RemoveEmptyEntries);
+                        Session["Checkout"] = new List<Asset>();
+                        var list = Session["Checkout"] as List<Asset>;
+                        var cd = Pull.CustomerData((Session["CurrentCustomer"] as Customer).DataGuid);
+                        foreach (var a in cd.AssetKitHistory)
+                        {
+                            if (split[0] == a.Guid)
+                            {
+                                foreach (var item in a.Assets)
+                                {
+                                    list.Add(Pull.Asset(item));
+                                }
+
+                            }
+                        }
+                        Session["Checkout"] = list;
+                        Response.Redirect("/Account/Outcart.aspx");
+                    }
+                    catch { UpdateStatus("Problem"); }
+                    //create pending tranasction and send it
+
+                }
+
+            }
         }
+
+        //Developer Action
+        protected void DeveloperAction_Click(object sender, EventArgs e)
+        {
+            Global.AssetCache.ForEach((a)=> 
+            {
+                try
+                {
+                    var distinctimages = a.ImageList.DistinctBy(x => x).ToList();
+                    if (a.ImageList != distinctimages)
+                    {
+                        a.ImageList = distinctimages;
+                        Push.Asset(a);
+                    }
+                }
+                catch {  }
+                
+            });
+            UpdateStatus("Changed Assest Images");
+        }
+
 
         protected void UpdateAllUpdatePanels()
         {
@@ -339,7 +448,8 @@ namespace Web_App_Master.Browser
             }
             else
             {
-                BindAssets(Pull.Assets());
+                var assetCache = Application[(Session["guid"] as string)] as List<Asset>;
+                BindAssets(assetCache);
             }
             AssetsUpdatePanel.Update();
         }
@@ -415,7 +525,7 @@ namespace Web_App_Master.Browser
                     }
                     else
                     {
-                        var aa = Global.Library.Assets.FindAssetByNumber(a);
+                        var aa = Global.AssetCache.FindAssetByNumber(a);
                         assigned.Add(aa);
                     }
                 });
@@ -433,7 +543,7 @@ namespace Web_App_Master.Browser
                         if (c.Equals(input))
                         {
                             c.DataGuid = cd.Guid;
-                            Push.LibrarySettings();
+                            Push.AppSettings();
                         }
                     });
                     cd.Customer = input;
@@ -450,7 +560,7 @@ namespace Web_App_Master.Browser
                             if (c.Equals(input))
                             {
                                 removableassets.ForEach((f) => { c.CurrentAssignedAssets.Remove(f); });
-                                Push.LibrarySettings();
+                                Push.AppSettings();
                             }
                         });
                     }
@@ -464,7 +574,7 @@ namespace Web_App_Master.Browser
                     if (c.Equals(input))
                     {
                         c.DataGuid = cd.Guid;
-                        Push.LibrarySettings();
+                        Push.AppSettings();
                     }
                 });
                 cd.Customer = input;
@@ -537,6 +647,10 @@ namespace Web_App_Master.Browser
             ScriptManager.GetCurrent(Page).RegisterAsyncPostBackControl(ControlPanelSaveBtn);
             ScriptManager.GetCurrent(Page).RegisterPostBackControl(ExportXmlBtn);
             ScriptManager.GetCurrent(Page).RegisterPostBackControl(ExportLibraryBtn);
+            //ScriptManager.GetCurrent(Page).RegisterAsyncPostBackControl(CopyUserToRoleBtn);
+           // ScriptManager.GetCurrent(Page).RegisterAsyncPostBackControl(ChangeUserToRoleBtn);
+
+
 
             if (IsPostBack)
             {
@@ -644,8 +758,8 @@ namespace Web_App_Master.Browser
 
                     break;
                 case "assets":
-                    var assetlist = (from a in Pull.Assets()
-                                     where 
+                    var assetlist = (from a in Application[(Session["guid"] as string)] as List<Asset>
+                    where 
                                        a.AssetName.ToUpper().Contains(query)
                                     || a.CalibrationCompany.ToUpper().Contains(query)
                                     || a.DateRecievedString.ToUpper().Contains(query)
@@ -851,7 +965,7 @@ namespace Web_App_Master.Browser
                     break;
             }
             Session["cv"] = "settings";
-            BindUsersAndRoles();
+            //BindUsersAndRoles();
             SettingsMultiview.ActiveViewIndex = 0;
             AppRightPanelMultiView.SetActiveView(SettingsView);
             try
@@ -922,7 +1036,7 @@ namespace Web_App_Master.Browser
         private void LoadAssetView(string input)
         {
             Session["cv"] = "assets";
-            BindAssets(Pull.Assets());
+            BindAssets(Application[(Session["guid"] as string)] as List<Asset>);
             AppRightPanelMultiView.SetActiveView(AssetsView);
             AppRightPanelUpdatePanel.Update();
         }
@@ -1070,7 +1184,7 @@ namespace Web_App_Master.Browser
             //Assets
             try
             {
-                var ds = Pull.Assets().OrderBy(w => w.AssetNumber).ToList();
+                var ds = (Application[(Session["guid"] as string)] as List<Asset>).OrderBy(w => w.AssetNumber).ToList();
                 ds.ForEach((t) => {
                     TreeNode node = new TreeNode();
                     node.Text = t.AssetNumber + ": " + t.AssetName;
@@ -1149,7 +1263,7 @@ namespace Web_App_Master.Browser
             {
                 var customer = (from a in Global.Library.Settings.Customers where a.CompanyName == (string)e.CommandName && a.Postal == (string)e.CommandArgument select a).FirstOrDefault();
                 Global.Library.Settings.Customers.Remove(customer);
-                Push.LibrarySettings();
+                Push.AppSettings();
             }
             catch { }
         }
@@ -1279,7 +1393,16 @@ namespace Web_App_Master.Browser
             var users = (from user in manager.Users orderby user.Email select user).ToUserBindingList();
             UserRepeater.DataSource = users;
             UserRepeater.DataBind();
+            RoleDropDown.Items.Clear();
+            UserDropDownList.Items.Clear();
+            RoleDropDown.DataSource = GetRoleNames();
+            UserDropDownList.DataSource = GetUserNames();
+            RoleDropDown.DataBind();
+            UserDropDownList.DataBind();
 
+
+            RolesUpdatePanel.Update();
+            UserUpdatePanel.Update();
 
         }
         private void BindAssetAdmin()
@@ -1446,10 +1569,15 @@ namespace Web_App_Master.Browser
             var manager = Context.GetOwinContext().GetUserManager<ApplicationUserManager>();
             try
             {
+                var user = manager.GetRoles(userid);
+                user.ToList().ForEach((r)=> 
+                {
+                    manager.RemoveFromRole(userid, r);
+                });
                 if (!manager.IsInRole(userid, role))
                 {
                     manager.AddToRole(userid, role);
-                    BindUsersAndRoles();
+                    
                 }
                 return true;
             }
@@ -1502,6 +1630,12 @@ namespace Web_App_Master.Browser
             }
             return names;
         }
+        protected List<string> GetUserNames()
+        {
+            var manager = Context.GetOwinContext().GetUserManager<ApplicationUserManager>();
+            var users = (from user in manager.Users orderby user.Email select user.Email).ToList();
+            return users;
+        }
 
         protected void RolesAndUsersRepeater_ItemDataBound(object sender, RepeaterItemEventArgs e)
         {
@@ -1551,9 +1685,10 @@ namespace Web_App_Master.Browser
 
         protected void PullSQL_Click(object sender, EventArgs e)
         {
-            Global.Library.Assets = Pull.Assets();           
+            Global.AssetCache = Pull.Assets();
+            Application[(Session["guid"] as string)] = Global.AssetCache;
             //PopNotify("Complete", "Library Pulled From SQL");
-            
+
         }
 
         protected void DeleteSQL_Click(object sender, EventArgs e)
@@ -1581,7 +1716,7 @@ namespace Web_App_Master.Browser
                     }
 
                     req.CloseConnection();
-                    Global.Library.Assets = new List<Asset>();
+                    Global.AssetCache = new List<Asset>();
                 }
             }
             catch
@@ -1614,7 +1749,7 @@ namespace Web_App_Master.Browser
                 {
                     var cloud = req.Tag as List<Asset>;
                     //upload assets
-                    foreach (Asset a in Global.Library.Assets)
+                    foreach (Asset a in Global.AssetCache)
                     {
                         try
                         {
@@ -1690,7 +1825,7 @@ namespace Web_App_Master.Browser
                     doc.LoadXml(reader.ReadToEnd());
                 }
 
-                Global.Library.Assets = new List<Asset>();
+                Global.AssetCache = new List<Asset>();
                 try
                 {
                     XmlNodeList elemList = doc.GetElementsByTagName("Asset");
@@ -1701,7 +1836,7 @@ namespace Web_App_Master.Browser
                     foreach (XmlElement elem in elemList)
                     {
                         var a = elem.ToAsset();
-                        Global.Library.Assets.Add(a);
+                        Global.AssetCache.Add(a);
 
                     }
                 }
@@ -1841,7 +1976,7 @@ namespace Web_App_Master.Browser
                 Page.SiteMaster().ShowError("Problem uploading library");
 
             }
-            Push.LibrarySettings();
+            Push.AppSettings();
             Push.Library();
 
         }
@@ -1901,12 +2036,12 @@ namespace Web_App_Master.Browser
                     doc.LoadXml(reader.ReadToEnd());
                 }
                 //check for nulls
-                if (Global.Library.Assets == null)
+                if (Global.AssetCache == null)
                 {
                     //PopNotify("Error", "No Library loaded");
                     return;
                 }
-                if (Global.Library.Assets.Count == 0)
+                if (Global.AssetCache.Count == 0)
                 {
                     //PopNotify("Error", "No Assests In Library");
                     return;
@@ -1918,7 +2053,7 @@ namespace Web_App_Master.Browser
                     try
                     {
                         var assetnumber = elem.GetAttribute("AssetNumber").Sanitize();
-                        var currentAsset = Global.Library.Assets.FindAssetByNumber(assetnumber);
+                        var currentAsset = Global.AssetCache.FindAssetByNumber(assetnumber);
                         foreach (XmlElement subelem in elem.GetElementsByTagName("Asset"))
                         {
                             try
@@ -2088,7 +2223,7 @@ namespace Web_App_Master.Browser
             Global.Library.Settings.UpsAccount.A = ups_aln.Value;
             Global.Library.Settings.UpsAccount.I = ups_userid.Value;
             Global.Library.Settings.UpsAccount.N = ups_shippernumber.Value;
-            Push.LibrarySettings();
+            Push.AppSettings();
             UpdateAssetAdmin();
         }
 
@@ -2146,7 +2281,7 @@ namespace Web_App_Master.Browser
                 default:
                     break;
             }
-            Push.LibrarySettings();
+            Push.AppSettings();
             UpdateAllUpdatePanels();
            
         }
@@ -2175,7 +2310,7 @@ namespace Web_App_Master.Browser
                 default:
                     break;
             }
-            Push.LibrarySettings();
+            Push.AppSettings();
             Push.Library();
         }
 
@@ -2213,7 +2348,7 @@ namespace Web_App_Master.Browser
                     local.Email = COPEmailTextBox.Value;
                     local.Name = COPNameTextBox.Value;
                 }
-                Push.LibrarySettings();
+                Push.AppSettings();
                 UpdateStatus("Personnel added: " + COPEmailTextBox.Value);
                 BindAndUpdatePersonnel(Global.Library.Settings.ShippingPersons, Global.Library.Settings.ServiceEngineers);
             }
@@ -2244,7 +2379,7 @@ namespace Web_App_Master.Browser
                     local.Email = CFPEmailTextBox.Value;
                     local.Name = CFPNameTextBox.Value;
                 }
-                Push.LibrarySettings();
+                Push.AppSettings();
                 UpdateStatus("Field Personnel added: " + CFPEmailTextBox.Value);
                 BindAndUpdatePersonnel(Global.Library.Settings.ShippingPersons, Global.Library.Settings.ServiceEngineers);
             }
@@ -2270,7 +2405,7 @@ namespace Web_App_Master.Browser
 
                 };
                 Global.Library.Settings.Customers.Add(cust);
-                Push.LibrarySettings();
+                Push.AppSettings();
                 UpdateStatus("Customer added: " + cust.CompanyName);
                 BindAndUpdateCustomers(Global.Library.Settings.Customers);
             }
@@ -2328,7 +2463,7 @@ namespace Web_App_Master.Browser
                     local.Email = CSEEmailTextBox.Value;
                     local.Name = CSENameTextBox.Value;
                 }
-                Push.LibrarySettings();
+                Push.AppSettings();
                 UpdateStatus("Static Email added: " + CSEEmailTextBox.Value);
                 BindAndUpdatePersonnel();
             }
@@ -2410,73 +2545,6 @@ namespace Web_App_Master.Browser
             FooterStatusLabel.Text = status;
             AppFooterUpdatePanel.Update();
         }
-        protected void CreateDirectoriesBtn_Click(object sender, EventArgs e)
-        {         
-
-           
-
-            //Global.Library.Settings.Customers.Clear();
-        
-            //var doc = new XmlDocument();
-
-            //using (StreamReader reader = new StreamReader(Server.MapPath("/Account/Templates/lib.xml")))
-            //{
-            //    doc.LoadXml(reader.ReadToEnd());
-            //}
-
-            //try
-            //{
-            //    if (Global.Library.Settings == null) Global.Library.Settings = new Settings();
-            //    if (Global.Library.Settings.Customers == null) Global.Library.Settings.Customers = new List<Customer>();
-            //    XmlNodeList custElemList = doc.GetElementsByTagName("Customer");
-            //    foreach (XmlElement cust in custElemList)
-            //    {
-            //        //create a customer
-            //        Customer newCustomer = new Customer();
-            //        newCustomer.AccountNumber = cust.Attributes["AccountNumber"].Value;
-            //        newCustomer.AccPostalCd = cust.Attributes["AccPostalCd"].Value;
-            //        newCustomer.Address = cust.Attributes["Address"].Value;
-            //        newCustomer.Address2 = cust.Attributes["Address2"].Value;
-            //        newCustomer.Address3 = cust.Attributes["Address3"].Value;
-            //        newCustomer.Attn = cust.Attributes["Attn"].Value;
-            //        newCustomer.City = cust.Attributes["City"].Value;
-            //        newCustomer.CompanyName = cust.Attributes["CompanyName"].Value;
-            //        newCustomer.ConsInd = cust.Attributes["ConsInd"].Value;
-            //        newCustomer.Country = cust.Attributes["Country"].Value;
-            //        newCustomer.EmailAddress = new EmailAddress() { Email = cust.Attributes["Email"].Value };
-            //        newCustomer.Fax = cust.Attributes["Fax"].Value;
-            //        newCustomer.LocID = cust.Attributes["LocID"].Value;
-            //        newCustomer.NickName = cust.Attributes["NickName"].Value;
-            //        newCustomer.OrderNumber = cust.Attributes["OrderNumber"].Value;
-            //        newCustomer.PackageWeight = cust.Attributes["PackageWeight"].Value;
-            //        newCustomer.Phone = cust.Attributes["Phone"].Value;
-            //        newCustomer.Postal = cust.Attributes["Postal"].Value;
-            //        newCustomer.ResInd = cust.Attributes["ResInd"].Value;
-            //        newCustomer.State = cust.Attributes["State"].Value;
-            //        newCustomer.USPSPOBoxIND = cust.Attributes["USPSPOBoxIND"].Value;
-            //        Global.Library.Settings.Customers.Add(newCustomer);
-            //    }
-            //}
-            //catch
-            //{
-
-            //}
-            //var list = Global.Library.Settings.Customers;
-            //foreach (var cust in list)
-            //{
-            //    if (cust.CompanyName.ToUpper().Contains("ANDRE"))
-            //    {
-
-            //    }
-            //    cust.CompanyName = cust.CompanyName.Replace("'", "").Replace("\"", "").Replace("<", "").Replace(">", "").Replace("&amp;", "").Replace("(", "").Replace(")", "").Replace("&#39;", "");
-
-            //}
-            //Push.LibrarySettings();
-
-
-
-
-        }
 
         protected void SingleAssetImageUploadBtn_Click(object sender, EventArgs e)
         {
@@ -2553,7 +2621,7 @@ namespace Web_App_Master.Browser
                                 if (c.Equals(customer))
                                 {
                                     c.DataGuid = cd.Guid;
-                                    Push.LibrarySettings();
+                                    Push.AppSettings();
                                 }
                             });
                             cd.Customer = customer;
@@ -2571,7 +2639,7 @@ namespace Web_App_Master.Browser
                             if (c.Equals(customer))
                             {
                                 c.DataGuid = cd.Guid;
-                                Push.LibrarySettings();
+                                Push.AppSettings();
                             }
                         });
                         cd.Customer = customer;
@@ -2605,6 +2673,33 @@ namespace Web_App_Master.Browser
             }
 
             LoadCustomerView(Session["CurrentCustomer"] as Customer);
+        }
+
+        protected void RoleDropDown_SelectedIndexChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        protected void UserDropDownList_SelectedIndexChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        protected void CopyUserToRoleBtn_Click(object sender, EventArgs e)
+        {
+            BindUsersAndRoles();
+        }
+
+        protected void ChangeUserToRoleBtn_Click(object sender, EventArgs e)
+        {
+            var user = UserDropDownList.SelectedItem.Text;
+            var role = RoleDropDown.SelectedItem.Text;
+           // BindUsersAndRoles();
+            var name = HttpContext.Current.GetOwinContext().GetUserManager<ApplicationUserManager>().FindByName(user);
+            
+            ChangeUserRole(name.Id,role);
+            BindUsersAndRoles();
+            AppRightPanelUpdatePanel.Update();
         }
     }
 }

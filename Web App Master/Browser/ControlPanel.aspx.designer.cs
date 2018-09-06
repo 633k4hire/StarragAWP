@@ -526,6 +526,42 @@ namespace Web_App_Master.Browser {
         protected global::System.Web.UI.WebControls.View UserSettingsView;
         
         /// <summary>
+        /// UserDropDownList control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.DropDownList UserDropDownList;
+        
+        /// <summary>
+        /// RoleDropDown control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.DropDownList RoleDropDown;
+        
+        /// <summary>
+        /// CopyUserToRoleBtn control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Button CopyUserToRoleBtn;
+        
+        /// <summary>
+        /// ChangeUserToRoleBtn control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Button ChangeUserToRoleBtn;
+        
+        /// <summary>
         /// RolesUpdatePanel control.
         /// </summary>
         /// <remarks>

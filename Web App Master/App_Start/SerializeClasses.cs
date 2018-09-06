@@ -169,6 +169,10 @@ namespace Serializers
             TT xmlObject = new TT();
             XmlSerializer xmlSerializer = new XmlSerializer(typeof(TT));
             StringReader stringReader = new StringReader(xml);
+            if (xml=="")
+            {
+                return new TT();
+            }
             xmlObject = (TT)xmlSerializer.Deserialize(stringReader);
             return xmlObject;
         }

@@ -102,7 +102,7 @@
 
                         </AnonymousTemplate>
                          <RoleGroups>
-                             <asp:RoleGroup Roles="superadmin,Admins">
+                             <asp:RoleGroup Roles="superadmin,Admins,Customers,Users">
                                  <ContentTemplate>
                                     <%--left items--%>
                                     <ul class="nav navbar-nav starrag-menu">     
@@ -176,7 +176,7 @@
                                     </ul>      
                                 </ContentTemplate>
                             </asp:RoleGroup>
-                             <asp:RoleGroup Roles="Users,Customers,NoRole">
+                             <asp:RoleGroup Roles="NoRole">
                                                                   <ContentTemplate>
                                     <%--left items--%>
                                     <ul class="nav navbar-nav starrag-menu">     
@@ -241,7 +241,8 @@
                             <div style="z-index:99999 !important;">
                             <asp:MultiView ID="MainContentMultiView" ActiveViewIndex="0" runat="server">
                                 <asp:View ID="MainView" runat="server">--%>
-                                    <div class="bg" id="BackgoundDiv"><div class="bg-starrag" style="width:100%; z-index:2; height:3px;"></div></div> 
+                                    <%--<div class="bg" id="BackgoundDiv"><div class="bg-starrag" style="width:100%; z-index:2; height:3px;"></div></div> --%>
+                                    <div class="image-wrap" id="BackgoundDiv"><img src="/Images/starrag_group_rorschacherberg.jpg" /> </div>
                                     <asp:ContentPlaceHolder ID="MainContent" runat="server" Visible="true">
                                     </asp:ContentPlaceHolder>  
   <%--                              </asp:View>
@@ -285,10 +286,10 @@
                 </nav>
                   </div>
                 <div id="asset-modal-new-content" class=" bg-sg-box ">
-                    <span id="AssetTab" class="tablink bg-sg-title " style="text-align:center; text-decoration:none" ><asp:LinkButton ID="AssetTabBtn" runat="server" OnClick="AssetTabBtn_Click"  ><span class="fg-white fa-bold" style="text-decoration:none">Asset</span></asp:LinkButton></span>
-                    <span id="ReportTab" class="tablink bg-sg-title" style="text-align:center; text-decoration:none" ><asp:LinkButton ID="ReportTabBtn" runat="server" OnClick="ReportTabBtn_Click" ><span class="fg-white fa-bold" style="text-decoration:none">Documents</span></asp:LinkButton></span>
+                    <span id="AssetTab" class="tablink bg-sg-title " style="text-align:center; text-decoration:none" ><asp:LinkButton ID="AssetTabBtn" runat="server" OnClick="AssetTabBtn_Click"  ><span class="fg-white bold" style="text-decoration:none">Asset</span></asp:LinkButton></span>
+                    <span id="ReportTab" class="tablink bg-sg-title" style="text-align:center; text-decoration:none" ><asp:LinkButton ID="ReportTabBtn" runat="server" OnClick="ReportTabBtn_Click" ><span class="fg-white bold" style="text-decoration:none">Documents</span></asp:LinkButton></span>
 <%--                    <span id="CalibrationTab" class="tablink bg-sg-title" style="text-align:center; text-decoration:none" ><asp:LinkButton ID="CalibrationTabBtn" runat="server" OnClick="CalibrationTabBtn_Click" ><span class="fg-white fa-bold" style="text-decoration:none">Calibration</span></asp:LinkButton></span>--%>
-                    <span id="HistoryTab" class="tablink bg-sg-title " style="text-align:center; text-decoration:none" ><asp:LinkButton ID="HistoryTabBtn" runat="server" OnClick="HistoryTabBtn_Click" ><span class="fg-white fa-bold" style="text-decoration:none">History</span></asp:LinkButton></span>
+                    <span id="HistoryTab" class="tablink bg-sg-title " style="text-align:center; text-decoration:none" ><asp:LinkButton ID="HistoryTabBtn" runat="server" OnClick="HistoryTabBtn_Click" ><span class="fg-white bold" style="text-decoration:none">History</span></asp:LinkButton></span>
                     <div style="margin-top:15px;"></div>
                     <asp:UpdatePanel ID="AssetModalUpdatePanel" EnableViewState="true" UpdateMode="Conditional" runat="server" ChildrenAsTriggers="true">
                         <ContentTemplate>

@@ -429,7 +429,7 @@ namespace Web_App_Master.Account.Admin
                     doc.LoadXml(reader.ReadToEnd());
                 }
 
-                Global.Library.Assets = new List<Asset>();
+                Global.AssetCache = new List<Asset>();
                 try
                 {
                     XmlNodeList elemList = doc.GetElementsByTagName("Asset");
@@ -440,7 +440,7 @@ namespace Web_App_Master.Account.Admin
                     foreach (XmlElement elem in elemList)
                     {
                         var a = elem.ToAsset();
-                        Global.Library.Assets.Add(a);
+                        Global.AssetCache.Add(a);
 
                     }
                 }
@@ -580,7 +580,7 @@ namespace Web_App_Master.Account.Admin
                 Page.SiteMaster().ShowError("Problem uploading library");
 
             }
-            Push.LibrarySettings();
+            Push.AppSettings();
             Push.Library();
 
         }
@@ -641,12 +641,12 @@ namespace Web_App_Master.Account.Admin
                     doc.LoadXml(reader.ReadToEnd());
                 }
                 //check for nulls
-                if (Global.Library.Assets == null)
+                if (Global.AssetCache == null)
                 {
                     //PopNotify("Error", "No Library loaded");
                     return;
                 }
-                if (Global.Library.Assets.Count == 0)
+                if (Global.AssetCache.Count == 0)
                 {
                     //PopNotify("Error", "No Assests In Library");
                     return;
@@ -658,7 +658,7 @@ namespace Web_App_Master.Account.Admin
                     try
                     {
                         var assetnumber = elem.GetAttribute("AssetNumber").Sanitize();
-                        var currentAsset = Global.Library.Assets.FindAssetByNumber(assetnumber);
+                        var currentAsset = Global.AssetCache.FindAssetByNumber(assetnumber);
                         foreach (XmlElement subelem in elem.GetElementsByTagName("Asset"))
                         {
                             try
@@ -730,7 +730,7 @@ namespace Web_App_Master.Account.Admin
                 {
                     var cloud = req.Tag as List<Asset>;
                     //upload assets
-                    foreach (Asset a in Global.Library.Assets)
+                    foreach (Asset a in Global.AssetCache)
                     {
                         try
                         {
@@ -777,7 +777,7 @@ namespace Web_App_Master.Account.Admin
                 if (req.Tag != null)
                 {
                     //pull assets
-                    Global.Library.Assets = req.Tag as List<Asset>;
+                    Global.AssetCache = req.Tag as List<Asset>;
                     //pull settings
                     //pull notifications
                     //pull calibrations
@@ -816,7 +816,7 @@ namespace Web_App_Master.Account.Admin
                     }
 
                     req.CloseConnection();
-                    Global.Library.Assets = new List<Asset>();
+                    Global.AssetCache = new List<Asset>();
                 }
             }
             catch
@@ -840,14 +840,14 @@ namespace Web_App_Master.Account.Admin
             Global.Library.Settings.UpsAccount.A = ups_aln.Value;
             Global.Library.Settings.UpsAccount.I = ups_userid.Value;
             Global.Library.Settings.UpsAccount.N = ups_shippernumber.Value;
-            Push.LibrarySettings();
+            Push.AppSettings();
             UpdateAssetAdmin();
         }
 
         protected void SaveAllChangesBtn_Click(object sender, EventArgs e)
         {
             Push.Library();
-            Push.LibrarySettings();
+            Push.AppSettings();
             UpdateUsersAndRoles();
             UpdateAssetAdmin();
         }
@@ -924,7 +924,7 @@ namespace Web_App_Master.Account.Admin
                     { em = n; }
                 }
                 Global.Library.Settings.ShippingPersons.Remove(em);
-                Push.LibrarySettings();
+                Push.AppSettings();
                 UpdateAssetAdmin();
             }
             catch { Page.SiteMaster().ShowError("Problem romoving Shipping Personnel"); }
@@ -944,7 +944,7 @@ namespace Web_App_Master.Account.Admin
                         { em = n; }
                     }
                     Global.Library.Settings.ServiceEngineers.Remove(em);
-                    Push.LibrarySettings();
+                    Push.AppSettings();
                     UpdateAssetAdmin();
                 }
                 catch { Page.SiteMaster().ShowError("Problem romoving Shipping Personnel"); }
@@ -969,7 +969,7 @@ namespace Web_App_Master.Account.Admin
                         { em = n; }
                     }
                     Global.Library.Settings.Customers.Remove(em);
-                    Push.LibrarySettings();
+                    Push.AppSettings();
                     UpdateAssetAdmin();
                 }
                 catch { Page.SiteMaster().ShowError("Problem romoving Shipping Personnel"); }
@@ -1020,25 +1020,25 @@ namespace Web_App_Master.Account.Admin
         {
             var a = checkoutmsgbox.Value;
             Global.Library.Settings.CheckOutMessage = a;
-            Push.LibrarySettings();
+            Push.AppSettings();
         }
 
         protected void SaveCheckInMsgBtn_Click(object sender, EventArgs e)
         {
             Global.Library.Settings.CheckInMessage = checkinmsgbox.Value;
-            Push.LibrarySettings();
+            Push.AppSettings();
         }
 
         protected void SaveNoticMsgBtn_Click(object sender, EventArgs e)
         {
             Global.Library.Settings.NotificationMessage = notificationmsgbox.Value;
-            Push.LibrarySettings();
+            Push.AppSettings();
         }
 
         protected void SaveShipperMsgBtn_Click(object sender, EventArgs e)
         {
             Global.Library.Settings.ShipperNotification = shipmsgbox.Value;
-            Push.LibrarySettings();
+            Push.AppSettings();
         }
         private string AppendDir(string dir, string file)
         {
@@ -1167,7 +1167,7 @@ namespace Web_App_Master.Account.Admin
             email.Name = ShipperNameInput.Text;
             email.Email = ShipperEmialInput.Text;
             Global.Library.Settings.ShippingPersons.Add(email);
-            Push.LibrarySettings();
+            Push.AppSettings();
         }
 
         protected void CreateEngineerBtn_Click(object sender, EventArgs e)
@@ -1176,7 +1176,7 @@ namespace Web_App_Master.Account.Admin
             email.Name = EngineerNameInput.Text;
             email.Email = EngineerEmailInput.Text;
             Global.Library.Settings.ServiceEngineers.Add(email);
-            Push.LibrarySettings();
+            Push.AppSettings();
         }
 
         protected void CreateCustomerBtn_Click(object sender, EventArgs e)
@@ -1193,7 +1193,7 @@ namespace Web_App_Master.Account.Admin
             cust.EmailAddress = new EmailAddress() { Email = SprEmail.Text, Name= cust.Attn };
             cust.Phone = SprPhone.Text;
             Global.Library.Settings.Customers.Add(cust);
-            Push.LibrarySettings();
+            Push.AppSettings();
         }
 
         protected void AddStatic_Click(object sender, EventArgs e)
@@ -1235,7 +1235,7 @@ namespace Web_App_Master.Account.Admin
             if (EmailHelper.IsValid(stat))
             {
                 Global.Library.Settings.StaticEmails.Add(stat);
-                Push.LibrarySettings();
+                Push.AppSettings();
                 BindStaticEmails();
                 staticupdatepanel.Update();
             }
@@ -1249,7 +1249,7 @@ namespace Web_App_Master.Account.Admin
         protected void ChangeTestModeBtn_Click(object sender, EventArgs e)
         {
             Global.Library.Settings.TESTMODE = !Global.Library.Settings.TESTMODE;
-            Push.LibrarySettings();
+            Push.AppSettings();
             TestModeLabel.Text = Global.Library.Settings.TESTMODE.ToString();
 
         }

@@ -58,6 +58,15 @@ namespace Web_App_Master.Account {
         protected global::System.Web.UI.WebControls.PlaceHolder ApplyChangesButton;
         
         /// <summary>
+        /// TransferAssets control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.LinkButton TransferAssets;
+        
+        /// <summary>
         /// Finalize control.
         /// </summary>
         /// <remarks>

@@ -33,9 +33,40 @@ $(document).ready(function () {
     $(window).resize(function () {
         try { calcHeights(); } catch (er) { }
     }); 
+    window.onkeypress = KeyPressed;
     HideLoader();
 });
+function KeyPressed(e) {
+    if (e.charCode == 13) {
+        var barcodeHasFocus = $('#BarcodeSearchBox').is(':focus');
+        if (barcodeHasFocus == true) {
+            BarcodeScanned($('#BarcodeSearchBox').val());
+            $('#BarcodeSearchBox').val("");
+            return false;
+        }
+        var SearchHasFocus = $('#avSearchString').is(':focus');
+        if (SearchHasFocus == true) {
+            //Search
+            var aaa = $('#AssetSearchBtn');
+            __doPostBack('ctl00$MainContent$AssetSearchBtn', '');
+            return false;
+        }
 
+        //do same for search here
+
+        var url = document.location.href;
+        url = url.substr(url.lastIndexOf('/') + 1);
+      
+        if (url.startsWith("AssetView")) {
+
+        }
+        if (url.startsWith("Login")) {
+            $("LoginBtn").click();
+        }
+        return false;
+    }
+
+}
 
 //POLLING
 function PollNavItems() {
@@ -79,34 +110,39 @@ function GetPollItemsPollError(msg) {
 }
 
 function SetInOutMenu(data) {
-    var area = $("#checkin_items");
+    try {
+        var area = $("#checkin_items");
 
-    area.html("");
-    var area2 = $("#checkout_items");
-    _checkin_idx = 0;
-    _checkout_idx = 0;
-    area2.html("");
-    var bb = $("#checkin_badge")
-    bb.text("0");
-    var b2 = $("#checkout_badge")
-    b2.text("0");
+        area.html("");
+        var area2 = $("#checkout_items");
+        _checkin_idx = 0;
+        _checkout_idx = 0;
+        area2.html("");
+        var bb = $("#checkin_badge")
+        bb.text("0");
+        var b2 = $("#checkout_badge")
+        b2.text("0");
 
-    
-    data.forEach(function (entry) {
-        if (entry.IsOut) {
-            AddNotice("checkin_items", entry.AssetName, _checkin_idx);
-            _checkin_idx++;
-            var count = _checkin_idx;
-            var badge = $("#checkin_badge")
-            badge.text(count);
-        } else {
-            AddNotice("checkout_items", entry.AssetName, _checkout_idx);
-            _checkout_idx++;
-            count = _checkout_idx;
-            badge = $("#checkout_badge")
-            badge.text(count);
-        }
-    });
+
+
+        data.forEach(function (entry) {
+            if (entry.IsOut) {
+                AddNotice("checkin_items", entry.AssetNumber + "-" + entry.AssetName, _checkin_idx, entry.AssetNumber);
+                _checkin_idx++;
+                var count = _checkin_idx;
+                var badge = $("#checkin_badge")
+                badge.text(count);
+            } else {
+                AddNotice("checkout_items", entry.AssetNumber + "-" + entry.AssetName, _checkout_idx, entry.AssetNumber);
+                _checkout_idx++;
+                count = _checkout_idx;
+                badge = $("#checkout_badge")
+                badge.text(count);
+            }
+        });
+    } catch (exx) {
+        return;
+    }
 }
 
 function SetTransactions(data) {
@@ -133,24 +169,28 @@ function SetTransactions(data) {
 }
 
 function SetNotices(data) {
-    _notice_idx = 0;
-    var area = $("#notice_items");
+    try {
+        _notice_idx = 0;
+        var area = $("#notice_items");
 
-    area.html("");
-    var bb = $("#notice_badge")
-    bb.text("0");
-    data.forEach(function (entry) {
-        AddNotice("notice_items", entry.Text, _notice_idx);
-        _notice_idx++;
-        var count = _notice_idx;
-        var badge = $("#notice_badge")
-        badge.text(count);
-    });
-    var a = PollInterval
-    if (_TotalNotices !== _notice_idx && _notice_idx !== 0) {
-        Blink("notice_badge", 250, 5);
+        area.html("");
+        var bb = $("#notice_badge")
+        bb.text("0");
+        data.forEach(function (entry) {
+            AddNotice("notice_items", entry.Text, _notice_idx);
+            _notice_idx++;
+            var count = _notice_idx;
+            var badge = $("#notice_badge")
+            badge.text(count);
+        });
+        var a = PollInterval
+        if (_TotalNotices !== _notice_idx && _notice_idx !== 0) {
+            Blink("notice_badge", 250, 5);
+        }
+        _TotalNotices = _notice_idx;
+    } catch (exx) {
+        return;
     }
-    _TotalNotices = _notice_idx;
     //setTimeout(PollNotices, PollInterval);
 }
 
@@ -220,19 +260,20 @@ function DeleteNotice(target, idx) {
     UpdateMenuItems();
 }
 
-function AddNotice(target, text, idx) {
+function AddNotice(target, text, idx, link) {
+    try {
+        var ahref = "<a onclick='BarcodeScanned(" + link + ");'>" + text + "</a>";
+        var template = $('#notice-template').text();
+        template = template.replace('%%TEXT%%', ahref);
+        template = template.replace('%%Target%%', target); template = template.replace('%%Index%%', idx);
+        template = $(template);
+        //template.prop('id', asset.AssetNumber);
+        // template.data('asset-id', asset.AssetNumber);
 
-    var template = $('#notice-template').text();
-    template = template.replace('%%TEXT%%', text);
-    template = template.replace('%%Target%%', target); template = template.replace('%%Index%%', idx);
-    template = $(template);
-    //template.prop('id', asset.AssetNumber);
-    // template.data('asset-id', asset.AssetNumber);
+        var area = $("#" + target);
 
-    var area = $("#" + target);
-
-    area.prepend(template);
-
+        area.prepend(template);
+    } catch (er) { return false; }
 }
 
 function AddTransaction(target, text, transactionID) {
@@ -358,15 +399,15 @@ function TestModeChanged()
 function BarcodeScanned(num, isHistory, date) {
     try {
         //disable scan if on iframe pages
-        var url = document.location.href;
-        url = url.substr(url.lastIndexOf('/') + 1);
-        if (url.startsWith("Checkout") || url.startsWith("CheckIn") || url.startsWith("PdfViewer")) {
-            var NAME = document.getElementById("barcodeIcon");
-            if (NAME !== null) {
-                NAME.className = "glyphicon glyphicon-barcode";   // Set other class name
-            }
-            return false;
-        }
+        //var url = document.location.href;
+        //url = url.substr(url.lastIndexOf('/') + 1);
+        //if (url.startsWith("Checkout") || url.startsWith("CheckIn") || url.startsWith("PdfViewer")) {
+        //    var NAME = document.getElementById("barcodeIcon");
+        //    if (NAME !== null) {
+        //        NAME.className = "glyphicon glyphicon-barcode";   // Set other class name
+        //    }
+        //    return false;
+        //}
 
         if (isHistory === "True") {
             $.ajax({
@@ -689,10 +730,11 @@ function AjaxAddCheckout(num, autocheck) {
     {
         autocheck = false;
     }
+    var tmp = $("#BarcodeCheckBox").prop('checked');    
     $.ajax({
         type: 'POST',
         url: '/Account/AssetController.aspx/AddCheckoutItem',
-        data: "{'num':'" + num + "','autocheck':'" + autocheck+"'}",
+        data: "{'num':'" + num + "','autocheck':'" + tmp+"'}",
         contentType: 'application/json; charset=utf-8',
         dataType: 'json',
         success: AddCheckOutItem,
@@ -1168,5 +1210,151 @@ function doSomething(arg) {
     var a = $("#ASuperBtn");
     $("#ASuperBtn").click();
 }
-  
 
+function setBarcode() {
+    var res1 = document.currentBarcodeSequence;
+    var barcodeInput = document.getElementById("BarcodeSearchBox");
+    if (barcodeInput != null) //user not logged in yet
+    {
+        barcodeInput.value = document.currentBarcodeSequence;
+        //change icon to searching id="barcodeIcon" class="glyphicon glyphicon-barcode"
+        var NAME = document.getElementById("barcodeIcon");
+        if (NAME != null) {
+            NAME.className = "glyphicon glyphicon-refresh normal-right-spinner";   // Set other class name
+        }
+        //fire off ajax call for auto search here
+        document.currentAsset = document.currentBarcodeSequence;
+        BarcodeScanned(document.currentBarcodeSequence);
+    } else {
+
+    }
+}
+
+function Monitor(e) {
+
+    var sequenceLimitMs = 50;
+    var now = new Date();
+    var elapsed = now - document.lastKeypress;
+    document.lastKeypress = now;
+    //capture escape
+    lastkey = e.keyCode;
+    //only 0-9 e.charCode >= 48 && e.charCode <= 57
+    var charStr = String.fromCharCode(e.charCode);
+    var tt = (e.charCode - 48);
+    if (/[a-z0-9A-Z]/i.test(charStr)) {
+        //pressed key is a number
+        if (elapsed < sequenceLimitMs || document.currentBarcodeSequence === "") {
+            //event is part of a barcode sequence
+            
+            var tmp = String.fromCharCode((e.charCode - 48));          
+            if (/[a-zA-Z]/i.test(charStr)) {
+                document.currentBarcodeSequence += charStr;
+            } else {
+                document.currentBarcodeSequence += charStr;
+
+            }
+            if (document.currentBarcodeSequence.length > 1) {
+                clearTimeout(document.printBarcodeTimeout);
+                document.printBarcodeTimeout = setTimeout("setBarcode()", sequenceLimitMs + 10);
+            }
+
+        } else {
+            if (/[a-zA-Z]/i.test(charStr)) {
+                document.currentBarcodeSequence = "" + charStr;
+            } else {
+                document.currentBarcodeSequence = "" + charStr;
+            }
+            clearTimeout(document.printBarcodeTimeout);
+        }
+    } else {
+        document.currentBarcodeSequence = "";
+        clearTimeout(document.printBarcodeTimeout);
+    }
+    var res1 = document.currentBarcodeSequence;
+    var res2 = 0;
+}
+function FocusMonitor(e) {
+
+    var sequenceLimitMs = 50;
+    var now = new Date();
+    var elapsed = now - document.lastKeypress;
+    document.lastKeypress = now;
+    if (e.charCode == 13) {
+        var barcodeHasFocus = $('#BarcodeSearchBox').is(':focus');
+        if (barcodeHasFocus == true) {
+            BarcodeScanned($('#BarcodeSearchBox').val());
+            $('#BarcodeSearchBox').val("");
+            return false;
+        }
+        var SearchHasFocus = $('#avSearchString').is(':focus');
+        if (SearchHasFocus == true) {
+            //Search
+            var aaa = $('#AssetSearchBtn');
+            __doPostBack('ctl00$MainContent$AssetSearchBtn', '');
+            return false;
+        }
+
+        //do same for search here
+
+        var url = document.location.href;
+        url = url.substr(url.lastIndexOf('/') + 1);
+
+
+        if (url.startsWith("CheckOut")) {
+            var hr = $("#Finalize").attr('href');
+            window.location.href = hr;
+        }
+
+        if (url.startsWith("CheckIn")) {
+            var hr = $("#Finalize").attr('href');
+            window.location.href = hr;
+        }
+        if (url.startsWith("AssetView")) {
+
+        }
+        if (url.startsWith("Login")) {
+            $("LoginBtn").click();
+        }
+        return false;
+    }
+
+    //only 0-9 e.charCode >= 48 && e.charCode <= 57
+    var charStr = String.fromCharCode(e.charCode);
+    var tt = (e.charCode - 48);
+    if (/[a-z0-9A-Z]/i.test(charStr)) {
+        //pressed key is a number
+        if (elapsed < sequenceLimitMs || document.currentBarcodeSequence === "") {
+            
+
+        } else {
+           
+        }
+    } else {
+      
+    }
+   
+}
+function FocusTimer(){
+    var tmp = $("#BarcodeCheckBox").prop('checked');
+    if (tmp === true) {
+        var barcodeInput = $("#BarcodeSearchBox");
+        if (barcodeInput.val().length >= 4) {
+
+            BarcodeScanned(barcodeInput.val(), false);
+            barcodeInput.val("");
+        }
+        barcodeInput.focus();
+
+    } else {
+        var aaaa = 0;
+    }
+   
+    setTimeout(FocusTimer, 1000);
+}
+
+function RunScanner()
+{
+    //Event Hookups
+    window.onkeypress = FocusMonitor;
+    FocusTimer();
+}

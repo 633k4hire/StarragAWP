@@ -31,8 +31,8 @@ public static class SQLfunc
     public static Exception _LastSqlException = null;
 
     //public static string _ConnectionString = @"Server=tcp:lastsoul.database.windows.net,1433;Initial Catalog=db;Persist Security Info=False;User ID=yuriebasuta;Password=Gh0stbust3r;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;";
-    public static string _ConnectionString = @"Data Source=lastsoul.database.windows.net;Initial Catalog=db;Integrated Security=False;User ID=yuriebasuta;Password=Gh0stbust3r;Connect Timeout=60;Encrypt=True;TrustServerCertificate=True;ApplicationIntent=ReadWrite;MultiSubnetFailover=False"; // @"Data Source=lastsoul.database.windows.net;Initial Catalog=db;Integrated Security=False;User ID=yuriebasuta;Password=********;Connect Timeout=60;Encrypt=False;TrustServerCertificate=True;ApplicationIntent=ReadWrite;MultiSubnetFailover=False";
-
+    //public static string _ConnectionString = @"Data Source=lastsoul.database.windows.net;Initial Catalog=db;Integrated Security=False;User ID=yuriebasuta;Password=Gh0stbust3r;Connect Timeout=60;Encrypt=True;TrustServerCertificate=True;ApplicationIntent=ReadWrite;MultiSubnetFailover=False"; // @"Data Source=lastsoul.database.windows.net;Initial Catalog=db;Integrated Security=False;User ID=yuriebasuta;Password=********;Connect Timeout=60;Encrypt=False;TrustServerCertificate=True;ApplicationIntent=ReadWrite;MultiSubnetFailover=False";
+    public static string _ConnectionString = @"Server=tcp:lastsoul.database.windows.net,1433;Initial Catalog=db;Persist Security Info=False;User ID=yuriebasuta;Password=Gh0stbust3r;MultipleActiveResultSets=True;Encrypt=True;TrustServerCertificate=False;Connection Timeout=60;";
     public static SQL_Request OpenConnection(this SQL_Request request, string connectionString = null)
     {
 
@@ -121,7 +121,7 @@ public static class SQLfunc
                 calXml = asset.CalibrationHistory.SerializeToXmlString(asset.CalibrationHistory);
             }
             catch { }
-            request.Command.Parameters.Add("@CalibrationHistory", SqlDbType.NVarChar).Value = calXml;
+            request.Command.Parameters.Add("@CalibrationHistory", SqlDbType.NVarChar).Value = "";
             request.Command.Parameters.Add("@CalibrationPeriod", SqlDbType.NVarChar).Value = asset.CalibrationPeriod;
             request.Command.Parameters.Add("@DateReturned", SqlDbType.NVarChar).Value = asset.DateRecieved.ToString();
             request.Command.Parameters.Add("@DateShipped", SqlDbType.NVarChar).Value = asset.DateShipped.ToString();
@@ -483,7 +483,7 @@ public static class SQLfunc
                 calXml = asset.CalibrationHistory.SerializeToXmlString(asset.CalibrationHistory);
             }
             catch { }
-            request.Command.Parameters.Add("@CalibrationHistory", SqlDbType.NVarChar).Value = calXml;
+            request.Command.Parameters.Add("@CalibrationHistory", SqlDbType.NVarChar).Value = ""; ///ERASE CALIBRATION DATA SPACE
             try
             {
                 foreach (var ii in asset.History.History)

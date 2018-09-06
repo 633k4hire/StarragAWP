@@ -16,8 +16,12 @@
            <asp:PlaceHolder ID ="ApplyChangesButton" runat="server" Visible="true">
                <ul class="nav navbar-nav navbar-right starrag-menu">
                    <li>
-                <asp:LinkButton runat="server" OnClick="Finalize_Click"  ID="Finalize" ClientIDMode="Static" style="vertical-align:top; text-decoration:none"><i style="vertical-align:top" class="glyphicon glyphicon-floppy-disk md-glyph"></i><strong>Finalize</strong></asp:LinkButton>
+                    <asp:LinkButton runat="server" OnClick="TransferAssets_Click"  ID="TransferAssets" ClientIDMode="Static" style="vertical-align:top; text-decoration:none"><span class="btn bg-green "><strong>Transfer</strong></span></asp:LinkButton>
                 </li>
+                   <li>
+                <asp:LinkButton runat="server" OnClick="Finalize_Click"  ID="Finalize" ClientIDMode="Static" style="vertical-align:top;text-decoration:none"><span class="bg-starrag btn"><strong >Finalize</strong></span></asp:LinkButton>
+                </li>
+                
                </ul>
 
             </asp:PlaceHolder>  

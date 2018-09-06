@@ -20,14 +20,17 @@ namespace Web_App_Master
         {
             try
             {
-                var local = Global.Library.Assets.Find((x) => x.AssetNumber == asset.AssetNumber);
+                var local = Global.AssetCache.Find((x) => x.AssetNumber == asset.AssetNumber);
                 if (local != null)
                 {
+                    local = asset.Clone() as Asset;
+                    var local2 = Global.AssetCache.Find((x) => x.AssetNumber == asset.AssetNumber);
+                    Global.AssetCache.Update(asset);
                     return AssetController.UpdateAsset(asset);
                 }
                 else
                 {
-                    Global.Library.Assets.Add(asset);
+                    Global.AssetCache.Add(asset);
                     return AssetController.AddNewAsset(asset);
                 }
                
@@ -78,7 +81,7 @@ namespace Web_App_Master
                     {
                         var cloud = req.Tag as List<Asset>;
                         //upload assets
-                        foreach (Asset a in Global.Library.Assets)
+                        foreach (Asset a in Global.AssetCache)
                         {
                             try
                             {
@@ -145,7 +148,7 @@ namespace Web_App_Master
             }
             catch { return false; }
         }
-        public static bool LibrarySettings()
+        public static bool AppSettings()
         {
             try
             {
@@ -171,7 +174,7 @@ namespace Web_App_Master
                 {
                     var cloud = req.Tag as List<Asset>;
                     //upload assets
-                    foreach (Asset a in Global.Library.Assets)
+                    foreach (Asset a in Global.AssetCache)
                     {
                         try
                         {
@@ -320,7 +323,9 @@ namespace Web_App_Master
         {
             try
             {
-                return  AssetController.GetAsset(num);
+                var a = AssetController.GetAsset(num);
+                Global.AssetCache.ForEach((t)=> { if (t.AssetNumber == num) { t = a; } }) ;
+                return a;
             }
             catch { return null; }
         }
@@ -328,7 +333,9 @@ namespace Web_App_Master
         {
             try
             {
-                return AssetController.GetAllAssets().OrderBy(w => w.AssetNumber).ToList();
+                var a = AssetController.GetAllAssets().OrderBy(w => w.AssetNumber).ToList();
+                Global.AssetCache = a;
+                return a;
                
             }
             catch { return new List<Helpers.Asset>(); }
@@ -336,6 +343,7 @@ namespace Web_App_Master
         public static async Task<List<Asset>> AssetsAsync()
         {
             var a = await AssetController.GetAllAssetsAsync();
+                Global.AssetCache = a;
             return a;
         }
         public static SettingsDBData Setting(string guid)
@@ -363,7 +371,8 @@ namespace Web_App_Master
         {
             try
             {
-                Global.Library.Assets = AssetController.GetAllAssets();
+                var a = Global.AssetCache = AssetController.GetAllAssets();
+                Global.AssetCache = a;
                 return true;
             }
             catch { Global.Library = new DataStore(); return false; }
@@ -425,13 +434,17 @@ namespace Web_App_Master
         }
         public static CustomerData CustomerData(string CustomerDataGuid, string AppName = "AWP_CustomerData_System")
         {
-            var db = AssetController.GetSetting(CustomerDataGuid);
-            if (db ==null)
+            CustomerData cd = null;
+            try
             {
-                CustomerData data = new CustomerData();
-                return null;
+                var db = AssetController.GetSetting(CustomerDataGuid);
+                if (db == null)
+                {                    
+                    return cd;
+                }
+                cd = new CustomerData().DeserializeFromXmlString<CustomerData>(db.XmlData);
             }
-            var cd = new CustomerData().DeserializeFromXmlString<CustomerData>(db.XmlData);
+            catch { return cd; }
             return cd;
         }
 

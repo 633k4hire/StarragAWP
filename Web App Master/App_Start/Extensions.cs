@@ -26,6 +26,29 @@ namespace Helpers
 {
     public static class Extensions
     {
+        public static IEnumerable<TSource> DistinctBy<TSource, TKey>(this IEnumerable<TSource> source,Func<TSource, TKey> keySelector)
+        {
+            var knownKeys = new HashSet<TKey>();
+            return source.Where(element => knownKeys.Add(keySelector(element)));
+        }
+        public static List<Asset> Update(this List<Asset> source, Asset asset, bool push=false)
+        {
+            try
+            {
+                source.ForEach((aa) =>
+                {
+                    if (aa.AssetNumber == asset.AssetNumber)
+                    {
+                        aa = asset;
+                        if (push)
+                            Push.Asset(asset);
+                    }
+                });
+            }
+            catch { }
+            return source;
+        }
+
         public static bool IsAdmin(this HttpContext context)
         {
             if (context.User.IsInRole("Admins") || context.User.IsInRole("superadmin"))
@@ -170,7 +193,7 @@ namespace Helpers
             }
 
 
-            Global.Library.Assets = new List<Asset>();
+            Global.AssetCache = new List<Asset>();
 
             XmlNodeList elemList = doc.GetElementsByTagName("Asset");
             foreach (XmlElement asset in elemList)
@@ -270,11 +293,11 @@ namespace Helpers
                 }
                 catch { }
 
-                Global.Library.Assets.Add(a);
+                Global.AssetCache.Add(a);
 
             }
 
-            return Global.Library.Assets;
+            return Global.AssetCache;
         }
         public static bool CheckForInternetConnection()
         {
@@ -572,6 +595,19 @@ namespace Helpers
         public static string Map(this string input)
         {
             return HttpContext.Current.Server.MapPath(input);
+        }
+        /// <summary>
+        /// Split string using string instead of Character
+        /// </summary>
+        /// <param name="input"></param>
+        /// <param name="splitString"> Deliminator Value</param>
+        /// <returns></returns>
+        public static string[] StringSplit(this string input, string deliminator, bool removeBlanks=true)
+        {
+            if (removeBlanks)
+                return input.Split(new string[] {deliminator }, StringSplitOptions.RemoveEmptyEntries);
+            else
+                return input.Split(new string[] { deliminator }, StringSplitOptions.None);
         }
     }
 

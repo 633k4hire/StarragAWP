@@ -18,12 +18,94 @@ namespace Web_App_Master
 {
     public partial class SiteMaster : MasterPage
     {
+        protected void Page_Load(object sender, EventArgs e)
+        {
+            
+            if (Context.IsAdmin())
+            {
+                
+            }
+            if (Context.IsCustomer())
+            {
+                if (!IsPostBack)
+                {
+                    var script = @"$(document).ready(function (){ RunScanner();});";
+                    ScriptManager.RegisterStartupScript(this, this.GetType(), "ScannersScript", script, true);
+                }
+            }
+            if (!IsPostBack)
+            {
+                ScriptManager.GetCurrent(Page).RegisterAsyncPostBackControl(UploadAssetImg);
+
+                ScriptManager.GetCurrent(Page).RegisterAsyncPostBackControl(ASuperBtn);
+                try
+                {
+                    //var ctrl = RoleLoginViewer.FindControl("ViewChangerBtn");
+                    //ScriptManager.GetCurrent(Page).RegisterAsyncPostBackControl(ctrl);
+                    
+                }
+                catch
+                {
+
+                }
+               
+                BindMenuItems();
+                
+            }
+            this.PreRender += SiteMaster_PreRender;
+            if (Page.User.Identity.IsAuthenticated)
+            {
+                //var ctrl = AssetViewLoggedInUserView.FindControl("av_IsDamaged");
+                //ScriptManager.GetCurrent(Page).RegisterAsyncPostBackControl(ctrl);
+                //var ctrl2 = AssetViewLoggedInUserView.FindControl("av_OnHold");
+                //ScriptManager.GetCurrent(Page).RegisterAsyncPostBackControl(ctrl2);
+                //var ctrl3 = AssetViewLoggedInUserView.FindControl("av_CalibratedTool");
+                //ScriptManager.GetCurrent(Page).RegisterAsyncPostBackControl(ctrl3);
+            }
+            AssetHistoryRepeater.HeaderTemplate = Page.LoadTemplate("/Account/Templates/av_history_header_template.ascx");
+            AssetHistoryRepeater.ItemTemplate = Page.LoadTemplate("/Account/Templates/av_history_template.ascx");
+            AssetHistoryRepeater.FooterTemplate = Page.LoadTemplate("/Account/Templates/av_history_footer_template.ascx");
+            var ud = Session["PersistingUserData"] as Data.UserData;
+            if (ud != null)
+            {
+                try
+                {
+                    if (ud.IsAutoChecked)
+                    {
+                        var cb = RoleLoginViewer.FindControl("BarcodeCheckBox") as CheckBox;
+                        
+                        cb.Checked = true;
+                    }
+                    else
+                    {
+                        var cb = RoleLoginViewer.FindControl("BarcodeCheckBox") as CheckBox;
+                        cb.Checked = false;
+                    }
+                }
+                catch { }
+            }
+
+        }
+
         public event EventHandler<UpdateRequestEvent> OnPanelUpdate;
+        public event EventHandler<UpdateRequestEvent> OnAssetViewUpdate;
         protected virtual void UpdateSubscribers(UpdateRequestEvent e)
         {
             try
             {
                 EventHandler<UpdateRequestEvent> handler = OnPanelUpdate;
+                if (handler != null)
+                {
+                    handler(this, e);
+                }
+            }
+            catch (Exception ex) { UpdateSubscribers(new UpdateRequestEvent(ex)); }
+        }
+        protected virtual void UpdateAssetView(UpdateRequestEvent e)
+        {
+            try
+            {
+                EventHandler<UpdateRequestEvent> handler = OnAssetViewUpdate;
                 if (handler != null)
                 {
                     handler(this, e);
@@ -226,75 +308,6 @@ namespace Web_App_Master
             }
         }
 
-        protected void Page_Load(object sender, EventArgs e)
-        {
-            
-            if (Context.IsAdmin())
-            {
-                try
-                {
-                    var t = Web_App_Master.Pull.Transactions();
-                    Session["Transactions"] = t;
-                    //var script = @"$(document).ready(function (){ PollTransactions();});";
-                    //ScriptManager.RegisterStartupScript(this, this.GetType(), "pollScript", script, true);
-
-                }
-                catch (Exception)
-                {
-                    Session["Transactions"] = new List<PendingTransaction>();
-                }
-            }
-            if (!IsPostBack)
-            {
-                ScriptManager.GetCurrent(Page).RegisterAsyncPostBackControl(UploadAssetImg);
-
-                ScriptManager.GetCurrent(Page).RegisterAsyncPostBackControl(ASuperBtn);
-                try
-                {
-                    var ctrl = RoleLoginViewer.FindControl("ViewChangerBtn");
-                    ScriptManager.GetCurrent(Page).RegisterAsyncPostBackControl(ctrl);
-                    
-                }
-                catch
-                { }
-               
-                BindMenuItems();
-                
-            }
-            this.PreRender += SiteMaster_PreRender;
-            if (Page.User.Identity.IsAuthenticated)
-            {
-                //var ctrl = AssetViewLoggedInUserView.FindControl("av_IsDamaged");
-                //ScriptManager.GetCurrent(Page).RegisterAsyncPostBackControl(ctrl);
-                //var ctrl2 = AssetViewLoggedInUserView.FindControl("av_OnHold");
-                //ScriptManager.GetCurrent(Page).RegisterAsyncPostBackControl(ctrl2);
-                //var ctrl3 = AssetViewLoggedInUserView.FindControl("av_CalibratedTool");
-                //ScriptManager.GetCurrent(Page).RegisterAsyncPostBackControl(ctrl3);
-            }
-            AssetHistoryRepeater.HeaderTemplate = Page.LoadTemplate("/Account/Templates/av_history_header_template.ascx");
-            AssetHistoryRepeater.ItemTemplate = Page.LoadTemplate("/Account/Templates/av_history_template.ascx");
-            AssetHistoryRepeater.FooterTemplate = Page.LoadTemplate("/Account/Templates/av_history_footer_template.ascx");
-            var ud = Session["PersistingUserData"] as Data.UserData;
-            if (ud != null)
-            {
-                try
-                {
-                    if (ud.IsAutoChecked)
-                    {
-                        var cb = RoleLoginViewer.FindControl("BarcodeCheckBox") as CheckBox;
-                        
-                        cb.Checked = true;
-                    }
-                    else
-                    {
-                        var cb = RoleLoginViewer.FindControl("BarcodeCheckBox") as CheckBox;
-                        cb.Checked = false;
-                    }
-                }
-                catch { }
-            }
-
-        }
 
         private void SiteMaster_PreRender(object sender, EventArgs e)
         {
@@ -350,7 +363,7 @@ namespace Web_App_Master
             try
             {
                 //HOLY SHIT YOU NEED TO CHECK INPUT!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-                if (av_AssetNumber.Value.Length <= Global.Library.Settings.AssetNumberLength)
+                if (av_AssetNumber.Value.Length >= Global.Library.Settings.AssetNumberLength)
                     if ((from a in AssetController.GetAllAssets() where a.AssetNumber == av_AssetNumber.Value select a).ToList().Count == 0)
                     { //Unique Number
                         asset.AssetNumber = av_AssetNumber.Value;
@@ -367,8 +380,8 @@ namespace Web_App_Master
                             }
                             Directory.Delete(Server.MapPath("/Account/Images/" + originalassetnumber));
                         }
-                        catch {
-
+                        catch (Exception exx) {
+                            ShowError(exx.StackTrace);
                         }
                     }
                     else
@@ -401,18 +414,28 @@ namespace Web_App_Master
                 asset.IsCalibrated=((System.Web.UI.WebControls.CheckBox)AssetViewLoggedInUserView.FindControl("av_CalibratedTool")).Checked ;
             }
             catch
-            { }
+            {
+            }
             var test = false;
             Push.Asset(asset);
+            //Set Asset Cache
             if (newassetnumber)
             {
                 AssetController.DeleteAsset(originalassetnumber);
+                var rem = Global.AssetCache.FindAssetByNumber(originalassetnumber);
+                Global.AssetCache.Remove(rem);
             }
             AssetViewHeaderLabel.InnerHtml += " - Modified";
             BindAssetToAssetView();
             Push.Alert("Asset Saved");
-           
+            OnAssetViewUpdate?.Invoke(this, new UpdateRequestEvent( Global.AssetCache ));
 
+
+        }
+
+        public void UpdateAssetView()
+        {
+           OnAssetViewUpdate?.Invoke(this, new UpdateRequestEvent(Global.AssetCache));
         }
 
         protected void UploadAssetImg_Click(object sender, EventArgs e)
@@ -495,22 +518,29 @@ namespace Web_App_Master
                     if (doc.Contains("CheckOutPdf"))
                     {
                         packnode.ChildNodes.Add(n1);
-                    }
+                    }else
                     if (doc.Contains("Labels"))
                     {
                         Labelnode.ChildNodes.Add(n1);
                     }
+                    else
                     if (doc.Contains("Certificates"))
                     {
                         CertificateNode.ChildNodes.Add(n1);
                     }
+                    else
                     if (doc.Contains("Receiving"))
                     {
                         ReceivingNode.ChildNodes.Add(n1);
                     }
+                    else
                     if (doc.Contains("PackingLists"))
                     {
                         packnode.ChildNodes.Add(n1);
+                    }
+                    else
+                    {
+                        rootnode.ChildNodes.Add(n1);
                     }
                 }
 
@@ -626,7 +656,7 @@ namespace Web_App_Master
             PendingTransaction p = new PendingTransaction();
             p.Customer = Global.Library.Settings.Customers[1];
             p.Comment = "nopo";
-            var isin = (from aa in Global.Library.Assets where aa.IsOut = false select aa.AssetNumber).ToList();
+            var isin = (from aa in Global.AssetCache where aa.IsOut = false select aa.AssetNumber).ToList();
             p.Assets = isin;
             Push.Transaction(p);
         }

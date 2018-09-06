@@ -289,7 +289,7 @@ namespace Web_App_Master
                                     {
                                         try
                                         {
-                                            var asset = Global.Library.Assets.FindAssetByNumber(code);
+                                            var asset = Global.AssetCache.FindAssetByNumber(code);
                                             Bitmap bmp = new Bitmap(263, 100);
                                             RectangleF rectf = new RectangleF(10, 40, 248, 60);
                                             Graphics g = Graphics.FromImage(bmp);

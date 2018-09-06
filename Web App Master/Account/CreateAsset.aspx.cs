@@ -73,7 +73,7 @@ namespace Web_App_Master.Account
                     ShowError("You Must Enter Asset Number First");
                     return;
                 }
-                if (Global.Library.Assets.Find((x)=>x.AssetNumber==AssetNumber.Text)!=null)
+                if (Global.AssetCache.Find((x)=>x.AssetNumber==AssetNumber.Text)!=null)
                 {
                     ShowError("You Must Enter Unique Asset Number");
                     return;

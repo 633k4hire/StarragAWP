@@ -90,7 +90,7 @@
                             <div class="awp_box_title bg-sg-title">
                                <span class="fg-white shadow-metro-black bold"><span class="mif-my-location mif-2x"></span>Destination</span></div>
                             <div class="awp_box_content bg-sg-box">   
-                                    <asp:DropDownList  AutoPostBack="true" OnTextChanged="checkout_ShipTo_TextChanged" Width="100%" ClientIDMode="Static" ID='checkout_ShipTo' AppendDataBoundItems="true" runat="server"  CssClass="form-control">
+                                    <asp:DropDownList ViewStateMode="Disabled"  AutoPostBack="true" OnTextChanged="checkout_ShipTo_TextChanged" Width="100%" ClientIDMode="Static" ID='checkout_ShipTo' AppendDataBoundItems="true" runat="server"  CssClass="form-control">
                                         <asp:ListItem Text="--Select One--" Value="" /> 
                                     </asp:DropDownList>
                                     <input runat="server" id="ToCompany" type="text" class="form-control" placeholder="CompanyName">
@@ -235,14 +235,20 @@
             <div class="col-md-12" style="margin-bottom:0px!important;">
                 <!--    <span class="awp-save-btn bg-green fg-white shadow  mif-ani-flash " onclick="printpackingslip()"><i title="Print"  style="font-size:2em; vertical-align:top" class="mif-printer av-hand-cursor fg-white shadow-metro-black"></i></span>--> 
                 <div class="awp_box rounded bg-sg-title shadow">
+                    <span class="top-right-btn" ><asp:LinkButton OnClick="RemakeLabelsBtn_Click" ID="RemakeLabelsBtn" runat="server" CssClass="btn bg-green fg-white">Re-Make Labels</asp:LinkButton><asp:LinkButton OnClick="ShowLabelsBtn_Click" ID="ShowLabelsBtn" runat="server" CssClass="btn bg-green fg-white">Show</asp:LinkButton> </span>
                     <div class="awp_box_title bg-sg-title">
                        <span class="fg-white shadow-metro-black">Packing Slip + Tracking: <asp:Label ID="TrackingNumberLabel" runat="server" Text=""></asp:Label></span>
                     </div>
                     <div class="awp_box_content bg-sg-box">
-                         <div id="SPD" style="text-align:center;">  
-                             <div id="PackingSlipHidden" style="display:none"><asp:Literal ID="PackingSlipLink" runat="server"></asp:Literal> </div>
-                                 <iframe style="height:80%; position:relative; z-index:2000;" id="PF" runat="server" src="/Account/Pdfs/blank.pdf"  ></iframe>
-                             </div>
+                             <asp:UpdatePanel runat="server" ID="PdfUpdatePanel" UpdateMode="Conditional">
+                                 <ContentTemplate>
+                                     <div id="SPD" style="text-align:center;">  
+                                         <div id="PackingSlipHidden" style="display:none"><asp:Literal ID="PackingSlipLink" runat="server"></asp:Literal> </div>
+                                         <iframe style="height:80%; position:relative; z-index:2000;" id="PF" runat="server" src="/Account/Pdfs/blank.pdf"  ></iframe>
+                                     </div>
+                                 </ContentTemplate>
+                             </asp:UpdatePanel>
+                             
                          </div>
                     </div>
                 </div>

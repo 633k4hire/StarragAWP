@@ -49,9 +49,6 @@ namespace Web_App_Master.Account
             }
             catch { }
         }
-
-
-
         protected void Page_PreInit(object sender, EventArgs e)
         {
             this.SiteMaster().OnPanelUpdate += Checkout_OnPanelUpdate;
@@ -77,7 +74,7 @@ namespace Web_App_Master.Account
             {
                 if (!User.Identity.IsAuthenticated)
                 {
-                    Response.Redirect("/Account/Login");
+                   // Response.Redirect("/Account/Login");
                 }
             }
                 this.PreInit += Page_PreInit;
@@ -111,7 +108,6 @@ namespace Web_App_Master.Account
             Session["CheckInReportFileNameList"] = filenames;
             //combine all reports into one and display
             CombineReports(filenames);
-            ReportIcon.Shake();
             CheckInMultiView.ActiveViewIndex = 1;
             
                 Finalize.Enabled = false;
@@ -138,14 +134,14 @@ namespace Web_App_Master.Account
                     asset.DateRecieved = DateTime.Now;
                     //save
                     Asset rem = null;
-                    foreach (var a in Global.Library.Assets)
+                    foreach (var a in Global.AssetCache)
                     {
                         if (a.AssetNumber == asset.AssetNumber) rem = a;
                     }
                     if (rem != null)
                     {
-                        Global.Library.Assets.Remove(rem);
-                        Global.Library.Assets.Add(asset);
+                        Global.AssetCache.Remove(rem);
+                        Global.AssetCache.Add(asset);
                     }
                     AssetController.UpdateAsset(asset);
                 }
@@ -349,5 +345,30 @@ namespace Web_App_Master.Account
             return filenames;
         }
 
+        protected void TransferAssets_Click(object sender, EventArgs e)
+        {
+            Asset[] transfers = new Asset[] { };
+            transfers = (Session["CheckIn"] as List<Asset>).ToArray();
+            var list = (from a in Session["CheckIn"] as List<Asset> select a.OrderNumber).Distinct().ToList();
+            List<Asset> finalized = new List<Asset>();
+            List<string> filenames = new List<string>();
+            List<List<Asset>> subEmails = new List<List<Asset>>();
+            foreach (var number in list)
+            {
+                var sublist = (from a in Session["CheckIn"] as List<Asset> where a.OrderNumber == number select a).ToList();
+                var files = CreateReceivingReport(sublist);
+                SaveToUserPersistantLog();
+                filenames.AddRange(files);
+                finalized.AddRange(sublist);
+                subEmails.Add(sublist);
+            }
+            FinalizeCheckIn(finalized);
+            Session["CheckInReportFileNameList"] = filenames;
+            //combine all reports into one and display
+            CombineReports(filenames);
+
+            Session["CheckOut"] = transfers.ToList();
+            Response.Redirect("/Account/Outcart.aspx");
+        }
     }
 }

@@ -155,7 +155,7 @@ namespace Helpers
     }
   
     
-    public class CheckOutData
+    public class CheckOutData: ICloneable
     {
         public UPScode ParseUpsCodeString(string code)
         {
@@ -167,6 +167,12 @@ namespace Helpers
             }
             catch { return  UPScode.Ground; }
         }
+
+        public object Clone()
+        {
+            return MemberwiseClone();
+        }
+
         public Address From = new Address();
         public Address To = new Address();
         public Address Shipper = new Address();
@@ -799,6 +805,8 @@ namespace Helpers
                 Kind Regards,<NL><NL>
                 Support Team
                 ";
+        [XmlElement]
+        public List<string> AssetNumbers = new List<string>();
 
     }
 
@@ -932,6 +940,21 @@ namespace Helpers
         }
         [XmlElement]
         public List<string> Documents { get; set; }
+        [XmlIgnore]
+        public List<string> ImageList {
+            get
+            {
+                return Images.Split(new string[] { "," }, StringSplitOptions.RemoveEmptyEntries).ToList();
+            }
+            set
+            {
+                Images = "";
+                foreach (var img in value)
+                {
+                    Images += img + ",";
+                }
+            }
+        }
 
     }
 

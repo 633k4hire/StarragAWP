@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.Web;
 using System.Web.Http;
 using System.Web.UI;
@@ -95,99 +96,65 @@ namespace Web_App_Master.Account
             FillDefaultShipper(defaultshipper);
             AddressUpdatePanel.Update();
         }
+        private void DataBindShipping(Customer cust, string shipper, string engineer, string ordernumber)
+        {
+            try
+            {
+                
+                if (cust != null)
+                {
+                    ToCompany.Value = cust.CompanyName;
+                    ToAddr.Value = cust.Address;
+                    ToAddr2.Value = cust.Address2;
+                    ToCty.Value = cust.City;
+                    ToState.Value = cust.State;
+                    ToPostal.Value = cust.Postal;
+                    ToCountry.Value = cust.Country;
+                    ToName.Value = cust.Attn;
+                    ToEmail.Value = cust.Email;
+                    ToPhone.Value = cust.Phone;
+                }
+                Session["CheckOutCustomer"] = cust;
+            }
+            catch { }
+            var starrag = "Starrag USA Inc.";
+            Customer defaultshipper = (from temp in Global.Library.Settings.Customers where temp.CompanyName == starrag select temp).ToList().FirstOrDefault();
+            FillDefaultShipper(defaultshipper);
+            AddressUpdatePanel.Update();
+        }
+
         protected bool Finalized = false;
         protected void FinalizeBtn_Click(object sender, EventArgs e)
         {
-            
-            if (ShippingMethodDropDownList.Text=="")
-            { 
-                ShowError("Please Select A Shipping Option");
-                return;
-            }
-            var checkoutdata = Session["CheckOutData"] as CheckOutData;
-            checkoutdata = UpdateCheckOutData(checkoutdata);
-            if (checkoutdata.CheckOutItems == null) return;
-           
-            if (checkoutdata.CheckOutItems.Count > 0)
+            try
             {
-                if (ShippingMethodDropDownList.SelectedValue == "00-NoLabel")
+                
+                if (ShippingMethodDropDownList.Text == "")
                 {
-                    Finalized = true;
-                    PackingSlipViewBtn.Enabled = true;
-
-                    CreatePackingSlip();
-
-                    //UpdateCost();
-                   // UpdateArrival();
-                   // UpdateUpsLabel();
-
-                     PackingSlipOnly();
-
-                    //notice
-                    try
-                    {
-                        EmailNotice notice = new EmailNotice();
-
-                        notice.Scheduled = DateTime.Now.AddDays(30);
-                        notice.NoticeType = NoticeType.Checkout;
-                        notice.NoticeAction = Global.CheckoutAction;
-                        foreach (var asset in checkoutdata.CheckOutItems)
-                        {
-                            notice.Assets.Add(asset.AssetNumber);
-                        }
-                        notice.NoticeControlNumber = checkoutdata.CheckOutItems[0].OrderNumber;
-                        notice.Body = Global.Library.Settings.CheckOutMessage;
-                        notice.Subject = "Asset Return Reminder";
-                        var engineer = (from d in Global.Library.Settings.ServiceEngineers where d.Name == Session["Engineer"] as string select d).FirstOrDefault();
-                        var statics = (from d in Global.Library.Settings.StaticEmails select d).ToList();
-                        if (engineer == null)
-                        {
-                            engineer = new EmailAddress();
-                        }
-                        notice.Emails.Add(engineer);
-                        notice.Emails.AddRange(statics);
-                        notice.EmailAddress = engineer;
-                        Global.NoticeSystem.Add(notice);
-                        Push.NotificationSystem();
-                    }
-                    catch { ShowError("Problem Adding Timed Notice"); }
-
-                    SaveToUserPersistantLog();
-
-                    
-
-                    FinalizeAssets(Session["Checkout"] as List<Asset>);
-
-                    Session["Checkout"] = new List<Asset>();
-
-
-                    but_OK.Enabled = false;
-
-                    FinalizeHolder.Visible = false;
-
-                    LeavePlaceHolder.Visible = true;
-
-                    CheckoutView.ActiveViewIndex = 1; // goto report
+                    ShowError("Please Select A Shipping Option");
+                    return;
                 }
-                else
+                var checkoutdata = Session["CheckOutData"] as CheckOutData;
+                checkoutdata = UpdateCheckOutData(checkoutdata);
+                Session["CheckOutDataTemp"] = checkoutdata.Clone() as CheckOutData;
+                if (checkoutdata.CheckOutItems == null) return;
+
+                if (checkoutdata.CheckOutItems.Count > 0)
                 {
-                    if (checkoutdata.Package.Weight == null) { ShowError("No Package Weight."); return; }
-                    if (checkoutdata.From.AddressLine[0] != "" && checkoutdata.To.AddressLine[0] != "" && checkoutdata.Shipper.AddressLine[0] != "" && checkoutdata.Package.Weight != "")
+                    if (ShippingMethodDropDownList.SelectedValue == "00-NoLabel")
                     {
-                        var ud = Session["SessionUserData"] as Data.UserData;
-                        ud.Log.Add(new Data.LogEntry("Order#" + checkoutdata.CheckOutItems.FirstOrDefault().OrderNumber, Session["CombinedPdf"] as string));
                         Finalized = true;
                         PackingSlipViewBtn.Enabled = true;
 
                         CreatePackingSlip();
 
-                        UpdateCost();
-                        UpdateArrival();
-                        UpdateUpsLabel();
+                        //UpdateCost();
+                        // UpdateArrival();
+                        // UpdateUpsLabel();
 
-                        // PackingSlipOnly();
+                        PackingSlipOnly();
 
-                        //Shake(ReportLink);
+                        //notice
                         try
                         {
                             EmailNotice notice = new EmailNotice();
@@ -215,48 +182,144 @@ namespace Web_App_Master.Account
                             Push.NotificationSystem();
                         }
                         catch { ShowError("Problem Adding Timed Notice"); }
+
                         SaveToUserPersistantLog();
+
+
+
                         FinalizeAssets(Session["Checkout"] as List<Asset>);
+
                         Session["Checkout"] = new List<Asset>();
 
-                        but_OK.Enabled = false;
-                        FinalizeHolder.Visible = false;
-                        LeavePlaceHolder.Visible = true;
 
+                        but_OK.Enabled = false;
+
+                        FinalizeHolder.Visible = false;
+
+                        LeavePlaceHolder.Visible = true;
 
                         CheckoutView.ActiveViewIndex = 1; // goto report
                     }
                     else
                     {
-                        ShowError("Please fill in form completely.");
+                        if (checkoutdata.Package.Weight == null) { ShowError("No Package Weight."); return; }
+                        if (checkoutdata.From.AddressLine[0] != "" && checkoutdata.To.AddressLine[0] != "" && checkoutdata.Shipper.AddressLine[0] != "" && checkoutdata.Package.Weight != "")
+                        {
+                            var ud = Session["SessionUserData"] as Data.UserData;
+                            ud.Log.Add(new Data.LogEntry("Order#" + checkoutdata.CheckOutItems.FirstOrDefault().OrderNumber, Session["CombinedPdf"] as string));
+                            Finalized = true;
+                            PackingSlipViewBtn.Enabled = true;
+
+                            CreatePackingSlip();
+
+                            UpdateCost();
+                            UpdateArrival();
+                            UpdateUpsLabel();
+
+                            try
+                            {
+                                EmailNotice notice = new EmailNotice();
+
+                                notice.Scheduled = DateTime.Now.AddDays(30);
+                                notice.NoticeType = NoticeType.Checkout;
+                                notice.NoticeAction = Global.CheckoutAction;
+                                foreach (var asset in checkoutdata.CheckOutItems)
+                                {
+                                    notice.Assets.Add(asset.AssetNumber);
+                                }
+                                notice.NoticeControlNumber = checkoutdata.CheckOutItems[0].OrderNumber;
+                                notice.Body = Global.Library.Settings.CheckOutMessage;
+                                notice.Subject = "Asset Return Reminder";
+                                var engineer = (from d in Global.Library.Settings.ServiceEngineers where d.Name == Session["Engineer"] as string select d).FirstOrDefault();
+                                var statics = (from d in Global.Library.Settings.StaticEmails select d).ToList();
+                                if (engineer == null)
+                                {
+                                    engineer = new EmailAddress();
+                                }
+                                notice.Emails.Add(engineer);
+                                notice.Emails.AddRange(statics);
+                                notice.EmailAddress = engineer;
+                                Global.NoticeSystem.Add(notice);
+                                Push.NotificationSystem();
+                            }
+                            catch { ShowError("Problem Adding Timed Notice"); }
+                            SaveToUserPersistantLog();
+                            FinalizeAssets(Session["Checkout"] as List<Asset>);
+                            Session["Checkout"] = new List<Asset>();
+
+                            but_OK.Enabled = false;
+                            FinalizeHolder.Visible = false;
+                            LeavePlaceHolder.Visible = true;
+
+
+                            CheckoutView.ActiveViewIndex = 1; // goto report
+
+                        }
+                        else
+                        {
+                            ShowError("Please fill in form completely.");
+                        }
                     }
                 }
-            }
-            else
-            {
-                ShowError("There are no items in Check Out");
-            }
-            try
-            {
-                if(Session["IsPending"] as string == "true")
+                else
                 {
-                    AssetController.RemoveTransaction(Session["TransactionID"] as string);
+                    ShowError("There are no items in Check Out");
                 }
-            }
-            catch (Exception) { }
+                try
+                {
+                    if (Session["IsPending"] as string == "true")
+                    {
+                        AssetController.RemoveTransaction(Session["TransactionID"] as string);
+                    }
+                }
+                catch (Exception) { }
 
+
+                try
+                {
+                    var existingCust = from c in Global.Library.Settings.Customers where c.CompanyName == ToCompany.Value && c.Address == ToAddr.Value select c;
+                    if (existingCust.Count() ==0)
+                    {
+                        var newcust = GetCustomAddress();
+                        Global.Library.Settings.Customers.Add(newcust);
+                        Push.AppSettings();
+                    }
+                }
+                catch (Exception exx) {
+                    ShowError("Could not add new Customer to List\r\n"+exx.StackTrace);
+                }
+
+
+            }
+            catch ( Exception exx) { ShowError("Checkout failed\r\n"+exx.StackTrace); }
         }
+
+        private Customer GetCustomAddress()
+        {
+            Customer cust = new Helpers.Customer();
+            cust.CompanyName = ToCompany.Value;
+            cust.Address = ToAddr.Value;
+            cust.Address2 = ToAddr2.Value;
+            cust.City = ToCty.Value;
+            cust.State = ToState.Value;
+            cust.Postal = ToPostal.Value;
+            cust.Country = ToCountry.Value;
+            cust.Attn = ToName.Value;
+            cust.EmailAddress = new EmailAddress() { Name = ToCompany.Value, Email = ToEmail.Value };
+            cust.Phone = ToPhone.Value;
+            return cust;
+        }
+
 
         private void FinalizeAssets(List<Asset> assets)
         {
             var customer = Session["CheckOutCustomer"] as Customer;
             CustomerData cd = new CustomerData();
-            if (customer.DataGuid != "")
+            if (customer.DataGuid == null)
             {
-                cd = Pull.CustomerData(customer.DataGuid);
                 Global.Library.Settings.Customers.ForEach((c) =>
                 {
-                    if (c.Equals(customer))
+                    if (c.Address.Contains(customer.Address) && c.Postal.Contains(customer.Postal))
                     {
                         try
                         {
@@ -268,7 +331,34 @@ namespace Web_App_Master.Account
                             c.DataGuid = cd.Guid;
                             c.CurrentAssignedAssets.Clear();
                             assets.ForEach((x) => { c.CurrentAssignedAssets.Add(x.AssetNumber); });
-                            Push.LibrarySettings();
+                            Push.AppSettings();
+                            Push.CustomerData(cd);
+                        }
+                        catch
+                        {
+
+                        }
+                    }
+                });
+            }
+            if (customer.DataGuid != "")
+            {
+                cd = Pull.CustomerData(customer.DataGuid);
+                Global.Library.Settings.Customers.ForEach((c) =>
+                {
+                    if (c.Address.Contains(customer.Address) && c.Postal.Contains(customer.Postal))
+                    {
+                        try
+                        {
+                            if (cd == null)
+                            {
+                                cd = new CustomerData();
+                                cd.Guid = c.DataGuid;
+                            }
+                            c.DataGuid = cd.Guid;
+                            c.CurrentAssignedAssets.Clear();
+                            assets.ForEach((x) => { c.CurrentAssignedAssets.Add(x.AssetNumber); });
+                            Push.AppSettings();
                             Push.CustomerData(cd);
                         }
                         catch
@@ -283,12 +373,12 @@ namespace Web_App_Master.Account
                 customer.DataGuid = cd.Guid;
                 Global.Library.Settings.Customers.ForEach((c) =>
                 {
-                    if (c.Equals(customer))
+                    if (c.Address.Contains(customer.Address) && c.Postal.Contains(customer.Postal))
                     {
                         c.DataGuid = cd.Guid;
                         c.CurrentAssignedAssets.Clear();
                         assets.ForEach((x) => { c.CurrentAssignedAssets.Add(x.AssetNumber); });
-                        Push.LibrarySettings();
+                        Push.AppSettings();
                     }
                 });
                 cd.Customer = customer;
@@ -297,6 +387,8 @@ namespace Web_App_Master.Account
             var on = Session["Ordernumber"] as string;
             if (on != null)
             {
+                if (cd.OrderNumbers == null)
+                    cd.OrderNumbers = new List<string>();
                 cd.OrderNumbers.Add(on);
             }
 
@@ -343,7 +435,7 @@ namespace Web_App_Master.Account
                 
                 A.IsOut = true;
                 Asset rem=null;
-                foreach (var a in Global.Library.Assets)
+                foreach (var a in Global.AssetCache)
                 {
                     if (a.AssetNumber==A.AssetNumber)
                     {
@@ -352,8 +444,8 @@ namespace Web_App_Master.Account
                 }
                 if (rem != null)
                 {
-                    Global.Library.Assets.Remove(rem);
-                    Global.Library.Assets.Add(A);
+                    Global.AssetCache.Remove(rem);
+                    Global.AssetCache.Add(A);
                 }
                 emaillist.Add(A);     
 
@@ -361,16 +453,33 @@ namespace Web_App_Master.Account
                 //AssetController.UpdateAsset(A.Clone() as Asset);
                 Push.Asset(A);
             }
-            
-            cd.AssetKitHistory.Add(assetKit);
+            if (cd.AssetKitHistory == null)
+            { cd.AssetKitHistory = new List<AssetKit>();}
+            cd.AssetKitHistory = new List<AssetKit>(); cd.AssetKitHistory.Add(assetKit);
             Push.CustomerData(cd);
-
+            var aaa = from aa in Global.Library.Settings.Customers where aa.DataGuid == cd.Guid select aa;
             NotifyCheckoutEmail(emaillist);
+            if (aaa.Count() ==0)
+            {
+                Global.Library.Settings.Customers.ForEach((c) =>
+                {
+                    if (c.Address.Contains(customer.Address) && c.Postal.Contains(customer.Postal))
+                    {
+                        c.DataGuid = cd.Guid;
+                        c.CurrentAssignedAssets.Clear();
+                        assets.ForEach((x) => { c.CurrentAssignedAssets.Add(x.AssetNumber); });
+                        Push.AppSettings();
+                    }
+                });
+            }
             Push.Alert((Session["Ordernumber"] as string) + ": Checked Out");
             Session["Customer"] = null;
             Session["Shipper"] = null;
             Session["Engineer"] = null;
             Session["Ordernumber"] = null;
+            Session["checkout_success"] = "true";
+
+
         }
 
         private void FillDefaultShipper(Customer cust)
@@ -425,16 +534,25 @@ namespace Web_App_Master.Account
             Shipper = Session["Shipper"] as string;
             Engineer = Session["Engineer"] as string;
             Ordernumber = Session["Ordernumber"] as string;
-            DataBindShipping(Customer, Shipper, Engineer, Ordernumber);
+            if (IsPostBack)
+            {
+
+                DataBindShipping(GetCustomAddress(), Shipper, Engineer, Ordernumber);
+            }
+
             if (!IsPostBack)
             {
+                Session["ups_remake"] = "false";
+                Session["checkout_success"] = "false";
+                Session["ups_success"] = "false";
+                ScriptManager.GetCurrent(Page).RegisterAsyncPostBackControl(RemakeLabelsBtn);
                 ScriptManager.GetCurrent(Page).RegisterAsyncPostBackControl(checkout_ShipTo);
                 checkout_ShipTo.DataSource = GetShipToNames();
                 checkout_ShipTo.DataBind();
 
                 but_OK.Enabled = true;
+                DataBindShipping(Customer, Shipper, Engineer, Ordernumber);
 
-                
                 var preferShip = Session["PreferedShipMethod"] as string;
                 if (preferShip == null)
                 {
@@ -581,11 +699,17 @@ namespace Web_App_Master.Account
 
                 string[] combine = new string[2] { Server.MapPath(pack), Server.MapPath(ship) };
 
-                var result = Pdf.Merge(combine.ToList(), dest);
+                var result = Pdf.Merge(combine.ToList(), dest, false);
                 if (result)
                 {
                     PF.Src = "/Account/CheckOutPdf/" + filename;
-
+                    PdfUpdatePanel.Update();
+                }
+                if ((Session["ups_remake"] as string) == "true")
+                {
+                    string redirect = "<script>window.open('" + "/Account/CheckOutPdf/" + filename + "');</script>";
+                    // Response.Write(redirect);
+                    PdfUpdatePanel.Update();
                 }
             }
             catch { }
@@ -949,14 +1073,21 @@ namespace Web_App_Master.Account
                     Session["ShippingLabelFileName"] = shortname;
 
                     //create pdf
-
+                    if ((Session["ups_remake"] as string) == "true")
+                    {
+                        Finalized = true;
+                    }
                     if (Finalized)
                     {
                         CombineShipAndPack();
+                        Session["ups_success"] = "true";
                     }
                 }
             }
-            catch { }
+            catch (Exception ex) {
+                Session["ups_success"] = "false";
+                ShowError("Could not Create Label\r\n" + ex.StackTrace);
+            }
 
         }
         private void Ups_OnRateReturn(object sender, UPS.ReturnRateEvent e)
@@ -975,6 +1106,7 @@ namespace Web_App_Master.Account
         {
             try
             {
+                Session["ups_success"] = "false";
                 var exx = e.Exception.InnerException as System.Web.Services.Protocols.SoapException;
                 var msg = exx.Detail.ChildNodes[0].ChildNodes[0].ChildNodes[1].InnerText;
                 ShowError("A problem has occured, please check that all forms are filled in correctly and try again<br>"+msg);
@@ -984,6 +1116,7 @@ namespace Web_App_Master.Account
         }
         private void Ups_SoapExceptionListener(object sender, UPS.SoapExceptionOccured e)
         {
+            Session["ups_success"] = "false";
             ShowError(e.Exception.Detail.InnerText + e.Exception.Detail.InnerXml);
         }
 
@@ -1042,6 +1175,184 @@ namespace Web_App_Master.Account
             Session["CheckOutCustomer"] = cust;
         }
 
+        protected void RemakeLabelsBtn_Click(object sender, EventArgs e)
+        {
+            if (PF.Src=="/Account/Pdfs/blank.pdf")
+            {
+                var lastPdf = Session["CombinedPdf"] as string;
+                if (lastPdf==null)
+                {
+                    Session["ups_remake"] = "true";
+                    var lastCheckout = Session["CheckOutDataTemp"] as CheckOutData;
+                    Session["CheckOutData"] = lastCheckout;
+                    if (lastCheckout==null)
+                    {
+                        //no checkout data at all
+                        ShowError("No CheckoutData");
+                        return;
+                    }
+                    var t = Session["ups_success"] as string;
+                    var success = Convert.ToBoolean(t);
+                    CreatePackingSlip();
+                    UpdateUpsLabel();
+                    UpdateAssetsWithNewDocument();
+                    return;
+
+                }
+                if (lastPdf=="")
+                {
+                    Session["ups_remake"] = "true";
+                    var lastCheckout = Session["CheckOutDataTemp"] as CheckOutData;
+                    Session["CheckOutData"] = lastCheckout;
+                    if (lastCheckout == null)
+                    {
+                        //no checkout data at all
+                        ShowError("No CheckoutData");
+                        return;
+                    }
+                    var t = Session["ups_success"] as string;
+                    var success = Convert.ToBoolean(t);
+                    CreatePackingSlip();
+                    UpdateUpsLabel();
+                    UpdateAssetsWithNewDocument();
+                    return;
+                }
+            }
+            else
+            {
+                var lastPdf = Session["CombinedPdf"] as string;
+                if (lastPdf == null)
+                {
+                    Session["ups_remake"] = "true";
+                    var lastCheckout = Session["CheckOutDataTemp"] as CheckOutData;
+                    Session["CheckOutData"] = lastCheckout;
+                    if (lastCheckout == null)
+                    {
+                        //no checkout data at all
+                        ShowError("No CheckoutData");
+                        return;
+                    }
+                    var t = Session["ups_success"] as string;
+                    var success = Convert.ToBoolean(t);
+                    CreatePackingSlip();
+                    UpdateUpsLabel();
+                    UpdateAssetsWithNewDocument();
+                    return;
+
+                }
+                if (lastPdf == "")
+                {
+                    Session["ups_remake"] = "true";
+                    var lastCheckout = Session["CheckOutDataTemp"] as CheckOutData;
+                    if (lastCheckout == null)
+                    {
+                        //no checkout data at all
+                        ShowError("No CheckoutData");
+                        return;
+                    }
+                    Session["CheckOutData"] = lastCheckout;
+                    var t = Session["ups_success"] as string;
+                    var success = Convert.ToBoolean(t);
+                    CreatePackingSlip();
+                    UpdateUpsLabel();
+                    UpdateAssetsWithNewDocument();
+                    return;
+                }
+                try
+                {
+                    var result = new WebClient().DownloadData(Server.MapPath(lastPdf));
+                    if (result.Length > 0)
+                    {                        
+                        PF.Src = lastPdf;
+                        PdfUpdatePanel.Update();
+                        return;
+                    }
+                    else
+                    {
+                        Session["ups_remake"] = "true";
+                        var lastCheckout = Session["CheckOutDataTemp"] as CheckOutData;
+                        if (lastCheckout == null)
+                        {
+                            //no checkout data at all
+                            ShowError("No CheckoutData");
+                            return;
+                        }
+                        Session["CheckOutData"] = lastCheckout;
+                        CreatePackingSlip();
+                        UpdateUpsLabel();
+                        UpdateAssetsWithNewDocument();
+                        return;
+                    }
+                }
+                catch (Exception exx) {
+                    if (exx.Message.ToUpper().Contains("COULD NOT FIND FILE"))
+                    {
+                        Session["ups_remake"] = "true";
+                        var lastCheckout = Session["CheckOutDataTemp"] as CheckOutData;
+                        if (lastCheckout == null)
+                        {
+                            //no checkout data at all
+                            ShowError("No CheckoutData");
+                            return;
+                        }
+                        Session["CheckOutData"] = lastCheckout;
+                        CreatePackingSlip();
+                        UpdateUpsLabel();
+                        UpdateAssetsWithNewDocument();
+                        return;
+                    }
+                }
+              
+                //string redirect = "<script>window.open('"+ lastPdf + "');</script>";
+                //Response.Write(redirect);
+
+            }
+
+            //Send Data to Asset in lstcheckout
+
+
+
+
+        }
       
+        protected void ShowLabelsBtn_Click(object sender, EventArgs e)
+        {
+            var lastPdf = Session["CombinedPdf"] as string;
+            if (lastPdf != null)
+            {
+                string redirect = "<script>window.open('" + lastPdf + "');</script>";
+                Response.Write(redirect);
+            }
+            else
+            {
+                Session["ups_remake"] = "true";
+                var lastCheckout = Session["CheckOutDataTemp"] as CheckOutData;
+                Session["CheckOutData"] = lastCheckout;
+                if (lastCheckout == null)
+                {
+                    //no checkout data at all
+                    ShowError("No CheckoutData");
+                    return;
+                }
+                CreatePackingSlip();
+                UpdateUpsLabel();
+                UpdateAssetsWithNewDocument();
+            }
+
+        }
+
+        protected void UpdateAssetsWithNewDocument()
+        {
+            var lastCheckout = Session["CheckOutDataTemp"] as CheckOutData;
+            foreach (var asset  in lastCheckout.CheckOutItems)
+            {
+                if (!asset.Documents.Contains(Session["CombinedPdf"] as string))
+                {
+                    asset.IsOut = true;
+                    asset.Documents.Add(Session["CombinedPdf"] as string);
+                    Push.Asset(asset);
+                }
+            }
+        }
     }
 }
