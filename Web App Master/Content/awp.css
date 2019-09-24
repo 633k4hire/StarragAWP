@@ -1,4 +1,24 @@
-﻿.form-control:focus {
+﻿.bottom-msg {
+    transition: all 1s;
+    position: fixed;
+    padding: 2px;
+    font-size: 25px;
+    text-align: center;
+    width: 100%;
+    height: auto;
+    min-height:25px;
+    max-height:250px;
+    overflow:hidden;
+    bottom: -250px;
+    right: 0px;
+    z-index:999999;
+}
+.bottom-msg.show {    
+    bottom: 0px;
+}
+
+
+.form-control:focus {
     border-color: rgba(241, 0, 6, 0.75);
     box-shadow: 0 1px 1px rgba(241, 0, 6, 0.75) inset, 0 0 10px rgba(241, 0, 6, 0.5);
     outline: 0 none;
@@ -13,7 +33,7 @@
     }
         .transaction-notice:hover {
             color: rgba(241, 0, 6, 1) !important;
-            ;
+            
         }
 .notice-holder {
     height: 150px;
@@ -1022,7 +1042,10 @@ iframe {
     padding: 20px;
 }
 
-
+.bold
+{
+    font-weight:bold !important;
+}
 
 .buttons {
     width: 200px;
@@ -3917,6 +3940,8 @@ iframe {
     -webkit-animation-duration: 1.5s;
     animation-name: fade;
     animation-duration: 1.5s;
+    animation-iteration-count:1;
+    
 }
 
 @-webkit-keyframes fade {
@@ -3936,5 +3961,83 @@ iframe {
 
     to {
         opacity: 1
+    }
+}
+
+
+::-webkit-scrollbar {
+    width: 10px;
+}
+
+/* Track */
+::-webkit-scrollbar-track {
+    background: #f1f1f1;
+}
+
+/* Handle */
+::-webkit-scrollbar-thumb {
+    background: #888;
+}
+
+    /* Handle on hover */
+    ::-webkit-scrollbar-thumb:hover {
+        background: #555;
+    }
+
+
+/*Image Wrap Ken Burns Slow Pan on Background Image*/
+.image-wrap {
+    width: 100%;
+    height: 50vw;
+    margin: 0 auto;
+    overflow: hidden;
+    position: fixed;
+    width: 100%;
+    height: 100%; /*same height as jumbotron */
+    top: 50px;
+    left: 0;
+    z-index: 0;
+    opacity: 1;
+}
+
+    .image-wrap img {
+        width: 100%;
+        animation: move 60s ease;
+        /* Add infinite to loop. */
+        -ms-animation: move 60s ease;
+        -webkit-animation: move 60s ease;
+        -0-animation: move 60s ease;
+        -moz-animation: move 60s ease;
+        /*position: absolute;*/
+    }
+
+@-webkit-keyframes move {
+    0% {
+        -webkit-transform-origin: bottom left;
+        -moz-transform-origin: bottom left;
+        -ms-transform-origin: bottom left;
+        -o-transform-origin: bottom left;
+        transform-origin: bottom left;
+        transform: scale(1.0);
+        -ms-transform: scale(1.0);
+        /* IE 9 */
+        -webkit-transform: scale(1.0);
+        /* Safari and Chrome */
+        -o-transform: scale(1.0);
+        /* Opera */
+        -moz-transform: scale(1.0);
+        /* Firefox */
+    }
+
+    100% {
+        transform: scale(1.2);
+        -ms-transform: scale(1.2);
+        /* IE 9 */
+        -webkit-transform: scale(1.2);
+        /* Safari and Chrome */
+        -o-transform: scale(1.2);
+        /* Opera */
+        -moz-transform: scale(1.2);
+        /* Firefox */
     }
 }

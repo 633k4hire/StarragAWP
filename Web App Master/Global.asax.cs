@@ -12,14 +12,80 @@ using Web_App_Master.Account;
 using Notification;
 using static Notification.NotificationSystem;
 using System.IO;
+using System.Threading.Tasks;
+using Microsoft.ApplicationInsights.Extensibility;
+using Web_App_Master.App_Start;
 
 namespace Web_App_Master
 {
-   
+
     public class Global : HttpApplication
     {
+        /// <summary>
+        /// Refresh assetcache
+        /// </summary>
+        /// <returns></returns>
+        public static async Task<List<Asset>> RefreshAssetCacheAsync()
+        {
+            HttpContext.Current.Session["SessionAssetCache"] = await Pull.AssetsAsync();
+            return HttpContext.Current.Session["SessionAssetCache"] as List<Asset>;
+        }
+        public static void LogEntry(string entry)
+        {
+            //_MasterLog.Add(entry);
+        }
+        public static MasterLog _MasterLog = new MasterLog();
+
         public System.Timers.Timer Cleanup;
         public static NotificationSystem NoticeSystem { get { return Library.NotificationSystem; } set { Library.NotificationSystem = value; } }
+        public static List<Asset> PullAssets
+        { get
+            {
+                var masterlist = new List<Asset>();
+                foreach (var an in Global.Library.Settings.AssetNumbers)
+                {
+                    masterlist.Add(Pull.Asset(an));
+                }
+                return masterlist;
+            } }
+        //public static List<Asset> AssetCache
+        //{
+        //    get {
+        //        var a = HttpContext.Current.Application[HttpContext.Current.Session["guid"] as string] as List<Asset>;
+        //        if (a == null) return new List<Asset>();
+        //        return a;
+        //    }
+        //    set {
+        //        if (HttpContext.Current.Session["guid"] as string == null)
+        //        {
+        //            HttpContext.Current.Session["guid"] = Guid.NewGuid();
+        //        }
+        //            HttpContext.Current.Application[HttpContext.Current.Session["guid"] as string] = value;
+        //    }
+        //}
+
+        public static List<Asset> AssetCache
+        {
+            get
+            {
+                var a = HttpContext.Current.Session["SessionAssetCache"] as List<Asset>;
+                if (a == null) return new List<Asset>();
+                return a;
+            }
+            set
+            {
+                if (HttpContext.Current.Session["SessionAssetCache"] as List<Asset> == null)
+                {
+                    HttpContext.Current.Session["SessionAssetCache"] = value;
+                }
+                
+            }
+        }
+
+        public static void RefreshAssetCache()
+        {
+            AssetCache = Pull.Assets();
+        }
 
         public static DataStore Library;
         public static UPSaccount _UPSAccount
@@ -35,16 +101,47 @@ namespace Web_App_Master
         }
         void Application_Start(object sender, EventArgs e)
         {
-            Cleanup = new System.Timers.Timer();
-            Cleanup.Interval = (60000 * 30);
-            Cleanup.Elapsed += Cleanup_Elapsed;
-            Cleanup.Enabled = true;
+            LoadMasterLog();
+
+            TelemetryConfiguration.Active.DisableTelemetry = true;
+            DeveloperAction();
+           // Error += Global_Error;
+           // Cleanup = new System.Timers.Timer();
+           // Cleanup.Interval = (60000 * 30);
+           // Cleanup.Elapsed += Cleanup_Elapsed;
+           //Cleanup.Enabled = true;
             LoadLibrary();
             LoadSettings();
             LoadNotificationSystem();
             // Code that runs on application startup
             RouteConfig.RegisterRoutes(RouteTable.Routes);
             BundleConfig.RegisterBundles(BundleTable.Bundles);
+        }
+
+        private void LoadMasterLog()
+        {
+
+            _MasterLog = Pull.MasterLog();
+
+        }
+
+        private void DeveloperAction()
+        {
+
+
+        }
+        private static void Refresh_Complete()
+        {
+
+        }
+        private void Global_Error(object sender, EventArgs e)
+        {
+           
+        }
+
+        void Application_Error(object sender, EventArgs e)
+        {
+
         }
 
         private void Cleanup_Elapsed(object sender, System.Timers.ElapsedEventArgs e)
@@ -70,13 +167,17 @@ namespace Web_App_Master
             n.Text = "Session Started";
             list.Add(n);
             Session["Notifications"] = list;
+            var guid = Guid.NewGuid().ToString();
+            Session["guid"] = guid;
+            //Pull Assets
+            Session["SessionAssetCache"] =  Pull.Assets();         
         }
         public static void LoadLibrary()
         {
             Library = new DataStore();
             try
             {
-                Pull.Library();             
+                //Pull.Library();             
             }
             catch { }
         }
@@ -135,7 +236,8 @@ namespace Web_App_Master
             {
                 if (!Global.Library.Settings.TESTMODE)
                 {
-                    EmailHelper.SendNotificationSystemNotice(e.Notice);
+                    //EmailHelper.SendNotificationSystemNotice(e.Notice);
+                    Global.LogEntry(DateTime.Now.ToString() + " User:" + HttpContext.Current.User.Identity.Name + ": " + "notice Email Sent ");
                 }                
             }
             catch { }

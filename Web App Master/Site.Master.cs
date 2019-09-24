@@ -13,17 +13,103 @@ using System.Linq;
 using Web_App_Master.Account;
 using System.IO;
 using static Notification.NotificationSystem;
+using static Web_App_Master.App_Start.SignalRHubs;
 
 namespace Web_App_Master
 {
     public partial class SiteMaster : MasterPage
     {
+        protected void Page_Load(object sender, EventArgs e)
+        {
+            ScriptManager.GetCurrent(Page).RegisterAsyncPostBackControl(MasterSuperBtn);
+
+            //start polling
+           
+            if (Context.IsAdmin())
+            {
+                
+            }
+            if (Context.IsCustomer())
+            {
+                if (!IsPostBack)
+                {
+                    var script = @"$(document).ready(function (){ RunScanner();});";
+                    ScriptManager.RegisterStartupScript(this, this.GetType(), "ScannersScript", script, true);
+                }
+            }
+            if (!IsPostBack)
+            {
+                ScriptManager.GetCurrent(Page).RegisterAsyncPostBackControl(UploadAssetImg);
+
+                ScriptManager.GetCurrent(Page).RegisterAsyncPostBackControl(ASuperBtn);
+                try
+                {
+                    //var ctrl = RoleLoginViewer.FindControl("ViewChangerBtn");
+                    //ScriptManager.GetCurrent(Page).RegisterAsyncPostBackControl(ctrl);
+                    
+                }
+                catch
+                {
+
+                }
+               
+                BindMenuItems();
+                
+            }
+            this.PreRender += SiteMaster_PreRender;
+            if (Page.User.Identity.IsAuthenticated)
+            {
+                //var ctrl = AssetViewLoggedInUserView.FindControl("av_IsDamaged");
+                //ScriptManager.GetCurrent(Page).RegisterAsyncPostBackControl(ctrl);
+                //var ctrl2 = AssetViewLoggedInUserView.FindControl("av_OnHold");
+                //ScriptManager.GetCurrent(Page).RegisterAsyncPostBackControl(ctrl2);
+                //var ctrl3 = AssetViewLoggedInUserView.FindControl("av_CalibratedTool");
+                //ScriptManager.GetCurrent(Page).RegisterAsyncPostBackControl(ctrl3);
+            }
+            AssetHistoryRepeater.HeaderTemplate = Page.LoadTemplate("/Account/Templates/av_history_header_template.ascx");
+            AssetHistoryRepeater.ItemTemplate = Page.LoadTemplate("/Account/Templates/av_history_template.ascx");
+            AssetHistoryRepeater.FooterTemplate = Page.LoadTemplate("/Account/Templates/av_history_footer_template.ascx");
+            var ud = Session["PersistingUserData"] as Data.UserData;
+            if (ud != null)
+            {
+                try
+                {
+                    if (ud.IsAutoChecked)
+                    {
+                        var cb = RoleLoginViewer.FindControl("BarcodeCheckBox") as CheckBox;
+                        
+                        cb.Checked = true;
+                    }
+                    else
+                    {
+                        var cb = RoleLoginViewer.FindControl("BarcodeCheckBox") as CheckBox;
+                        cb.Checked = false;
+                    }
+                }
+                catch { }
+            }
+
+        }
+
         public event EventHandler<UpdateRequestEvent> OnPanelUpdate;
+        public event EventHandler<UpdateRequestEvent> OnAssetViewUpdate;
         protected virtual void UpdateSubscribers(UpdateRequestEvent e)
         {
             try
             {
                 EventHandler<UpdateRequestEvent> handler = OnPanelUpdate;
+                if (handler != null)
+                {
+                    handler(this, e);
+                }
+            }
+            catch (Exception ex) { UpdateSubscribers(new UpdateRequestEvent(ex)); }
+        }
+        protected virtual void UpdateAssetView(UpdateRequestEvent e)
+        {
+            try
+            {
+                EventHandler<UpdateRequestEvent> handler = OnAssetViewUpdate;
                 if (handler != null)
                 {
                     handler(this, e);
@@ -37,6 +123,7 @@ namespace Web_App_Master
             ErrorBox.Visible = true;
             ErrorLabel.Text = title;
             ErrorMessage.Text = message;
+            ErrorModalUpdatePanel.Update();
             
         }
         public void AddMenuNotice(MenuAlert notice)
@@ -181,7 +268,7 @@ namespace Web_App_Master
                 };
                 if (FormsAuthentication.RequireSSL && Request.IsSecureConnection)
                 {
-                    responseCookie.Secure = true;
+                    responseCookie.Secure = false;
                 }
                 Response.Cookies.Set(responseCookie);
             }
@@ -224,73 +311,7 @@ namespace Web_App_Master
 
             }
         }
-        protected void Page_Load(object sender, EventArgs e)
-        {
-            
-            if (Context.IsAdmin())
-            {
-                try
-                {
-                    var t = Web_App_Master.Pull.Transactions();
-                    Session["Transactions"] = t;
-                    var script = @"$(document).ready(function (){ PollTransactions();});";
-                    ScriptManager.RegisterStartupScript(this, this.GetType(), "pollScript", script, true);
 
-                }
-                catch (Exception)
-                {
-                    Session["Transactions"] = new List<PendingTransaction>();
-                }
-            }
-            if (!IsPostBack)
-            {
-                ScriptManager.GetCurrent(Page).RegisterAsyncPostBackControl(ASuperBtn);
-                try
-                {
-                    var ctrl = RoleLoginViewer.FindControl("ViewChangerBtn");
-                    ScriptManager.GetCurrent(Page).RegisterAsyncPostBackControl(ctrl);
-                    
-                }
-                catch
-                { }
-               
-                BindMenuItems();
-                
-            }
-            this.PreRender += SiteMaster_PreRender;
-            if (Page.User.Identity.IsAuthenticated)
-            {
-                //var ctrl = AssetViewLoggedInUserView.FindControl("av_IsDamaged");
-                //ScriptManager.GetCurrent(Page).RegisterAsyncPostBackControl(ctrl);
-                //var ctrl2 = AssetViewLoggedInUserView.FindControl("av_OnHold");
-                //ScriptManager.GetCurrent(Page).RegisterAsyncPostBackControl(ctrl2);
-                //var ctrl3 = AssetViewLoggedInUserView.FindControl("av_CalibratedTool");
-                //ScriptManager.GetCurrent(Page).RegisterAsyncPostBackControl(ctrl3);
-            }
-            AssetHistoryRepeater.HeaderTemplate = Page.LoadTemplate("/Account/Templates/av_history_header_template.ascx");
-            AssetHistoryRepeater.ItemTemplate = Page.LoadTemplate("/Account/Templates/av_history_template.ascx");
-            AssetHistoryRepeater.FooterTemplate = Page.LoadTemplate("/Account/Templates/av_history_footer_template.ascx");
-            var ud = Session["PersistingUserData"] as Data.UserData;
-            if (ud != null)
-            {
-                try
-                {
-                    if (ud.IsAutoChecked)
-                    {
-                        var cb = RoleLoginViewer.FindControl("BarcodeCheckBox") as CheckBox;
-                        
-                        cb.Checked = true;
-                    }
-                    else
-                    {
-                        var cb = RoleLoginViewer.FindControl("BarcodeCheckBox") as CheckBox;
-                        cb.Checked = false;
-                    }
-                }
-                catch { }
-            }
-
-        }
 
         private void SiteMaster_PreRender(object sender, EventArgs e)
         {
@@ -341,13 +362,35 @@ namespace Web_App_Master
         {
 
             var asset = Session["CurrentAsset"] as Asset;
+            bool newassetnumber = false;
+            var originalassetnumber = asset.AssetNumber;
             try
             {
                 //HOLY SHIT YOU NEED TO CHECK INPUT!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-                if (av_AssetNumber.Value.Length <= Global.Library.Settings.AssetNumberLength)
+                if (av_AssetNumber.Value.Length >= Global.Library.Settings.AssetNumberLength)
                     if ((from a in AssetController.GetAllAssets() where a.AssetNumber == av_AssetNumber.Value select a).ToList().Count == 0)
                     { //Unique Number
                         asset.AssetNumber = av_AssetNumber.Value;
+                        newassetnumber = true;
+                        if (!Directory.Exists(Server.MapPath("/Account/Images/"+asset.AssetNumber)))
+                        {
+                            Directory.CreateDirectory(Server.MapPath("/Account/Images/" + asset.AssetNumber));
+                        }
+                        try
+                        {
+                            foreach(var file in Directory.GetFiles(Server.MapPath("/Account/Images/" + originalassetnumber)))
+                            {
+                                File.Move(file, Server.MapPath("/Account/Images/" + asset.AssetNumber+"/"+Path.GetFileName(file)));
+                            }
+                            Directory.Delete(Server.MapPath("/Account/Images/" + originalassetnumber));
+                        }
+                        catch (Exception exx) {
+                            ShowError(exx.StackTrace);
+                        }
+                    }
+                    else
+                    {
+                        av_AssetNumber.Value = asset.AssetNumber;
                     }
                 asset.AssetName = av_AssetName.Value;              
 
@@ -373,15 +416,36 @@ namespace Web_App_Master
                 asset.IsDamaged=((System.Web.UI.WebControls.CheckBox)AssetViewLoggedInUserView.FindControl("av_IsDamaged")).Checked;
                 asset.OnHold=((System.Web.UI.WebControls.CheckBox)AssetViewLoggedInUserView.FindControl("av_OnHold")).Checked ;
                 asset.IsCalibrated=((System.Web.UI.WebControls.CheckBox)AssetViewLoggedInUserView.FindControl("av_CalibratedTool")).Checked ;
+                //set Asset Value and dimension
+                var dimension = ((System.Web.UI.HtmlControls.HtmlInputText)AssetViewLoggedInUserView.FindControl("av_Dimension")).Value;
+                var assetValue = ((System.Web.UI.HtmlControls.HtmlInputText)AssetViewLoggedInUserView.FindControl("av_AssetValue")).Value;
+                var comb = assetValue + "-dd-" + dimension;
+                asset.AssetValue = comb;
+
+                //asset. = ;
             }
             catch
-            { }
-            AssetController.UpdateAsset(asset);
+            {
+            }
+            Push.Asset(asset);
+            //Set Asset Cache
+            if (newassetnumber)
+            {
+                AssetController.DeleteAsset(originalassetnumber);
+                var rem = Global.AssetCache.FindAssetByNumber(originalassetnumber);
+                Global.AssetCache.Remove(rem);
+            }
             AssetViewHeaderLabel.InnerHtml += " - Modified";
             BindAssetToAssetView();
             Push.Alert("Asset Saved");
-           
+            OnAssetViewUpdate?.Invoke(this, new UpdateRequestEvent( Global.AssetCache ));
 
+
+        }
+
+        public void UpdateAssetView()
+        {
+           OnAssetViewUpdate?.Invoke(this, new UpdateRequestEvent(Global.AssetCache));
         }
 
         protected void UploadAssetImg_Click(object sender, EventArgs e)
@@ -390,15 +454,16 @@ namespace Web_App_Master
             {
                 var filename = AssetImageUploader.FileName;              
                 var asset = Session["CurrentAsset"] as Asset;
-               
+               if (!Directory.Exists(Server.MapPath("/Account/Images/"+asset.AssetNumber)))
+                {
+                    Directory.CreateDirectory(Server.MapPath("/Account/Images/"+asset.AssetNumber));
+                }
                     
-                    var name = Server.MapPath("/Account/Images/" + Server.HtmlEncode(filename));
+                    var name = Server.MapPath("/Account/Images/" + asset.AssetNumber+"/" + Server.HtmlEncode(filename));
                     asset.Images += Server.HtmlEncode(filename) + ",";
                     AssetImageUploader.PostedFile.SaveAs(name);
-                
-                    Push.Asset(asset);
-               
-               
+                Push.Asset(asset);
+                Response.Redirect("/Account/AssetView");
             }
             catch { }
         }
@@ -431,7 +496,7 @@ namespace Web_App_Master
             AssetImageCountLiteral.Text = "1/" +((asset.Images.Split(new string[] { "," }, StringSplitOptions.RemoveEmptyEntries)).Length.ToString());
             AssetImageUpdatePanel.Update();
             if (asset == null) { binddummy(); return; }
-            if (asset.History.History.Count==0){ binddummy(); return; }
+            if (asset.History.History.Count==0){ binddummy(); }
             try
             {
                 AssetHistoryRepeater.DataSource = asset.History.History;
@@ -463,22 +528,29 @@ namespace Web_App_Master
                     if (doc.Contains("CheckOutPdf"))
                     {
                         packnode.ChildNodes.Add(n1);
-                    }
+                    }else
                     if (doc.Contains("Labels"))
                     {
                         Labelnode.ChildNodes.Add(n1);
                     }
+                    else
                     if (doc.Contains("Certificates"))
                     {
                         CertificateNode.ChildNodes.Add(n1);
                     }
+                    else
                     if (doc.Contains("Receiving"))
                     {
                         ReceivingNode.ChildNodes.Add(n1);
                     }
+                    else
                     if (doc.Contains("PackingLists"))
                     {
                         packnode.ChildNodes.Add(n1);
+                    }
+                    else
+                    {
+                        rootnode.ChildNodes.Add(n1);
                     }
                 }
 
@@ -512,6 +584,17 @@ namespace Web_App_Master
                 ((System.Web.UI.HtmlControls.HtmlInputText)AssetViewLoggedInUserView.FindControl("av_ShipTo")).Value = asset.ShipTo;
                 ((System.Web.UI.HtmlControls.HtmlInputText)AssetViewLoggedInUserView.FindControl("av_PersonShipping")).Value = asset.PersonShipping;
                 ((System.Web.UI.HtmlControls.HtmlInputText)AssetViewLoggedInUserView.FindControl("av_Weight")).Value = asset.weight.ToString();
+
+                try
+                {
+                    var split = asset.AssetValue.StringSplit("-dd-");
+                    ((System.Web.UI.HtmlControls.HtmlInputText)AssetViewLoggedInUserView.FindControl("av_AssetValue")).Value = split[0];
+                    ((System.Web.UI.HtmlControls.HtmlInputText)AssetViewLoggedInUserView.FindControl("av_Dimension")).Value = split[1];
+                }
+                catch (Exception ex)
+                {
+                    var a = ex;
+                }
                 
 
             }
@@ -594,29 +677,15 @@ namespace Web_App_Master
             PendingTransaction p = new PendingTransaction();
             p.Customer = Global.Library.Settings.Customers[1];
             p.Comment = "nopo";
-            var isin = (from aa in Global.Library.Assets where aa.IsOut = false select aa.AssetNumber).ToList();
+            var isin = (from aa in Global.AssetCache where aa.IsOut = false select aa.AssetNumber).ToList();
             p.Assets = isin;
             Push.Transaction(p);
         }
 
         protected void ViewChangeBtn_Click(object sender, EventArgs e)
         {
-            var assets = Pull.Assets();
-            foreach (var asset in assets)
-            {
-                try
-                {
-                    var basepath = ("/Account/Images/");
+            this.HubContext<ClientHub>().Clients.All.assetCacheChanged();
 
-                    Directory.CreateDirectory(Server.MapPath(basepath + asset.AssetNumber));
-                    foreach (var item in asset.Images.Split(','))
-                    {
-                        
-                        File.Copy(Server.MapPath(basepath + Path.GetFileName( item)), Server.MapPath(basepath + asset.AssetNumber + "/" + Path.GetFileName( item)));
-                    }
-                }
-                catch { }
-            }
         }
         //public int CurrentView { get { return MainContentMultiView.ActiveViewIndex; } }
 
@@ -648,7 +717,7 @@ namespace Web_App_Master
 
         protected void AssetImagePrevBtn_Click(object sender, EventArgs e)
         {
-            var asset = (from a in Global.Library.Assets where a.AssetNumber == CurrentAssetNumber.Text select a).First();
+            var asset = Session["Asset"] as Asset;
             var path = "/Account/Images/" + asset.AssetNumber + "/";
             var imglist = asset.Images.Split(new string[] { "," }, StringSplitOptions.RemoveEmptyEntries);
             int idx = 0;
@@ -700,7 +769,7 @@ namespace Web_App_Master
         protected void AssetImageNextBtn_Click(object sender, EventArgs e)
         {
 
-            var asset = (from a in Global.Library.Assets where a.AssetNumber == CurrentAssetNumber.Text select a).First();
+            var asset = Session["Asset"] as Asset;
             var path = "/Account/Images/" + asset.AssetNumber+"/";
            var imglist = asset.Images.Split(new string[] {","}, StringSplitOptions.RemoveEmptyEntries);
             int idx = 0;
@@ -771,6 +840,20 @@ namespace Web_App_Master
             AssetCurrentDocumentLabel.Text = arg;
             AssetDocumentIframeUpdatePanel.Update();
             AssetDocumentsViewer.Update();
+        }
+
+        protected void MasterSuperBtn_Click(object sender, EventArgs e)
+        {
+            var cmd = AppCommand.Text;
+            var arg1 = AppArgument.Text;
+            var arg2 = AppArgument2.Text;
+            this.Page.RegisterAsyncTask(
+                new PageAsyncTask(
+                    async ()=>
+                    { await Global.RefreshAssetCacheAsync(); }));
+
+            //Check to see if asset view is present in contentpanel, if so, fir off page delegate 
+            UpdateAssetView(new UpdateRequestEvent(Global.AssetCache));
         }
     }
     public class UpdateRequestEvent : EventArgs

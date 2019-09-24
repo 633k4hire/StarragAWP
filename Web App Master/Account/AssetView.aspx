@@ -12,14 +12,14 @@
 <script src="../Scripts/jquery.contextMenu.js"></script>
 <script src="../Scripts/jquery.ui.position.js"></script>
 <script src="../Scripts/FileBrowserContextMenuActions.js"></script>--%>
-    <script type="text/javascript">
+<%--    <script type="text/javascript">
         $(document).ready(function () {
             Sys.WebForms.PageRequestManager.getInstance().add_endRequest(InitialiseSettings);
         });
         function InitialiseSettings() {
             HideLoader();
         }
-    </script>
+    </script>--%>
 
     <div class="awp-side-stuck" onmouseover="ShowDiv('ColorCodesDiv')" onmouseout="HideDiv('ColorCodesDiv')">
         <div class="glyph-btn bg-sg-blue fg-white shadow-metro-black">

@@ -169,6 +169,10 @@ namespace Serializers
             TT xmlObject = new TT();
             XmlSerializer xmlSerializer = new XmlSerializer(typeof(TT));
             StringReader stringReader = new StringReader(xml);
+            if (xml=="")
+            {
+                return new TT();
+            }
             xmlObject = (TT)xmlSerializer.Deserialize(stringReader);
             return xmlObject;
         }
@@ -191,6 +195,6 @@ namespace Serializers
     }
 
     public class m_MultiSerialiazable<T>: XmlSerializable<T>{}
-    public class XSerializer<T> : m_MultiSerialiazable<T> { }
+    public class Serializer<T> : m_MultiSerialiazable<T> { }
     
 }

@@ -19,7 +19,7 @@ namespace Web_App_Master
     }
 
     [Serializable]
-    public class WebAppHub : Serializers.XSerializer<WebAppHub>
+    public class WebAppHub : Serializers.Serializer<WebAppHub>
     {       
         public class Group
         {

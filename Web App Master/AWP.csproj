@@ -55,6 +55,15 @@
     <Reference Include="itextsharp, Version=5.5.12.0, Culture=neutral, PublicKeyToken=8354ae6d2174ddca, processorArchitecture=MSIL">
       <HintPath>..\packages\iTextSharp.5.5.12\lib\itextsharp.dll</HintPath>
     </Reference>
+    <Reference Include="Microsoft.AspNet.SignalR.Core, Version=2.4.1.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.AspNet.SignalR.Core.2.4.1\lib\net45\Microsoft.AspNet.SignalR.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.AspNet.SignalR.Owin, Version=1.2.2.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.AspNet.SignalR.Owin.1.2.2\lib\net45\Microsoft.AspNet.SignalR.Owin.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.AspNet.SignalR.SystemWeb, Version=2.4.1.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.AspNet.SignalR.SystemWeb.2.4.1\lib\net45\Microsoft.AspNet.SignalR.SystemWeb.dll</HintPath>
+    </Reference>
     <Reference Include="Microsoft.CodeDom.Providers.DotNetCompilerPlatform, Version=1.0.3.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <HintPath>..\packages\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.1.0.3\lib\net45\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.dll</HintPath>
     </Reference>
@@ -64,7 +73,10 @@
     </Reference>
     <Reference Include="ShippingAPI, Version=1.0.0.0, Culture=neutral, processorArchitecture=x86">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\..\..\Dropbox\Asset Managment\Asset Managment\bin\x86\Release\ShippingAPI.dll</HintPath>
+      <HintPath>..\..\UPS_API\UPS_API\bin\Release\ShippingAPI.dll</HintPath>
+    </Reference>
+    <Reference Include="ShippingAPI.XmlSerializers">
+      <HintPath>..\..\UPS_API\UPS_API\bin\Release\ShippingAPI.XmlSerializers.dll</HintPath>
     </Reference>
     <Reference Include="Syncfusion.EJ.Web, Version=15.4460.0.17, Culture=neutral, PublicKeyToken=3d67ed1f87d44c89, processorArchitecture=MSIL" />
     <Reference Include="System.ComponentModel.DataAnnotations" />
@@ -78,6 +90,7 @@
       <HintPath>..\packages\Microsoft.AspNet.WebApi.Client.5.2.3\lib\net45\System.Net.Http.Formatting.dll</HintPath>
     </Reference>
     <Reference Include="System.Drawing" />
+    <Reference Include="System.Security" />
     <Reference Include="System.Web" />
     <Reference Include="System.Web.Extensions" />
     <Reference Include="System.Web.Extensions.Design" />
@@ -1040,6 +1053,8 @@
     <Content Include="Scripts\jquery-ui.js" />
     <Content Include="Scripts\jquery.contextMenu.js" />
     <Content Include="Scripts\jquery.contextMenu.min.js" />
+    <Content Include="Scripts\jquery.signalR-2.4.1.js" />
+    <Content Include="Scripts\jquery.signalR-2.4.1.min.js" />
     <Content Include="Scripts\jquery.ui.position.js" />
     <Content Include="Scripts\jquery.ui.position.min.js" />
     <Content Include="Scripts\Map.js" />
@@ -1051,7 +1066,6 @@
     <Content Include="fonts\metro.woff" />
     <Content Include="fonts\metro.ttf" />
     <Content Include="fonts\metro.eot" />
-    <Content Include="Sync.aspx" />
     <Content Include="WebUserControl1.ascx" />
     <Content Include="Account\Certificates\1250x60x190 mm granite lineal - Planolith - 2013.pdf" />
     <Content Include="Account\Certificates\24x24x4 granite - precision granite - 2017.pdf" />
@@ -1511,14 +1525,15 @@
     <Compile Include="App_Start\Email.cs" />
     <Compile Include="App_Start\Extensions.cs" />
     <Compile Include="App_Start\Handlers.cs" />
-    <Compile Include="App_Start\Hubs.cs" />
     <Compile Include="App_Start\IdentityConfig.cs" />
+    <Compile Include="App_Start\MasterLog.cs" />
     <Compile Include="App_Start\NotificationSystem.cs" />
     <Compile Include="App_Start\Pdf.cs" />
     <Compile Include="App_Start\Printing.cs" />
     <Compile Include="App_Start\RouteConfig.cs" />
     <Compile Include="App_Start\SchedulingSystem.cs" />
     <Compile Include="App_Start\SerializeClasses.cs" />
+    <Compile Include="App_Start\SignalRHubs.cs" />
     <Compile Include="App_Start\SQLfunctions.cs" />
     <Compile Include="App_Start\Startup.Auth.cs" />
     <Compile Include="App_Start\Helpers.cs" />
@@ -1701,6 +1716,7 @@
     </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\BrowserModels.cs" />
+    <Compile Include="Models\DataModels.cs" />
     <Compile Include="Models\IdentityModels.cs" />
     <Compile Include="Pages\Customers.aspx.cs">
       <DependentUpon>Customers.aspx</DependentUpon>
@@ -1725,13 +1741,6 @@
       <DependentUpon>Site.Mobile.Master</DependentUpon>
     </Compile>
     <Compile Include="Startup.cs" />
-    <Compile Include="Sync.aspx.cs">
-      <DependentUpon>Sync.aspx</DependentUpon>
-      <SubType>ASPXCodeBehind</SubType>
-    </Compile>
-    <Compile Include="Sync.aspx.designer.cs">
-      <DependentUpon>Sync.aspx</DependentUpon>
-    </Compile>
     <Compile Include="ViewSwitcher.ascx.cs">
       <DependentUpon>ViewSwitcher.ascx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>

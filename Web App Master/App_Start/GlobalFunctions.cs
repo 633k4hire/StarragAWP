@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using System.Web;
 using System.Xml;
 using Web_App_Master.Account;
+using Web_App_Master.App_Start;
 
 namespace Web_App_Master
 {
@@ -20,7 +21,20 @@ namespace Web_App_Master
         {
             try
             {
-               return AssetController.UpdateAsset(asset);
+                var local = Global.AssetCache.Find((x) => x.AssetNumber == asset.AssetNumber);
+                if (local != null)
+                {
+                    local = asset.Clone() as Asset;
+                    var local2 = Global.AssetCache.Find((x) => x.AssetNumber == asset.AssetNumber);
+                    Global.AssetCache.Update(asset);
+                    return AssetController.UpdateAsset(asset);
+                }
+                else
+                {
+                    Global.AssetCache.Add(asset);
+                    return AssetController.AddNewAsset(asset);
+                }
+               
                 
             }
             catch { return false; }
@@ -68,7 +82,7 @@ namespace Web_App_Master
                     {
                         var cloud = req.Tag as List<Asset>;
                         //upload assets
-                        foreach (Asset a in Global.Library.Assets)
+                        foreach (Asset a in Global.AssetCache)
                         {
                             try
                             {
@@ -135,7 +149,7 @@ namespace Web_App_Master
             }
             catch { return false; }
         }
-        public static bool LibrarySettings()
+        public static bool AppSettings()
         {
             try
             {
@@ -161,7 +175,7 @@ namespace Web_App_Master
                 {
                     var cloud = req.Tag as List<Asset>;
                     //upload assets
-                    foreach (Asset a in Global.Library.Assets)
+                    foreach (Asset a in Global.AssetCache)
                     {
                         try
                         {
@@ -272,8 +286,34 @@ namespace Web_App_Master
             }
 
         }
+        public static bool CustomerData(CustomerData data,  string app_name = "AWP_CustomerData_System")
+        {
+            try
+            {
+                SettingsDBData db = new SettingsDBData();
+                db.Appname = data.Guid;
+                db.XmlData = data.SerializeToXmlString(data);
+                return AssetController.PushSetting(db);
+            }
+            catch
+            {
+                //Global.NoticeSystem.Notices = new Notification.NotificationSystem.NoticeBindinglist();
+                return false;
+            }
 
+        }
+        public static bool MasterLog(MasterLog log, string appname = "AWP_Master_Log")
+        {
+            try
+            {
+                return true;       
+            }
+            catch (Exception)
+            {
 
+                return false;
+            }
+        }
     }
     public class Pull
     {
@@ -296,7 +336,9 @@ namespace Web_App_Master
         {
             try
             {
-                return  AssetController.GetAsset(num);
+                var a = AssetController.GetAsset(num);
+                Global.AssetCache.ForEach((t)=> { if (t.AssetNumber == num) { t = a; } }) ;
+                return a;
             }
             catch { return null; }
         }
@@ -304,7 +346,9 @@ namespace Web_App_Master
         {
             try
             {
-                return AssetController.GetAllAssets().OrderBy(w => w.AssetNumber).ToList();
+                var a = AssetController.GetAllAssets().OrderBy(w => w.AssetNumber).ToList();
+                Global.AssetCache = a;
+                return a;
                
             }
             catch { return new List<Helpers.Asset>(); }
@@ -312,6 +356,7 @@ namespace Web_App_Master
         public static async Task<List<Asset>> AssetsAsync()
         {
             var a = await AssetController.GetAllAssetsAsync();
+                Global.AssetCache = a;
             return a;
         }
         public static SettingsDBData Setting(string guid)
@@ -339,7 +384,8 @@ namespace Web_App_Master
         {
             try
             {
-                Global.Library.Assets = AssetController.GetAllAssets();
+                var a = Global.AssetCache = AssetController.GetAllAssets();
+                Global.AssetCache = a;
                 return true;
             }
             catch { Global.Library = new DataStore(); return false; }
@@ -398,6 +444,33 @@ namespace Web_App_Master
         public static List<MenuAlert> Alerts()
         {            
             return HttpContext.Current.Session["Notifications"] as List<MenuAlert>;
+        }
+        public static CustomerData CustomerData(string CustomerDataGuid, string AppName = "AWP_CustomerData_System")
+        {
+            CustomerData cd = null;
+            try
+            {
+                var db = AssetController.GetSetting(CustomerDataGuid);
+                if (db == null)
+                {                    
+                    return cd;
+                }
+                cd = new CustomerData().DeserializeFromXmlString<CustomerData>(db.XmlData);
+            }
+            catch { return cd; }
+            return cd;
+        }
+        public static MasterLog MasterLog(string appname = "AWP_Master_Log")
+        {
+            //var set =Pull.Setting(appname);
+            //if (set==null)
+            //{
+            //    Push.MasterLog(Global._MasterLog);
+            //    return Global._MasterLog;
+            //}
+            //var ml = new MasterLog().DeserializeFromXmlString<MasterLog>(set.XmlData);
+            //return ml;
+            return null;
         }
     }
     public class Add
@@ -637,7 +710,7 @@ namespace Web_App_Master
             }
         }
 
-        public static void AddCookie(string name, string value, int expireAfter=3, bool secure = true, bool shareable=false)
+        public static void AddCookie(string name, string value, int expireAfter=3, bool secure = false, bool shareable=false)
         {
             HttpCookie cookie = new HttpCookie(name);
             cookie.Secure = secure;

@@ -51,7 +51,7 @@ namespace Data
         }
     }
     [Serializable]
-    public class UserData:Serializers.XSerializer<UserData>,ICloneable
+    public class UserData:Serializers.Serializer<UserData>,ICloneable
     {
         public UserData()
         {
@@ -87,7 +87,7 @@ namespace Data
        
     }
     [Serializable]
-    public class Attachment : Serializers.XSerializer<Attachment>, ICloneable
+    public class Attachment : Serializers.Serializer<Attachment>, ICloneable
     {
         public Attachment()
         {
@@ -112,7 +112,7 @@ namespace Data
 
     }
     [Serializable]
-    public class FileReference : Serializers.XSerializer<UserData>
+    public class FileReference : Serializers.Serializer<UserData>
     {
         public FileReference()
         {

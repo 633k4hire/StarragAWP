@@ -39,14 +39,7 @@ namespace Web_App_Master.Account
                 var user = manager.FindByName(Email.Text);
                 if (user != null)
                 {
-                    if (!user.EmailConfirmed)
-                    {
-                        FailureText.Text = "Invalid login attempt. You must have a confirmed email address. Enter your email and password, then press 'Resend Confirmation'.";
-                        ErrorMessage.Visible = true;
-                        ResendConfirm.Visible = true;
-                    }
-                    else
-                    {
+                   
                         // This doen't count login failures towards account lockout
                         // To enable password failures to trigger lockout, change to shouldLockout: true
                         var result = signinManager.PasswordSignIn(Email.Text, Password.Text, RememberMe.Checked, shouldLockout: false);
@@ -61,8 +54,9 @@ namespace Web_App_Master.Account
                                         manager.AddToRole(user.Id, "Users");
                                     }
                                 }
-                                Context.AddToLog("Logged in"+Email.Text+"::"+Password.Text);
-                                this.AddUserNotice("Session Started");
+                                //Context.AddToLog("Logged in"+Email.Text+"::"+Password.Text);
+                            Global.LogEntry(DateTime.Now.ToString() + " User:" + Page.User.Identity.Name + ": " +" User Logged In");
+                            this.AddUserNotice("Session Started");
                                 IdentityHelper.RedirectToReturnUrl(Request.QueryString["ReturnUrl"], Response);
                               //  Web_App_Master.Load.();
                                 break;
@@ -83,7 +77,7 @@ namespace Web_App_Master.Account
                                 break;
                         }
                     
-                    }
+                    
            
                 }
             }

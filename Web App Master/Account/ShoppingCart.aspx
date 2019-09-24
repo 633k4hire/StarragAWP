@@ -1,4 +1,4 @@
-﻿<%@ Page Title="Checkout" Language="C#" MasterPageFile="~/Site.Master" AutoEventWireup="true" CodeBehind="ShoppingCart.aspx.cs" Inherits="Web_App_Master.Account.ShoppingCart" %>
+﻿<%@ Page Title="Checkout" Language="C#" MasterPageFile="~/Site.Master" Debug="true" EnableViewStateMac="false" EnableEventValidation="false" ViewStateEncryptionMode="Never"  AutoEventWireup="true" CodeBehind="ShoppingCart.aspx.cs" Inherits="Web_App_Master.Account.ShoppingCart" %>
 <asp:Content ID="ShopCartContent" ContentPlaceHolderID="MainContent" runat="server">
     <div class="bg-shaded"></div>
      <nav class="navbar navbar-inverse bg-grayDark" style="margin-top:0px !important; height:auto; width:100%; left:0px!important; border-radius:0px!important; position:fixed !important; z-index:25000;">
@@ -37,7 +37,7 @@
                             <div class="awp_box_content bg-sg-box" style="text-align:left;" >   
                                 <h4 class="fg-white shadow-metro-black"> <%= Page.User.Identity.GetUserName() %></h4>
                                 <h4 class="fg-white shadow-metro-black">
-                                    <asp:Label Text="Email" CssClass="fg-white shadow-metro-black" runat="server" ID="AnonLabel" Visible="false"  />
+                                    <asp:Label Text="Your Email" CssClass="fg-white shadow-metro-black" runat="server" ID="AnonLabel" Visible="false"  />
                                     <asp:TextBox Visible="false" ID="AnonUserInput" CssClass="form-control" runat="server" />
                                 </h4>
                                 <hr />
@@ -75,7 +75,7 @@
                                                     <div class="row">
                                                         <asp:UpdatePanel runat="server" ID="OutCartUpdatePanel" ClientIDMode="Static" ChildrenAsTriggers="true" UpdateMode="Conditional">
                                                             <ContentTemplate>   
-                                                                <asp:Repeater runat="server" ID ="FinalCheckoutRepeater" ClientIDMode="Static" OnItemCommand="FinalCheckoutRepeater_ItemCommand" >                    
+                                                                <asp:Repeater runat="server"  EnableViewState="false" ID ="FinalCheckoutRepeater" ClientIDMode="Static" OnItemCommand="FinalCheckoutRepeater_ItemCommand" >                    
                                                                     <ItemTemplate>    
                                                                         <div  class="file " title='' draggable="true"  onclick="BarcodeScanned('<%# Eval("AssetNumber")%>', '<%# Eval("IsHistoryItem")%>','<%# Eval("DateShippedTicks")%>');">
                                                                                    <div id =" file-color " class="file-color <%# Eval("Color") %>" style="width:100%; height:100%;"></div>

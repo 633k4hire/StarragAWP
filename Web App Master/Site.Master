@@ -1,4 +1,4 @@
-﻿<%@ Master Language="C#" AutoEventWireup="true" CodeBehind="Site.master.cs" Inherits="Web_App_Master.SiteMaster" %>
+﻿<%@ Master Language="C#"  AutoEventWireup="true" CodeBehind="Site.master.cs" Inherits="Web_App_Master.SiteMaster" %>
 
 
 
@@ -20,8 +20,12 @@
     <script type="text/javascript" src='<%= ResolveClientUrl("Scripts/webapp.js") %>'></script>
     <link href="Content/fontawesome-all.css" rel="stylesheet" />
 
+    <%--SignalR--%>
+    <script src="/Scripts/jquery.signalR-2.3.0.min.js"></script>
+    <script src="/signalr/hubs"></script> 
+
 </head>
-    <body style="" onload="UpdateMenuItems()">
+    <body style="" onload="PollNavItems();">   <%-- onload="UpdateMenuItems()"--%>
 	    <form id="form1" runat="server" style="height:100%">
 <!--App-header -->
           <asp:ScriptManager ID="ScriptManager1" runat="server" AjaxFrameworkMode="Enabled" EnablePageMethods="true"> </asp:ScriptManager> 
@@ -60,10 +64,11 @@
                                     <ul class="nav navbar-nav starrag-menu">     
                                         <li  style="max-height:50px !important; margin-top:-10px !important;"><a onclick="ShowLoader()" runat="server" href="/Account/AssetView.aspx"><img src="/Images/starrag-40.png" /></a></li>
 <%--                                        <li><asp:LinkButton ID="ViewChangerBtn" Text="TEST" runat="server" OnClick="ViewChangeBtn_Click" /></li>--%>
-<%--                                        <li ><span class="fg-blue av-hand-cursor" style="vertical-align:middle" onclick=";"> ToggleDropDown('');</span></li>--%>
+<%--                                        <li ><span class="fg-blue av-hand-cursor" style="vertical-align:middle" onclick="ShowBottomDialog('Hello World');"> Test Bottom Dialog</span></li>--%>
                                     </ul>
                                      <%-- right items--%>
-                                    <ul class="nav navbar-nav starrag-menu navbar-right ">                          
+                                    <ul class="nav navbar-nav starrag-menu navbar-right ">   
+                                     
 <%--CHECKOUT--%>
                                         <li class="dropdown" style="z-index:99999;" >
                                             <a id="CheckoutDropDown" class="dropdown-toggle fg-hover-starrag" data-toggle="dropdown" href="#" onclick="Quiet('CheckInIcon')"><i id="CheckOutIcon" class="fa fa-shopping-cart"> &nbsp; Shopping Cart</i></span>
@@ -114,9 +119,9 @@
                                      <%-- right items--%>
                                     <ul class="nav navbar-nav starrag-menu navbar-right ">
 <%--MAP--%>                                   
-                                        <li class="fg-hover-starrag">
+                                       <%-- <li class="fg-hover-starrag">
                                             <a href="/Map.aspx" ><i class="glyphicon glyphicon-map-marker"></i></a>
-                                        </li>
+                                        </li>--%>
 <%--CHECKOUT--%>
                                         <li class="dropdown" style="z-index:99999;" >
                                             <a id="CheckinDropDown" class="dropdown-toggle fg-hover-starrag" data-toggle="dropdown" href="#" onclick="Quiet('CheckInIcon')"><i id="CheckInIcon" class="glyphicon glyphicon-cloud-upload"></i>
@@ -176,7 +181,7 @@
                                     </ul>      
                                 </ContentTemplate>
                             </asp:RoleGroup>
-                             <asp:RoleGroup Roles="Users,Customers,NoRole">
+                             <asp:RoleGroup Roles="NoRole,Customers,Users">
                                                                   <ContentTemplate>
                                     <%--left items--%>
                                     <ul class="nav navbar-nav starrag-menu">     
@@ -241,7 +246,8 @@
                             <div style="z-index:99999 !important;">
                             <asp:MultiView ID="MainContentMultiView" ActiveViewIndex="0" runat="server">
                                 <asp:View ID="MainView" runat="server">--%>
-                                    <div class="bg" id="BackgoundDiv"><div class="bg-starrag" style="width:100%; z-index:2; height:3px;"></div></div> 
+                                    <%--<div class="bg" id="BackgoundDiv"><div class="bg-starrag" style="width:100%; z-index:2; height:3px;"></div></div> --%>
+                                    <div class="image-wrap" id="BackgoundDiv"><img src="/Images/starrag_group_rorschacherberg.jpg" /> </div>
                                     <asp:ContentPlaceHolder ID="MainContent" runat="server" Visible="true">
                                     </asp:ContentPlaceHolder>  
   <%--                              </asp:View>
@@ -285,10 +291,10 @@
                 </nav>
                   </div>
                 <div id="asset-modal-new-content" class=" bg-sg-box ">
-                    <span id="AssetTab" class="tablink bg-sg-title " style="text-align:center; text-decoration:none" ><asp:LinkButton ID="AssetTabBtn" runat="server" OnClick="AssetTabBtn_Click"  ><span class="fg-white fa-bold" style="text-decoration:none">Asset</span></asp:LinkButton></span>
-                    <span id="ReportTab" class="tablink bg-sg-title" style="text-align:center; text-decoration:none" ><asp:LinkButton ID="ReportTabBtn" runat="server" OnClick="ReportTabBtn_Click" ><span class="fg-white fa-bold" style="text-decoration:none">Documents</span></asp:LinkButton></span>
+                    <span id="AssetTab" class="tablink bg-sg-title " style="text-align:center; text-decoration:none" ><asp:LinkButton ID="AssetTabBtn" runat="server" OnClick="AssetTabBtn_Click"  ><span class="fg-white bold" style="text-decoration:none">Asset</span></asp:LinkButton></span>
+                    <span id="ReportTab" class="tablink bg-sg-title" style="text-align:center; text-decoration:none" ><asp:LinkButton ID="ReportTabBtn" runat="server" OnClick="ReportTabBtn_Click" ><span class="fg-white bold" style="text-decoration:none">Documents</span></asp:LinkButton></span>
 <%--                    <span id="CalibrationTab" class="tablink bg-sg-title" style="text-align:center; text-decoration:none" ><asp:LinkButton ID="CalibrationTabBtn" runat="server" OnClick="CalibrationTabBtn_Click" ><span class="fg-white fa-bold" style="text-decoration:none">Calibration</span></asp:LinkButton></span>--%>
-                    <span id="HistoryTab" class="tablink bg-sg-title " style="text-align:center; text-decoration:none" ><asp:LinkButton ID="HistoryTabBtn" runat="server" OnClick="HistoryTabBtn_Click" ><span class="fg-white fa-bold" style="text-decoration:none">History</span></asp:LinkButton></span>
+                    <span id="HistoryTab" class="tablink bg-sg-title " style="text-align:center; text-decoration:none" ><asp:LinkButton ID="HistoryTabBtn" runat="server" OnClick="HistoryTabBtn_Click" ><span class="fg-white bold" style="text-decoration:none">History</span></asp:LinkButton></span>
                     <div style="margin-top:15px;"></div>
                     <asp:UpdatePanel ID="AssetModalUpdatePanel" EnableViewState="true" UpdateMode="Conditional" runat="server" ChildrenAsTriggers="true">
                         <ContentTemplate>
@@ -337,6 +343,7 @@
                                                 <asp:RoleGroup Roles="Admins,superadmin">
                                                     <ContentTemplate>
                                                         <span class="awp-save-btn bg-red fg-white shadow" "><asp:LinkButton runat="server" ID="AssetSaveBtn" OnClick="AssetSaveBtn_Click"><i title="Save" style="font-size:1em;" class=" fg-white glyphicon glyphicon-floppy-disk av-hand-cursor"></i></asp:LinkButton></span>
+                                                        <span style="right:75px" class="awp-save-btn bg-blue fg-white shadow" "><asp:LinkButton runat="server" ID="AssetImgUploadBtn" OnClientClick="ShowDiv('UploadAssetImage');" ><i title="Upload" style="font-size:1em;" class=" fg-white glyphicon glyphicon-upload av-hand-cursor"></i></asp:LinkButton></span>
                                                     </ContentTemplate>
                                                 </asp:RoleGroup>
                                             </RoleGroups>
@@ -407,6 +414,17 @@
                                                             <asp:CheckBox ID="av_OnHold" runat="server" /></div>
                                                     </div>
                                                     
+                                                </div>
+                                                <div class="row fg-white">
+                                                    <div class="col-md-6">
+                                                        <span style="font-weight:bold;">Asset Value</span>
+                                                        <div class=""><input style="font-weight:bold;" runat="server" id="av_AssetValue" type="text" class="form-control" placeholder="Asset Value" /></div>
+                                                    </div>
+                                                    <div class="col-md-6">
+                                                        <span style="font-weight:bold;">Dimension</span>
+                                                        <div class=""><input style="font-weight:bold;" runat="server" id="av_Dimension" type="text" class="form-control" placeholder="Dimension (Height Width Depth)(HxWxD)" /></div>
+                                                    </div>
+
                                                 </div>
                                             </LoggedInTemplate>
                                             <AnonymousTemplate>
@@ -623,22 +641,30 @@
 <!--End Asset View -->
 
 <!--Message Charm-->
-        <div runat="server" id="ErrorBox" class=" transition-bottom" visible="false">
-       <span class="modal-closer fg-white shadow-metro-black" onclick="HideDiv('ErrorBox');">X</span>
-            <div id="error-box-label"><span class="mif-warning mif-2x fg-white shadow-metro-black"></span>
-            <asp:Label Text="" ID="ErrorLabel" ClientIDMode="Static" CssClass="fg-white shadow-metro-black" runat="server" />
-            </div>          
-            <div id="error-box-content">
-                <asp:Label ID="ErrorMessage" ClientIDMode="Static" CssClass="fg-white shadow-metro-black" runat="server" />
-            </div>
-        </div>
+            <asp:UpdatePanel ID ="ErrorModalUpdatePanel" UpdateMode="Conditional" runat="server">
+                <ContentTemplate>
+                    <div runat="server" id="ErrorBox" class=" transition-bottom" style="z-index:99999;" visible="false">
+                        <span class="modal-closer fg-white shadow-metro-black" onclick="HideDiv('ErrorBox');">X</span>
+                        <div id="error-box-label"><span class="mif-warning mif-2x fg-white shadow-metro-black"></span>
+                        <asp:Label Text="" ID="ErrorLabel" ClientIDMode="Static" CssClass="fg-white shadow-metro-black" runat="server" />
+                        </div>          
+                        <div id="error-box-content">
+                            <asp:Label ID="ErrorMessage" ClientIDMode="Static" CssClass="fg-white shadow-metro-black" runat="server" />
+                        </div>
+                    </div>  
+                </ContentTemplate>
+            </asp:UpdatePanel>
+        
 <!--End Message Charm-->
 <!--Super Button & SuperFields-->         
             <div id="IsAvUp" style="display:none">false</div>
             <asp:TextBox runat="server" ID ="CurrentAssetNumber" ClientIDMode="Static" style="display:none"></asp:TextBox>
-            
+            <asp:Button ID="MasterSuperBtn" runat="server" Text="CLICK ME" OnClick="MasterSuperBtn_Click" style="display:none" ClientIDMode="Static"/>
+            <asp:TextBox runat="server" ID ="AppArgument" ClientIDMode="Static" style="display:none"></asp:TextBox>
+            <asp:TextBox runat="server" ID ="AppCommand" ClientIDMode="Static" style="display:none"></asp:TextBox>
+            <asp:TextBox runat="server" ID ="AppArgument2" ClientIDMode="Static" style="display:none"></asp:TextBox>
             <asp:Button ID="HistoryBinderBtn" runat="server" Text="CLICK ME" OnClick="HistoryBinderBtn_Click" style="display:none" ClientIDMode="Static"/>
-           <asp:Button ID="CalibrationBinderBtn" runat="server" Text="CLICK ME" OnClick="CalibrationBinderBtn_Click" style="display:none" ClientIDMode="Static"/>
+            <asp:Button ID="CalibrationBinderBtn" runat="server" Text="CLICK ME" OnClick="CalibrationBinderBtn_Click" style="display:none" ClientIDMode="Static"/>
             <asp:Button ID="ViewChangeBtn" runat="server" Text="" OnClick="ViewChangeBtn_Click" style="display:none" ClientIDMode="Static"/>
             <asp:Button ID="button33" runat="server" Text="CLICK ME" OnClick="button33_Click" style="display:none" ClientIDMode="Static"/>
             <asp:Button ID="UpdateAllCarts" runat="server" Text="UpdateAllCarts" OnClick= "UpdateAllCarts_Click" style="display:none" ClientIDMode="Static"/>   
@@ -682,7 +708,9 @@
                     </div>      
                  </div>
              </div>
-
+            <div id="BottomMsgDialog" class="bottom-msg bg-starrag fg-white shadow-metro-black">
+                
+            </div>
 <!--End Dialogs-->
 <!--Loader-->
             <div id="FullScreenLoader" class="awp-outer-loader" style="display:none" >
@@ -706,6 +734,8 @@
          <a class="transaction-notice" href="/Account/OutCart.aspx?pend=%%TID%%">%%TEXT%%</a> 
       </div>
     </script>
+
+<script src="/Scripts/SignalR/SignalRHubFunctions.js"></script>
 
 </body>
 

@@ -41,7 +41,15 @@
         </div>
     </div>
      <div class="col-md-9">
-
+        <div runat="server" id="CErrorBox" class=" transition-bottom bg-starrag rounded" style="z-index:99999;" visible="false">
+                       
+                        <div id="Cerror-box-label"><span class="mif-warning mif-2x fg-white shadow-metro-black"></span>
+                        <asp:Label Text="" ID="CErrorLabel" ClientIDMode="Static" CssClass="fg-white shadow-metro-black" runat="server" />
+                        </div>          
+                        <div id="error-box-content">
+                            <asp:Label ID="CErrorMessage" ClientIDMode="Static" CssClass="fg-white shadow-metro-black" runat="server" />
+                        </div>
+                    </div>  
         <div class="awp_box rounded bg-sg-title shadow">
       
             <div class="awp_box_title bg-sg-title">
@@ -70,7 +78,7 @@
                     <asp:RequiredFieldValidator runat="server" ControlToValidate="Weight" CssClass="text-danger" ErrorMessage="This field is required." />    
 
                </div>
-                <div class="col-md-9">
+                <div class="col-md-9 " style="display:none">
                     <div class="row">
                         <div class="col-md-2" style="text-align:center">
                         <span style="font-weight:bold;" >Calibrated</span>
@@ -91,7 +99,7 @@
                 </div>
                 <div class="row bg-sg-box fg-white ">
                     <div class="col-md-12">
-                         <span style="font-weight:bold;" ><strong>Asset Name</strong></span>
+                         <span style="font-weight:bold;" ><strong>Description</strong></span>
                          <asp:TextBox Height="150px" runat="server" ID="DescriptionText" CssClass="form-control" TextMode="MultiLine" />
                     </div>
                 </div> 

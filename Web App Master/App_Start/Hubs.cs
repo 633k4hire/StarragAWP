@@ -20,7 +20,7 @@ namespace Hub
         public object Data { get; set; }
     }
     [Serializable]
-    public class Hub: Serializers.XSerializer<Hub>
+    public class Hub: Serializers.Serializer<Hub>
     {
 
         public event EventHandler<UpdateRequestEvent> OnDataOut;

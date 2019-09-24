@@ -10,7 +10,7 @@ namespace Schedule
 {
     [Serializable]
     [XmlRoot]
-    public class ScheduleSystem : Serializers.XSerializer<NotificationLibrary>
+    public class ScheduleSystem : Serializers.Serializer<NotificationLibrary>
     {
         public string m_guid = new System.Guid().ToString();
         public string Guid { get { return m_guid; } set { m_guid = value; } }
@@ -141,7 +141,7 @@ namespace Schedule
             }
         }
         [Serializable]
-        public class Task : Serializers.XSerializer<Task>
+        public class Task : Serializers.Serializer<Task>
         {
             public TaskActionDelegate NoticeAction = DefaultAction;
             /// <summary>

@@ -10,7 +10,7 @@ using Web_App_Master;
 namespace Sync
 {
     [Serializable]
-    public class SyncUpdate:Serializers.XSerializer<SyncUpdate>
+    public class SyncUpdate:Serializers.Serializer<SyncUpdate>
     {
         public static SyncUpdate Load(string xml)
         {

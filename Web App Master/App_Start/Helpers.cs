@@ -1,5 +1,4 @@
-﻿using iTextSharp.text.pdf;
-using Microsoft.AspNet.Identity.EntityFramework;
+﻿using Microsoft.AspNet.Identity.EntityFramework;
 using Microsoft.AspNet.Identity.Owin;
 using ShippingAPI;
 using System;
@@ -7,21 +6,17 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
 using System.Linq;
-using System.Net;
 using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
-using System.Text.RegularExpressions;
 using System.Web;
-using System.Web.UI;
 using System.Web.UI.WebControls;
 using System.Xml;
 using System.Xml.Serialization;
 using Web_App_Master;
 using Web_App_Master.Models;
-using static iTextSharp.text.pdf.AcroFields;
 
 namespace Helpers
-{        
+{
 
     public class CustomerBindinglist : BindingList<Customer>
     {
@@ -155,7 +150,7 @@ namespace Helpers
     }
   
     
-    public class CheckOutData
+    public class CheckOutData: ICloneable
     {
         public UPScode ParseUpsCodeString(string code)
         {
@@ -167,6 +162,12 @@ namespace Helpers
             }
             catch { return  UPScode.Ground; }
         }
+
+        public object Clone()
+        {
+            return MemberwiseClone();
+        }
+
         public Address From = new Address();
         public Address To = new Address();
         public Address Shipper = new Address();
@@ -179,7 +180,7 @@ namespace Helpers
         public List<Asset> CheckOutItems;
     }    
     [Serializable]
-    public class SqlSetting: Serializers.XSerializer<SqlSetting>
+    public class SqlSetting: Serializers.Serializer<SqlSetting>
     {        
         public SqlSetting()
         {
@@ -199,7 +200,7 @@ namespace Helpers
         public string Guid { get; set; }
     }
     [Serializable]
-    public class MenuAlert : Serializers.XSerializer<MenuAlert>
+    public class MenuAlert : Serializers.Serializer<MenuAlert>
     {
         public MenuAlert()
         {
@@ -260,7 +261,7 @@ namespace Helpers
        
     }
     [Serializable]
-    public class SettingsDBData:Serializers.XSerializer<SettingsDBData>
+    public class SettingsDBData:Serializers.Serializer<SettingsDBData>
     {
         public SettingsDBData()
         {
@@ -280,7 +281,7 @@ namespace Helpers
         public string XmlData5 { get; set; }
     }
     [Serializable]//xml
-    public class CalibrationLibrary : Serializers.XSerializer<CalibrationLibrary>
+    public class CalibrationLibrary : Serializers.Serializer<CalibrationLibrary>
     {
         [XmlElement("Calibrations")]
         public List<CalibrationData> Calibrations = new List<CalibrationData>();
@@ -290,7 +291,7 @@ namespace Helpers
     }
 
     [Serializable]//xml
-    public class CalibrationData : Serializers.XSerializer<CalibrationData>, ICloneable
+    public class CalibrationData : Serializers.Serializer<CalibrationData>, ICloneable
     {
         public object Clone()
         {
@@ -417,7 +418,7 @@ namespace Helpers
     }
 
     [Serializable]//xml
-    public class UPSaccount:Serializers.XSerializer<UPSaccount>
+    public class UPSaccount:Serializers.Serializer<UPSaccount>
     {
         public void Write(string path)
         {
@@ -458,7 +459,7 @@ namespace Helpers
     }    
 
     [Serializable]//xml
-    public class Email:Serializers.XSerializer<Email>
+    public class Email:Serializers.Serializer<Email>
     {
         [XmlElement("Address")]
         public EmailAddress Address;
@@ -473,7 +474,7 @@ namespace Helpers
     }
 
     [Serializable]//xml
-    public class EmailAddress:Serializers.XSerializer<EmailAddress>
+    public class EmailAddress:Serializers.Serializer<EmailAddress>
     {
         public static EmailAddress Create(string email)
         {
@@ -510,10 +511,11 @@ namespace Helpers
     }
 
     [Serializable]//xml
-    public class Customer:Serializers.XSerializer<Customer>
+    public class Customer:Serializers.Serializer<Customer>
     {
         public Customer()
         {
+            DataGuid = "";
            CompanyName = "";
             Attn = "";
         Address = "";
@@ -599,12 +601,15 @@ namespace Helpers
         public string OrderNumber { get; set; }
         [XmlElement("CurrentAssignedAssets")]
         public List<string> CurrentAssignedAssets { get; set; }
+        [XmlElement("DataGuid")]
+        public string DataGuid { get; set; }
         [XmlIgnore]
         public object Tag { get; set; }
+       
     }
 
     [Serializable]//xml
-    public class Engineer:Serializers.XSerializer<Engineer>
+    public class Engineer:Serializers.Serializer<Engineer>
     {
         public Engineer()
         { }
@@ -630,7 +635,7 @@ namespace Helpers
     }
 
     [Serializable]//xml
-    public class NotificationLibrary:Serializers.XSerializer<NotificationLibrary>
+    public class NotificationLibrary:Serializers.Serializer<NotificationLibrary>
     {
         public NotificationLibrary()
         {
@@ -643,7 +648,7 @@ namespace Helpers
     }
 
     [Serializable]//xml
-    public class Backup:Serializers.XSerializer<Backup>
+    public class Backup:Serializers.Serializer<Backup>
     {
         public Backup()
         {
@@ -657,7 +662,7 @@ namespace Helpers
     }
 
     [Serializable]//xml
-    public class AssetNotification:Serializers.XSerializer<AssetNotification>
+    public class AssetNotification:Serializers.Serializer<AssetNotification>
     {
         public static AssetNotification Create(string assetNumber, List<EmailAddress> emails, bool isNotified = false)
         {
@@ -706,7 +711,7 @@ namespace Helpers
 
 
     [Serializable]//xml
-    public class Settings: Serializers.XSerializer<Settings>, ICloneable
+    public class Settings: Serializers.Serializer<Settings>, ICloneable
     {
         public static Settings GetInstance()
         {
@@ -783,7 +788,7 @@ namespace Helpers
         [XmlElement]
         public string SenderEmail = "provider.service.secure@gmail.com";
         [XmlElement]
-        public string SenderPassword = "@Service1";
+        public string SenderPassword = "@Service2";
         [XmlElement]
         public string SenderHost = "smtp.gmail.com";
         [XmlElement]
@@ -795,11 +800,13 @@ namespace Helpers
                 Kind Regards,<NL><NL>
                 Support Team
                 ";
+        [XmlElement]
+        public List<string> AssetNumbers = new List<string>();
 
     }
 
     [Serializable]//xml
-    public class Asset : Serializers.XSerializer<Asset>
+    public class Asset : Serializers.Serializer<Asset>
     {
         public Asset Deserialize(string xml)
         {
@@ -833,7 +840,7 @@ namespace Helpers
             History = new AssetHistory();
             AssetNumber = "0000";
             OrderNumber = "0";
-            AssetName = PackingSlip =UpsLabel = ReturnReport  = ShipTo = ServiceEngineer= PersonShipping=  Barcode = Description= BarcodeImage= CalibrationCompany= CalibrationPeriod=   "";
+            AssetName = PackingSlip =UpsLabel = ReturnReport  = ShipTo = ServiceEngineer= PersonShipping=  AssetValue = Description= BarcodeImage= CalibrationCompany= CalibrationPeriod=   "";
             IsOut = IsDamaged = OnHold = false;
             CalibrationHistory = new CalibrationLibrary();
             Documents = new List<string>();
@@ -878,7 +885,7 @@ namespace Helpers
         [XmlElement]
         public string PersonShipping { get; set; }
         [XmlElement]
-        public string Barcode { get; set; }
+        public string AssetValue { get; set; }
         [XmlElement]
         public string AssetNumber { get; set; }// "0000";
         [XmlElement]
@@ -928,11 +935,26 @@ namespace Helpers
         }
         [XmlElement]
         public List<string> Documents { get; set; }
+        [XmlIgnore]
+        public List<string> ImageList {
+            get
+            {
+                return Images.Split(new string[] { "," }, StringSplitOptions.RemoveEmptyEntries).ToList();
+            }
+            set
+            {
+                Images = "";
+                foreach (var img in value)
+                {
+                    Images += img + ",";
+                }
+            }
+        }
 
     }
 
     [Serializable]
-    public class AssetHistory:Serializers.XSerializer<AssetHistory>
+    public class AssetHistory:Serializers.Serializer<AssetHistory>
     {
         public AssetHistory Deserialize(string xml)
         {
@@ -950,7 +972,7 @@ namespace Helpers
        public List<Asset> History { get; set; }
     }
     [Serializable]//xml
-    public class DataStore:Serializers.XSerializer<DataStore>, ICloneable
+    public class DataStore:Serializers.Serializer<DataStore>, ICloneable
     {
         [XmlElement]
         public Settings Settings = new Settings();
@@ -1020,8 +1042,8 @@ namespace Helpers
         }
 
     }  
-  [Serializable]    
-    public class PendingTransaction : Serializers.XSerializer<PendingTransaction>
+    [Serializable]    
+    public class PendingTransaction : Serializers.Serializer<PendingTransaction>
     {
         public static PendingTransaction Create()
         {
@@ -1089,4 +1111,119 @@ namespace Helpers
         public object Tag { get; set; }       
 
     }
+    [Serializable]    
+    public class CustomerData : Serializers.Serializer<CustomerData>
+    {
+        public static CustomerData Create()
+        {
+            CustomerData n = new CustomerData();
+            
+            return n;
+        }
+
+        public CustomerData()
+        {
+            Guid = System.Guid.NewGuid().ToString();
+            Data = HttpContext.Current.User.Identity.Name;
+            var list = from a in Global.Library.Settings.ServiceEngineers where a.Email == HttpContext.Current.User.Identity.Name select a;
+            OrderNumbers = new List<string>();
+            Comment = "";
+            Customer = new Customer();
+            Assets = new List<string>();
+            Documents = new List<string>();
+            Date = DateTime.Now;
+        }
+
+        public CustomerData( List<Asset> assets)
+        {
+            Guid = System.Guid.NewGuid().ToString();
+            Documents = new List<string>();
+            Comment = "";
+            Data = HttpContext.Current.User.Identity.Name;
+            Customer = new Customer();
+            this.Assets = (from a in assets select a.AssetNumber).ToList();
+            Date = DateTime.Now;
+            OrderNumbers = new List<string>();
+        }
+        
+        [XmlElement]
+        public DateTime Date { get; set; }
+
+        [XmlElement]
+        public List<string> Assets = new List<string>();
+
+        [XmlElement]
+        public string Data { get; set; }
+
+        [XmlElement]
+        public string Guid { get; set; }
+
+        [XmlElement]
+        public List<string> Documents { get; set; }
+
+        [XmlElement]
+        public string Comment { get; set; }      
+
+        [XmlElement]
+        public Customer Customer { get; set; }
+
+        [XmlElement]
+        public List<AssetKit> AssetKitHistory { get; set; }
+
+        [XmlElement]
+        public List<string> OrderNumbers { get; set; }
+
+        [XmlIgnore]
+        public object Tag { get; set; }       
+    }
+    [Serializable]
+    public class AssetKit : Serializers.Serializer<AssetKit>
+    {
+        public AssetKit()
+        {
+            Guid = System.Guid.NewGuid().ToString();
+            CustomerDataGuid = "";
+            Assets = new List<string>();
+        }
+
+        [XmlElement]
+        public string Guid { get; set; }
+       
+        [XmlElement]
+        public List<string> Assets { get; set; }
+
+        [XmlElement]
+        public string CustomerDataGuid { get; set; }
+
+        [XmlIgnore]
+        public string AssetsString { get
+            {
+                string ret = "";
+                Assets.ForEach((asset) => { ret += asset + ","; });
+                return ret;
+            }
+        }
+
+    }
+
+    [Serializable]
+    public class PollItems : Serializers.Serializer<PollItems>
+    {
+        public PollItems()
+        {
+            Guid = System.Guid.NewGuid().ToString();      
+        }
+
+        [XmlElement]
+        public string Guid { get; set; }
+
+        [XmlElement]
+        public List<Asset> InOutItems { get; set; }
+        [XmlElement]
+        public List<PendingTransaction> Transactions { get; set; }
+        [XmlElement]
+        public List<MenuAlert> Notices { get; set; }
+
+    }
+
 }

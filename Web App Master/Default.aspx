@@ -1,4 +1,4 @@
-﻿<%@ Page Title="Starrag" Language="C#" MasterPageFile="~/Site.Master" AutoEventWireup="true" CodeBehind="Default.aspx.cs" Inherits="Web_App_Master._Default" %>
+﻿<%@ Page Title="Starrag" Language="C#" MasterPageFile="~/Site.Master" Async="true" AutoEventWireup="true" CodeBehind="Default.aspx.cs" Inherits="Web_App_Master._Default" %>
 
 
 

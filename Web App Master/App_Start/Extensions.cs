@@ -19,13 +19,139 @@ using System.Xml.Serialization;
 using Web_App_Master;
 using Web_App_Master.Models;
 using Microsoft.AspNet.Identity;
-using Microsoft.AspNet.Identity.Owin;
-
+using static Web_App_Master.Models.Data_Models;
+using Microsoft.AspNet.SignalR;
+using static Web_App_Master.App_Start.SignalRHubs;
+using Microsoft.AspNet.SignalR.Hubs;
+using System.Drawing;
 
 namespace Helpers
 {
     public static class Extensions
     {
+        //images
+        public static System.Drawing.Image Resize(this System.Drawing.Image img, int width, int height)
+        {
+            System.Drawing.Image _img = new Bitmap(width, height);
+            try
+            {
+                Graphics graphics = Graphics.FromImage(_img);
+
+                graphics.DrawImage(img, 0, 0, width, height);
+
+                graphics.CompositingQuality = System.Drawing.Drawing2D.CompositingQuality.HighSpeed;
+
+                graphics.Dispose();
+
+                img.Dispose();
+            }
+            catch { }
+
+            return _img;
+        }
+
+        public static byte[] ToArray(this System.Drawing.Image img, System.Drawing.Imaging.ImageFormat format = null)
+        {
+            byte[] byteArray = new byte[0];
+            using (MemoryStream stream = new MemoryStream())
+            {
+                if (format != null)
+                {
+                    img.Save(stream, format);
+                }
+                else
+                {
+                    img.Save(stream, System.Drawing.Imaging.ImageFormat.Png);
+                }
+                stream.Close();
+                byteArray = stream.ToArray();
+            }
+            return byteArray;
+        }
+
+        public static System.Drawing.Image FromArray(this byte[] bytes)
+        {
+            System.Drawing.Image image = null;
+            try
+            {
+
+                using (MemoryStream ms = new MemoryStream(bytes))
+                {
+                    image = System.Drawing.Image.FromStream(ms);
+                }
+                return image;
+            }
+            catch
+            {
+                return image;
+            }
+        }
+
+        public static System.Drawing.Image FromArray(this string base64)
+        {
+            System.Drawing.Image image = null;
+            try
+            {
+
+                using (MemoryStream ms = new MemoryStream(Convert.FromBase64String(base64)))
+                {
+                    image = System.Drawing.Image.FromStream(ms);
+                }
+                return image;
+            }
+            catch
+            {
+                return image;
+            }
+        }
+        //end images
+
+        public static ClientData FindById(this HashSet<ClientData> data, string id)
+        {
+            return (from c in ClientHandler.ClientDatas where c.Id == id select c).FirstOrDefault();
+
+        }
+
+        public static string ClientIP(this Page page)
+        {
+            return HttpContext.Current.Request.UserHostAddress;
+        }
+
+
+        public static IHubContext HubContext<T>(this UserControl control) where T : IHub
+        {
+            return GlobalHost.ConnectionManager.GetHubContext<T>();
+        }
+
+        public static IHubContext HubContext<T>(this Page page) where T : IHub
+        {
+            return GlobalHost.ConnectionManager.GetHubContext<T>();
+        }
+
+
+        public static IEnumerable<TSource> DistinctBy<TSource, TKey>(this IEnumerable<TSource> source,Func<TSource, TKey> keySelector)
+        {
+            var knownKeys = new HashSet<TKey>();
+            return source.Where(element => knownKeys.Add(keySelector(element)));
+        }
+        public static List<Asset> Update(this List<Asset> source, Asset asset, bool push=false)
+        {
+            try
+            {
+                source.ForEach((aa) =>
+                {
+                    if (aa.AssetNumber == asset.AssetNumber)
+                    {
+                        aa = asset;
+                        if (push)
+                            Push.Asset(asset);
+                    }
+                });
+            }
+            catch { }
+            return source;
+        }
+
         public static bool IsAdmin(this HttpContext context)
         {
             if (context.User.IsInRole("Admins") || context.User.IsInRole("superadmin"))
@@ -170,7 +296,7 @@ namespace Helpers
             }
 
 
-            Global.Library.Assets = new List<Asset>();
+            Global.AssetCache = new List<Asset>();
 
             XmlNodeList elemList = doc.GetElementsByTagName("Asset");
             foreach (XmlElement asset in elemList)
@@ -270,11 +396,11 @@ namespace Helpers
                 }
                 catch { }
 
-                Global.Library.Assets.Add(a);
+                Global.AssetCache.Add(a);
 
             }
 
-            return Global.Library.Assets;
+            return Global.AssetCache;
         }
         public static bool CheckForInternetConnection()
         {
@@ -572,6 +698,19 @@ namespace Helpers
         public static string Map(this string input)
         {
             return HttpContext.Current.Server.MapPath(input);
+        }
+        /// <summary>
+        /// Split string using string instead of Character
+        /// </summary>
+        /// <param name="input"></param>
+        /// <param name="splitString"> Deliminator Value</param>
+        /// <returns></returns>
+        public static string[] StringSplit(this string input, string deliminator, bool removeBlanks=true)
+        {
+            if (removeBlanks)
+                return input.Split(new string[] {deliminator }, StringSplitOptions.RemoveEmptyEntries);
+            else
+                return input.Split(new string[] { deliminator }, StringSplitOptions.None);
         }
     }
 

@@ -14,7 +14,7 @@ namespace Notification
     [XmlInclude(typeof(EmailNotice))]
     [Serializable]
     [XmlRoot]
-    public class NotificationSystem:Serializers.XSerializer<NotificationSystem>, ICloneable
+    public class NotificationSystem:Serializers.Serializer<NotificationSystem>, ICloneable
     {
         [XmlElement]
         public string m_guid = new System.Guid().ToString();
@@ -189,7 +189,7 @@ namespace Notification
             }
         }    
         [Serializable]
-        public class Notice:Serializers.XSerializer<Notice>
+        public class Notice:Serializers.Serializer<Notice>
         {
             [XmlIgnore]
             public NoticeActionDelegate NoticeAction = DefaultAction;

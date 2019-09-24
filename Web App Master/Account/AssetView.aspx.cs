@@ -15,12 +15,35 @@ namespace Web_App_Master.Account
 {
     public partial class AssetView : System.Web.UI.Page
     {
+
+        public async Task RefreshAsync()
+        {
+            var currentview = Session["CurrentAvView"] as string;
+            var assetCache = await Pull.AssetsAsync();
+            
+            Global.AssetCache = assetCache.OrderBy(w => w.AssetNumber).ToList();
+            var list = Global.AssetCache as List<Asset>;
+            if (Page.User.IsInRole("Admins")|| Page.User.IsInRole("superadmin"))
+            {
+                UpdateView(currentview, list.ToList().OrderBy(w => w.AssetNumber));
+            }
+            else
+            {
+                //var inonly = from a in list where a.IsOut == false select a;
+                //UpdateView(currentview, inonly.ToList().OrderBy(w => w.AssetNumber));
+                UpdateView(currentview, list.ToList().OrderBy(w => w.AssetNumber));
+
+            }
+
+
+
+        }
         public async Task UpdateAsync()
         {
             var currentview = Session["CurrentAvView"] as string;
-            var x = await Web_App_Master.Pull.AssetsAsync();
-            Session["SessionAssets"] = x.OrderBy(w => w.AssetNumber).ToList();
-            var list = Session["SessionAssets"] as List<Asset>;
+            var assetCache = Global.AssetCache;
+            Global.AssetCache = assetCache.OrderBy(w => w.AssetNumber).ToList();
+            var list = Global.AssetCache as List<Asset>;
             if (Page.User.IsInRole("Admins")|| Page.User.IsInRole("superadmin"))
             {
                 UpdateView(currentview, list.ToList().OrderBy(w => w.AssetNumber));
@@ -45,8 +68,8 @@ namespace Web_App_Master.Account
                 searchfilter = userinput;
             }            
             var currentview = Session["CurrentAvView"] as string;
-            var x = await Web_App_Master.Pull.AssetsAsync();
-            Session["SessionAssets"] = x.OrderBy(w => w.AssetNumber).ToList();
+            var assetCache = Global.AssetCache;
+            Global.AssetCache = assetCache.OrderBy(w => w.AssetNumber).ToList();
             var search = Request.QueryString["q"];
             UpdateView(currentview, AssetSearch(search, searchfilter).OrderBy(w => w.AssetNumber));
         }
@@ -60,7 +83,7 @@ namespace Web_App_Master.Account
         }
         protected void Page_Load(object sender, EventArgs e)
         {
-          
+            Page.SiteMaster().OnAssetViewUpdate += AssetView_OnAssetViewUpdate;
             if (IsAsync)
             {
 
@@ -74,12 +97,44 @@ namespace Web_App_Master.Account
                 }
                 else
                 {
-                    RegisterAsyncTask(new PageAsyncTask(UpdateAsync));
+                    // RegisterAsyncTask(new PageAsyncTask(UpdateAsync));
+                    var currentview = Session["CurrentAvView"] as string;
+                    var assetCache = Global.AssetCache;
+                    if (assetCache==null)
+                    {
+                       Global.AssetCache = new List<Asset>();
+                        assetCache = new List<Asset>();
+                    }
+                    Global.AssetCache = assetCache.OrderBy(w => w.AssetNumber).ToList();
+                    var list = Global.AssetCache as List<Asset>;
+                    if (Page.User.IsInRole("Admins") || Page.User.IsInRole("superadmin"))
+                    {
+                        UpdateView(currentview, list.ToList().OrderBy(w => w.AssetNumber));
+                    }
+                    else
+                    {
+                        //var inonly = from a in list where a.IsOut == false select a;
+                        //UpdateView(currentview, inonly.ToList().OrderBy(w => w.AssetNumber));
+                        UpdateView(currentview, list.ToList().OrderBy(w => w.AssetNumber));
+
+                    }
                 }
             }
             
           
         }
+
+        private void AssetView_OnAssetViewUpdate(object sender, UpdateRequestEvent e)
+        {
+            RegisterAsyncTask(new PageAsyncTask(RefreshAsync));
+            // var currentview = Session["CurrentAvView"] as string;           
+            // var list = Pull.Assets
+            // if (Page.User.IsInRole("Admins") || Page.User.IsInRole("superadmin"))
+            // {
+            //      UpdateView(currentview, Global.AssetCache.OrderBy(w => w.AssetNumber));
+            //  }
+        }
+
         private List<Asset> AssetSearch(string SearchTerm, string SearchFilter="asset")
         {
             try
@@ -88,7 +143,7 @@ namespace Web_App_Master.Account
                 if (SearchFilter.ToLower() == "asset")
                 {
 
-                    foreach (var asset in Session["SessionAssets"] as List<Asset>)
+                    foreach (var asset in Global.AssetCache as List<Asset>)
                     {
 
                         try
@@ -204,7 +259,7 @@ namespace Web_App_Master.Account
                 if (SearchFilter.ToLower() == "history")
                 {
 
-                    foreach (var aaa in Session["SessionAssets"] as List<Asset>)
+                    foreach (var aaa in Global.AssetCache as List<Asset>)
                     {
                         try
                         {
@@ -549,49 +604,49 @@ namespace Web_App_Master.Account
         }
         protected void FilterIsOut_Click(object sender, EventArgs e)
         {
-            var ret = from a in Session["SessionAssets"] as List<Asset> where a.IsOut==true select a;
+            var ret = from a in Global.AssetCache as List<Asset> where a.IsOut==true select a;
             UpdateView((Session["CurrentAvView"] as string), ret.ToList().OrderBy(w => w.AssetNumber));
           
         }
         protected void FilterIsIn_Click(object sender, EventArgs e)
         {
-            var ret = from a in Session["SessionAssets"] as List<Asset> where a.IsOut==false select a;
+            var ret = from a in Global.AssetCache as List<Asset> where a.IsOut==false select a;
             UpdateView((Session["CurrentAvView"] as string), ret.ToList().OrderBy(w => w.AssetNumber));
         }
 
         protected void FilterIsDamaged_Click(object sender, EventArgs e)
         {
-            var ret = from a in Session["SessionAssets"] as List<Asset> where a.IsDamaged == true select a;
+            var ret = from a in Global.AssetCache as List<Asset> where a.IsDamaged == true select a;
             UpdateView((Session["CurrentAvView"] as string), ret.ToList().OrderBy(w => w.AssetNumber));
         }
 
         protected void FilterOnHold_Click(object sender, EventArgs e)
         {
-            var ret = from a in Session["SessionAssets"] as List<Asset> where a.OnHold == true select a;
+            var ret = from a in Global.AssetCache as List<Asset> where a.OnHold == true select a;
             UpdateView((Session["CurrentAvView"] as string), ret.ToList().OrderBy(w => w.AssetNumber));
         }
 
         protected void FilterCalibrated_Click(object sender, EventArgs e)
         {
-            var ret = from a in Session["SessionAssets"] as List<Asset> where a.IsCalibrated == true select a;
+            var ret = from a in Global.AssetCache as List<Asset> where a.IsCalibrated == true select a;
             UpdateView((Session["CurrentAvView"] as string), ret.ToList().OrderBy(w => w.AssetNumber));
         }
 
         protected void ViewAll_Click(object sender, EventArgs e)
         {
-            var x = Session["SessionAssets"] as List<Asset>;
+            var x = Global.AssetCache as List<Asset>;
             x = x.OrderBy(w => w.AssetNumber).ToList();
             UpdateView((Session["CurrentAvView"] as string), x);
 
         }      
         protected void RefreshBtn_Click(object sender, EventArgs e)
         {
-            RegisterAsyncTask(new PageAsyncTask(UpdateAsync));
+            RegisterAsyncTask(new PageAsyncTask(RefreshAsync));
         }
 
         protected void Refresher_Click(object sender, EventArgs e)
         {
-            RegisterAsyncTask(new PageAsyncTask(UpdateAsync));
+            RegisterAsyncTask(new PageAsyncTask(RefreshAsync));
         }
 
         protected void CreateAssetBtn_Click(object sender, EventArgs e)

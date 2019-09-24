@@ -107,7 +107,7 @@ namespace Web_App_Master.Account
                         {
                             //add to global and save
                             Global.Library.Settings.Customers.Add(Pending.Customer);
-                            Push.LibrarySettings();
+                            Push.AppSettings();
                             CustomCustomerPlaceHolder.Visible = true;
                             CustomCustomer.Text = Pending.Customer.CompanyName;
                             checkout_ShipTo.Visible = false;
