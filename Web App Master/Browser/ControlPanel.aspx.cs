@@ -76,25 +76,33 @@ namespace Web_App_Master.Browser
             {
                 if (sc.Contains("delete"))
                 {
-
+                    UpdateStatus("Not Implemented");
                 }
                 if (sc.Contains("approve"))
                 {
-
+                    UpdateStatus("Not Implemented");
                 }                
             }
             if (sc.Contains("asset"))
             {
                 if (sc.Contains("delete"))
                 {
-                    var local = Global.AssetCache.Find((x) => x.AssetNumber == sa);
-                    if (local != null)
-                    {
+                    try {
+                        try
+                        {
+                            var local = Global.AssetCache.Find((x) => x.AssetNumber == sa);
+                            Global.AssetCache.Remove(local);
+                        }
+                        catch (Exception)
+                        {
+                        }
                         AssetController.DeleteAsset(sa);
                         var assetCache = Application[(Session["guid"] as string)] = Pull.Assets();
                         BindAndUpdateAssets((assetCache as List<Asset>));
                         Page.SiteMaster().UpdateAssetView();
+                        UpdateStatus("Asset Item Removed");
                     }
+                    catch (Exception e23) { UpdateStatus("Error: "+e23.Message); }
                 }
                 if (sc.Contains("edit"))
                 {

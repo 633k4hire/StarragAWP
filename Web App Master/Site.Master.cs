@@ -445,7 +445,8 @@ namespace Web_App_Master
 
         public void UpdateAssetView()
         {
-           OnAssetViewUpdate?.Invoke(this, new UpdateRequestEvent(Global.AssetCache));
+            var assetCache = Application[(Session["guid"] as string)] = Pull.Assets();
+            OnAssetViewUpdate?.Invoke(this, new UpdateRequestEvent(assetCache));
         }
 
         protected void UploadAssetImg_Click(object sender, EventArgs e)
