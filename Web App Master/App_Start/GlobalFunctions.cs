@@ -367,7 +367,7 @@ namespace Web_App_Master
             }
             catch { return null; }
         }
-        public static bool Globals()
+        public static bool Settings()
         {
             try
             {

@@ -84,7 +84,7 @@ namespace Web_App_Master.Browser
             //Customers
             try
             {
-                Pull.Globals();
+                Pull.Settings();
 
                 var ds = Global.Library.Settings.Customers.OrderBy(w => w.CompanyName).ToList();
                 ds.ForEach((t) => {

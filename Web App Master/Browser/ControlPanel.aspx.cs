@@ -671,7 +671,7 @@ namespace Web_App_Master.Browser
             {
                 
                 var a = Global.Library.Settings.UpsAccount;
-                Pull.Globals();
+                Pull.Settings();
                 a = Global.Library.Settings.UpsAccount;
                 TESTMODE_CHECKBOX.Checked = Global.Library.Settings.TESTMODE;
 

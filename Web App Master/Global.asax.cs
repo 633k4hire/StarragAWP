@@ -186,7 +186,7 @@ namespace Web_App_Master
             Library.Settings = new Settings();
             try
             {
-                Pull.Globals();
+                Pull.Settings();
                 if(Library.Settings==null)
                 {
                     Library.Settings = new Settings();
