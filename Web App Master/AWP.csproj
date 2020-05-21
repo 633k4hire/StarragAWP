@@ -25,7 +25,7 @@
     <NuGetPackageImportStamp>
     </NuGetPackageImportStamp>
     <TargetFrameworkProfile />
-    <Use64BitIISExpress>true</Use64BitIISExpress>
+    <Use64BitIISExpress>false</Use64BitIISExpress>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -1135,6 +1135,7 @@
     <None Include="Properties\PublishProfiles\starrag-awp - Web Deploy.pubxml" />
     <None Include="Properties\PublishProfiles\starrag-awp - Web Deploy1.pubxml" />
     <None Include="Properties\PublishProfiles\Starrag-AWP - Web Deploy2.pubxml" />
+    <None Include="Properties\PublishProfiles\Starrag-AWP - Web Deploy3.pubxml" />
     <None Include="Scripts\jquery-1.10.2.intellisense.js" />
     <Content Include="Scripts\bootstrap.js" />
     <Content Include="Scripts\bootstrap.min.js" />

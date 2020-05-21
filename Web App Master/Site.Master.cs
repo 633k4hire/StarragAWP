@@ -14,6 +14,7 @@ using Web_App_Master.Account;
 using System.IO;
 using static Notification.NotificationSystem;
 using static Web_App_Master.App_Start.SignalRHubs;
+using Microsoft.Ajax.Utilities;
 
 namespace Web_App_Master
 {
@@ -161,16 +162,18 @@ namespace Web_App_Master
             catch { }
             try
             {
-                BindUserNotice();
-                var UserNoticeUpdatePanel = RoleLoginViewer.FindControl("UserNoticeUpdatePanel") as UpdatePanel;
-                UserNoticeUpdatePanel.Update();
+                UpdateSubscribers(new UpdateRequestEvent(this));
             }
             catch { }
             try
             {
-                UpdateSubscribers(new UpdateRequestEvent(this));
+                BindUserNotice();
+                var UserNoticeUpdatePanel = RoleLoginViewer.FindControl("UserNoticeUpdatePanel") as UpdatePanel;
+                if (UserNoticeUpdatePanel == null) return;
+                UserNoticeUpdatePanel.Update();
             }
             catch { }
+            
            
         }
 
@@ -220,21 +223,34 @@ namespace Web_App_Master
         }
         public void BindUserNotice()
         {
-            var UserNoticerRepeater = RoleLoginViewer.FindControl("UserNoticerRepeater") as Repeater;
-            var loginview = RoleLoginViewer.Controls[0] as LoginView;
-            UserNoticerRepeater = loginview.FindControl("UserNoticerRepeater") as Repeater;
-            int oldCount = 0;
-            try { oldCount = UserNoticerRepeater.Items.Count; }
-            catch { }
-            var ud = Session["SessionUserData"] as Data.UserData;
-            if (ud == null) return;
-            int count = ud.Log.Count;
-            UserNoticerRepeater.DataSource = ud.Log;
-            UserNoticerRepeater.DataBind();
-            if (oldCount!=count)
+            try
             {
-               // NotificationIcon.Shake();
+                var UserNoticerRepeater = RoleLoginViewer.FindControl("UserNoticerRepeater") as Repeater;
+                var loginview = RoleLoginViewer.Controls[0] as LoginView;
+                if (loginview == null)
+                {
+                    return;
+                }
+                UserNoticerRepeater = loginview.FindControl("UserNoticerRepeater") as Repeater;
+                int oldCount = 0;
+                try { oldCount = UserNoticerRepeater.Items.Count; }
+                catch { }
+                var ud = Session["SessionUserData"] as Data.UserData;
+                if (ud == null) return;
+                int count = ud.Log.Count;
+                UserNoticerRepeater.DataSource = ud.Log;
+                UserNoticerRepeater.DataBind();
+                if (oldCount != count)
+                {
+                    // NotificationIcon.Shake();
+                }
             }
+            catch (Exception)
+            {
+
+               
+            }
+            
         }
         protected void Page_Init(object sender, EventArgs e)
         {
@@ -491,12 +507,20 @@ namespace Web_App_Master
         }
         public void BindAssetToAssetView()
         {
-            
             var asset = Session["CurrentAsset"] as Asset;
-            AssetImageHolder.ImageUrl = asset.FirstImage;
-            AssetImageCountLiteral.Text = "1/" +((asset.Images.Split(new string[] { "," }, StringSplitOptions.RemoveEmptyEntries)).Length.ToString());
-            AssetImageUpdatePanel.Update();
             if (asset == null) { binddummy(); return; }
+            try
+            {
+                
+                AssetImageHolder.ImageUrl = asset.FirstImage;
+                AssetImageCountLiteral.Text = "1/" +((asset.Images.Split(new string[] { "," }, StringSplitOptions.RemoveEmptyEntries)).Length.ToString());
+                AssetImageUpdatePanel.Update();
+            }
+            catch (Exception)
+            {
+            }
+            
+            
             if (asset.History.History.Count==0){ binddummy(); }
             try
             {
