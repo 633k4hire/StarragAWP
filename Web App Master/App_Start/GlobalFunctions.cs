@@ -24,8 +24,8 @@ namespace Web_App_Master
                 var local = Global.AssetCache.Find((x) => x.AssetNumber == asset.AssetNumber);
                 if (local != null)
                 {
-                    local = asset.Clone() as Asset;
-                    var local2 = Global.AssetCache.Find((x) => x.AssetNumber == asset.AssetNumber);
+                    //local = asset.Clone() as Asset;
+                   // var local2 = Global.AssetCache.Find((x) => x.AssetNumber == asset.AssetNumber);
                     Global.AssetCache.Update(asset);
                     return AssetController.UpdateAsset(asset);
                 }

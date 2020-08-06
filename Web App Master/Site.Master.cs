@@ -417,7 +417,7 @@ namespace Web_App_Master
                 asset.OnHold=((System.Web.UI.WebControls.CheckBox)AssetViewLoggedInUserView.FindControl("av_OnHold")).Checked ;
                 asset.IsCalibrated=((System.Web.UI.WebControls.CheckBox)AssetViewLoggedInUserView.FindControl("av_CalibratedTool")).Checked ;
                 //set Asset Value and dimension
-                var dimension = ((System.Web.UI.HtmlControls.HtmlInputText)AssetViewLoggedInUserView.FindControl("av_Dimension")).Value;
+                var dimension = ((System.Web.UI.HtmlControls.HtmlInputText)AssetViewLoggedInUserView.FindControl("av_Dimension")).Value; 
                 var assetValue = ((System.Web.UI.HtmlControls.HtmlInputText)AssetViewLoggedInUserView.FindControl("av_AssetValue")).Value;
                 var comb = assetValue + "-dd-" + dimension;
                 asset.AssetValue = comb;
@@ -588,12 +588,14 @@ namespace Web_App_Master
 
                 try
                 {
-                    var split = asset.AssetValue.StringSplit("-dd-");
+                    var split = asset.AssetValue.StringSplit("-dd-"); 
                     ((System.Web.UI.HtmlControls.HtmlInputText)AssetViewLoggedInUserView.FindControl("av_AssetValue")).Value = split[0];
                     ((System.Web.UI.HtmlControls.HtmlInputText)AssetViewLoggedInUserView.FindControl("av_Dimension")).Value = split[1];
                 }
                 catch (Exception ex)
                 {
+                    ((System.Web.UI.HtmlControls.HtmlInputText)AssetViewLoggedInUserView.FindControl("av_AssetValue")).Value = "None";
+                    ((System.Web.UI.HtmlControls.HtmlInputText)AssetViewLoggedInUserView.FindControl("av_Dimension")).Value = "None";
                     var a = ex;
                 }
                 
